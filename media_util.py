@@ -6,11 +6,8 @@
 - @ 引用清单（<Picture N> / <Video N> / <Audio N>）
 """
 
-import os
 import io
-import gc
 import base64
-import tempfile
 import wave
 
 import torch
@@ -21,7 +18,7 @@ from PIL import Image
 PACK_SLOTS = (
     [("首帧图", "IMAGE"), ("尾帧图", "IMAGE")]
     + [(f"参考图{i}", "IMAGE") for i in range(1, 10)]
-    + [(f"参考视频{i}", "VIDEO") for i in range(1, 4)]
+    + [(f"参考视频{i}", "IMAGE") for i in range(1, 4)]
     + [(f"参考视频音轨{i}", "AUDIO") for i in range(1, 4)]
     + [(f"参考音频{i}", "AUDIO") for i in range(1, 4)]
 )
@@ -113,106 +110,11 @@ def _is_image_tensor(value):
     return value is not None and hasattr(value, "shape") and len(getattr(value, "shape", ())) == 4
 
 
-def _images_from_video_components(video):
-    if video is None:
-        return None
-    if _is_image_tensor(video):
-        return video
-    components = None
-    getter = getattr(video, "get_components", None)
-    if callable(getter):
-        try:
-            components = getter()
-        except Exception:
-            components = None
-    if components is None:
-        return None
-    images = getattr(components, "images", None)
-    if images is None and isinstance(components, dict):
-        images = components.get("images")
-    if images is None and isinstance(components, (tuple, list)) and components:
-        images = components[0]
-    return images if _is_image_tensor(images) else None
-
-
-def _temporary_video_path(video):
-    if isinstance(video, str) and os.path.isfile(video):
-        return video, False
-    if isinstance(video, dict):
-        for key in ("file_path", "path", "filename"):
-            path = video.get(key)
-            if isinstance(path, str) and os.path.isfile(path):
-                return path, False
-    save_to = getattr(video, "save_to", None)
-    if not callable(save_to):
-        return None, False
-    handle = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
-    handle.close()
-    try:
-        saved = save_to(handle.name)
-        if saved is False or not os.path.isfile(handle.name) or os.path.getsize(handle.name) <= 0:
-            os.remove(handle.name)
-            return None, False
-        return handle.name, True
-    except Exception:
-        try:
-            os.remove(handle.name)
-        except OSError:
-            pass
-        return None, False
-
-
-def _sample_video_file(path, max_frames):
-    frames = []
-    try:
-        import cv2
-    except Exception:
-        cv2 = None
-    if cv2 is not None:
-        capture = cv2.VideoCapture(path)
-        try:
-            if not capture.isOpened():
-                return []
-            count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
-            if count <= 0:
-                return []
-            max_frames = max(1, int(max_frames))
-            if count <= max_frames:
-                idxs = list(range(count))
-            elif max_frames == 1:
-                idxs = [0]
-            else:
-                idxs = [int(round(i * (count - 1) / (max_frames - 1))) for i in range(max_frames)]
-            for idx in idxs:
-                capture.set(cv2.CAP_PROP_POS_FRAMES, idx)
-                ok, frame = capture.read()
-                if not ok or frame is None:
-                    continue
-                rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                frames.append(Image.fromarray(rgb))
-            return frames
-        finally:
-            capture.release()
-    return frames
-
-
 def sample_video_frames(video, max_frames):
-    """从 IMAGE 帧序列或 ComfyUI VIDEO 抽帧，失败则空列表（不影响解包透传）。"""
-    images = _images_from_video_components(video)
-    if images is not None:
-        return [pil for pil in sample_frames(images, max_frames) if pil is not None]
-    path, temporary = _temporary_video_path(video)
-    if not path:
+    """从 IMAGE 帧序列张量 [B,H,W,C] 均匀抽帧，返回 PIL 列表。"""
+    if video is None or not _is_image_tensor(video):
         return []
-    try:
-        return _sample_video_file(path, max_frames)
-    finally:
-        if temporary:
-            try:
-                os.remove(path)
-            except OSError:
-                pass
-        gc.collect()
+    return [pil for pil in sample_frames(video, max_frames) if pil is not None]
 
 
 def _append_image_part(parts, pil, max_side):

@@ -30,7 +30,7 @@ import { api } from "../../../scripts/api.js";
 // ─────────────────────────────────────────────────────────────────────────────
 
 const SK = "CZ.PreviewFeed";
-const DEFAULTS = { FollowLatest: true, MaxItems: 300, Columns: 2 };
+const DEFAULTS = { FollowLatest: true, MaxItems: 300, Columns: 2, ShowImage: true, ShowVideo: true, ShowAudio: true, ShowText: true };
 
 function gs(k) {
     try { const v = localStorage.getItem(`${SK}.${k}`); return v === null ? DEFAULTS[k] : JSON.parse(v); }
@@ -66,48 +66,54 @@ function extractItems(output, nodeId, promptId) {
     const items = [];
 
     // ── 图片（images / gifs）──
-    for (const key of ["images", "gifs"]) {
-        const arr = output[key];
-        if (!Array.isArray(arr)) continue;
-        for (const file of arr) {
-            if (!file?.filename) continue;
-            const url = mediaUrl(file);
-            const ext = (file.filename.split(".").pop() || "").toLowerCase();
-            const kind = (ext === "gif" || key === "gifs") ? "image" : "image";
-            items.push({ id: ++_id, kind, url, file, label: file.filename, ts, nodeId, promptId });
+    if (gs("ShowImage")) {
+        for (const key of ["images", "gifs"]) {
+            const arr = output[key];
+            if (!Array.isArray(arr)) continue;
+            for (const file of arr) {
+                if (!file?.filename) continue;
+                const url = mediaUrl(file);
+                items.push({ id: ++_id, kind: "image", url, file, label: file.filename, ts, nodeId, promptId });
+            }
         }
     }
 
     // ── 视频 ──
-    const vids = output.videos ?? output.video ?? output.VIDEO;
-    if (Array.isArray(vids)) {
-        for (const file of vids) {
-            if (!file?.filename) continue;
-            items.push({ id: ++_id, kind: "video", url: mediaUrl(file), file, label: file.filename, ts, nodeId, promptId });
+    if (gs("ShowVideo")) {
+        const vids = output.videos ?? output.video ?? output.VIDEO;
+        if (Array.isArray(vids)) {
+            for (const file of vids) {
+                if (!file?.filename) continue;
+                items.push({ id: ++_id, kind: "video", url: mediaUrl(file), file, label: file.filename, ts, nodeId, promptId });
+            }
+        } else if (vids && typeof vids === "object" && vids.filename) {
+            items.push({ id: ++_id, kind: "video", url: mediaUrl(vids), file: vids, label: vids.filename, ts, nodeId, promptId });
         }
-    } else if (vids && typeof vids === "object" && vids.filename) {
-        items.push({ id: ++_id, kind: "video", url: mediaUrl(vids), file: vids, label: vids.filename, ts, nodeId, promptId });
     }
 
     // ── 音频 ──
-    const auds = output.audio ?? output.audios ?? output.AUDIO;
-    if (Array.isArray(auds)) {
-        for (const file of auds) {
-            if (!file?.filename) continue;
-            items.push({ id: ++_id, kind: "audio", url: mediaUrl(file), file, label: file.filename, ts, nodeId, promptId });
+    if (gs("ShowAudio")) {
+        const auds = output.audio ?? output.audios ?? output.AUDIO;
+        if (Array.isArray(auds)) {
+            for (const file of auds) {
+                if (!file?.filename) continue;
+                items.push({ id: ++_id, kind: "audio", url: mediaUrl(file), file, label: file.filename, ts, nodeId, promptId });
+            }
+        } else if (auds && typeof auds === "object" && auds.filename) {
+            items.push({ id: ++_id, kind: "audio", url: mediaUrl(auds), file: auds, label: auds.filename, ts, nodeId, promptId });
         }
-    } else if (auds && typeof auds === "object" && auds.filename) {
-        items.push({ id: ++_id, kind: "audio", url: mediaUrl(auds), file: auds, label: auds.filename, ts, nodeId, promptId });
     }
 
     // ── 文本 ──
-    // ComfyUI 文本节点典型格式：{ text: ["...", "..."] } 或 { text: "..." }
-    const rawText = output.text ?? output.texts ?? output.string ?? output.STRING;
-    if (rawText != null) {
-        const lines = Array.isArray(rawText) ? rawText : [String(rawText)];
-        const joined = lines.join("\n");
-        if (joined.trim()) {
-            items.push({ id: ++_id, kind: "text", url: null, file: null, label: joined.slice(0, 80).replace(/\n/g, "↵"), text: joined, ts, nodeId, promptId });
+    if (gs("ShowText")) {
+        // ComfyUI 文本节点典型格式：{ text: ["...", "..."] } 或 { text: "..." }
+        const rawText = output.text ?? output.texts ?? output.string ?? output.STRING;
+        if (rawText != null) {
+            const lines = Array.isArray(rawText) ? rawText : [String(rawText)];
+            const joined = lines.join("\n");
+            if (joined.trim()) {
+                items.push({ id: ++_id, kind: "text", url: null, file: null, label: joined.slice(0, 80).replace(/\n/g, "↵"), text: joined, ts, nodeId, promptId });
+            }
         }
     }
 
@@ -531,6 +537,33 @@ function buildSidebarUI(container) {
 
     header.append(titleSpan, followLabel, colLabel, countSpan, clearBtn);
 
+    // ── 类型过滤行 ──────────────────────────────────────────────────────────
+    const filterRow = el("div", {
+        display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px",
+        padding: "5px 10px 6px", borderBottom: "1px solid rgba(255,255,255,.08)",
+        fontSize: "11px", color: "#aaa", flexShrink: "0",
+    });
+    const filterTitle = el("span", { color: "#666" });
+    filterTitle.textContent = "监听:";
+    filterRow.appendChild(filterTitle);
+
+    for (const [key, emoji, label] of [
+        ["ShowImage", "🖼️", "图片"],
+        ["ShowVideo", "🎞️", "视频"],
+        ["ShowAudio", "🎵", "音频"],
+        ["ShowText",  "📝", "文本"],
+    ]) {
+        const lbl = el("label", { display: "flex", alignItems: "center", gap: "3px", cursor: "pointer" });
+        const chk = document.createElement("input");
+        chk.type = "checkbox";
+        chk.checked = gs(key);
+        chk.addEventListener("change", () => { ss(key, chk.checked); });
+        const txt = el("span", {});
+        txt.textContent = `${emoji}${label}`;
+        lbl.append(chk, txt);
+        filterRow.appendChild(lbl);
+    }
+
     // ── 缩略图网格 ──────────────────────────────────────────────────────────
     gridEl = el("div", {
         flex: "1", overflowY: "auto", padding: "8px",
@@ -563,7 +596,7 @@ function buildSidebarUI(container) {
     renderSidebar = updateGrid;
     updateGrid();
 
-    sidebarEl = el("div", { display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }, header, gridEl);
+    sidebarEl = el("div", { display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }, header, filterRow, gridEl);
     container.appendChild(sidebarEl);
 }
 

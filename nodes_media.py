@@ -23,7 +23,7 @@ class H3ReferenceMedia:
         for i in range(1, 10):
             opt[f"参考图{i}"] = ("IMAGE",)
         for i in range(1, 4):
-            opt[f"参考视频{i}"] = ("VIDEO",)
+            opt[f"参考视频{i}"] = ("IMAGE",)
             opt[f"参考视频音轨{i}"] = ("AUDIO",)
             opt[f"参考音频{i}"] = ("AUDIO",)
         return {"required": req, "optional": opt}
