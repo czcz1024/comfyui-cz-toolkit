@@ -66,6 +66,20 @@ PyPI 版本滞后，Qwen3 等新模型需要 JamePeng 的构建版：
 
 ---
 
+## 参考与致谢
+
+本项目的 H3 提示词相关节点参考、借鉴了以下优秀的 ComfyUI 社区项目：
+
+| 项目 | 作者 | 说明 |
+|---|---|---|
+| [ComfyUI-llama_Dapao](https://github.com/paolaoshi/ComfyUI-llama_Dapao) | paolaoshi (大炮) | 基于 llama-cpp-python 的本地多模态推理节点，本项目的模型加载、推理架构源自此项目 |
+| [comfyui-minimax-h3-prompt-enhancer-T8](https://github.com/T8mars/comfyui-minimax-h3-prompt-enhancer-T8) | T8mars (贞贞/T8) | MiniMax H3 / Seedance 2.0 / Music 3 提示词增强节点，本项目的 H3 提示词模板和风格预设体系参考自此项目 |
+| [MiniMax-H3-Prompt-Rewriter-ComfyUI](https://github.com/pytraveler/MiniMax-H3-Prompt-Rewriter-ComfyUI) | pytraveler | 基于 H3 LoRA 的本地提示词重写节点，Prompt Writer 系列节点的设计思路来源 |
+
+感谢以上作者的开源贡献。
+
+---
+
 ## 许可
 
 MIT

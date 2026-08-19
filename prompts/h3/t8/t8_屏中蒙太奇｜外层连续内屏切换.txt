@@ -1,0 +1,41 @@
+# 屏中蒙太奇｜外层连续内屏切换
+# ID: t8-case-continuous-outer-shot-inner-screen-montage-v1
+# 来源: T8 非官方案例模板
+
+用途: 让一台带屏设备始终占据前景并保持外层镜头连续，只允许设备内屏在不同人物或状态间切换；外层背景、手部微调和真实视差持续证明同一现场，最后让内外两层的群体能量形成可读呼应。
+输入格式: 实体显示设备 + 连续外层镜头 + 至少三种内屏状态 + 外层独立视差/遮挡 + 内外两层终态同框
+推荐输入: 原创夜间雨林实验区内，植物学家打开石墨色折叠热成像监视器，屏幕与边框清晰，湿叶、琥珀工作灯和小型团队在后方虚化；薄雾与叶片只在外层移动，监视器内部依次切换蛾翼扫描和花朵开放，显示边界始终完整；最终内屏把蛙、蛾、花和孢子四项读数并列，实体设备、手套和同一虚化温室仍共同可见
+
+必须实现的锚点:
+  1. Introduce one physical display carrier and clearly separate its inner image from the outer world.
+  2. Keep the outer shot continuous with stable device, operator contact and environmental anchors.
+  3. Accumulate at least three distinguishable inner states without losing the display boundary.
+  4. End with the inner result, physical carrier and outer context readable together.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Establish one physical display carrier in a continuous outer shot, keep its bezel, operator contact and surrounding geography visibly stable, and confine every montage cut or state change to the inner screen. Use independent outer-layer parallax or occlusion to keep proving that the exterior take has not cut, then finish by bringing the inner result and the persistent outer context into one readable held relationship.
+Invariants:
+- inv-01: Introduce one physical display carrier and clearly separate its inner image from the outer world.
+- inv-02: Keep the outer shot continuous with stable device, operator contact and environmental anchors.
+- inv-03: Allow meaningful content changes only inside the display while the outer layer supplies independent parallax or occlusion.
+- inv-04: Accumulate at least three distinguishable inner states without losing the display boundary.
+- inv-05: End with the inner result, physical carrier and outer context readable together.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- An unbounded fullscreen insert removes the screen-within-screen mechanism.: Introduce one physical display carrier and clearly separate its inner image from the outer world.
+- Outer cuts turn the sequence into an ordinary montage.: Keep the outer shot continuous with stable device, operator contact and environmental anchors.
+- Matching both layers shot-for-shot destroys the contrast.: Allow meaningful content changes only inside the display while the outer layer supplies independent parallax or occlusion.
+- One inner clip does not establish a montage system.: Accumulate at least three distinguishable inner states without losing the display boundary.
+- Ending on an isolated insert discards the continuous outer proof.: End with the inner result, physical carrier and outer context readable together.
+Do not copy from the source: the source silver early-2000s MiniDV camcorder; the source nighttime fashion crowd and old stone street; the source party portraits, sunglasses and tan fur coat; the source REC and timecode screen graphics; the source exact inner portrait order and electroclash campaign styling

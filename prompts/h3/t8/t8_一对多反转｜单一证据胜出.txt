@@ -1,0 +1,39 @@
+# 一对多反转｜单一证据胜出
+# ID: t8c006-clarity-over-quantity-reversal
+# 来源: T8 非官方案例模板
+
+用途: 多个喧闹方案看似占优，单一克制信号通过校准和物理证明完成反转。
+输入格式: 喧闹多数 + 克制单一信号 + 校准动作 + 可见物理证明
+推荐输入: 五台机器人各自给出冲突读数，一枚克制的音叉信号完成校准；所有机械臂同步归零，并共同生成一个稳定透明球作为物理证明。
+
+必须实现的锚点:
+  1. 多数方案先制造噪声或冲突
+  2. 单一信号保持克制
+  3. 有明确校准动作
+  4. 最终用物理结果而非口号证明胜出
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+A noisy system makes quantity look powerful, one restrained corrective signal interrupts it, and a physical consequence proves that calibrated clarity beats accumulation.
+Invariants:
+- inv-01: Show the asymmetric one-versus-many matchup before either side explains it.
+- inv-02: Let the many-item side perform longer and occupy more space before the concise answer.
+- inv-03: Give the single corrective signal a dedicated sensory close-up.
+- inv-04: End with calm control versus noisy consequence, not another explanation.
+Variable slots:
+- arena: A stable comparison space unrelated to gambling or the source saloon.
+- many_side: One expressive character with three to five compact labeled options.
+- one_side: One calm character with a single short answer label.
+- many_signals: Three to five distinct controls, sounds, lights, routes, or gestures that create legible visual noise.
+- single_answer: One visually and sonically distinct corrective action or object that carries the reversal without needing text.
+- proof: A visible consequence showing why the concise answer wins.
+- meltdown: Safe exaggerated reaction with no weapons or copied gesture.
+- sound: Escalating object sounds, one reveal accent, and a short consequence sound.
+Failure prevention:
+- The answer appears too early.: Hold it until after the many side has completed the spatial display and presentation pose.
+- The many-side noise becomes random rather than countable.: Limit it to three to five distinct controls or signals and stage them in a clear activation sequence.
+- The ending copies the source meltdown.: Replace weapons and smoke with a consequence native to the new arena, such as collapsing mockups, foaming food, or desynchronized lights.
+Do not copy from the source: legacy cartoon characters, voices, silhouettes, or franchise animation surface; saloon, gambling table, gold-and-carrot stakes, or Western props; source model names and exact card text; pistols, smoke-cloud surrender, exact poses, and shot compositions

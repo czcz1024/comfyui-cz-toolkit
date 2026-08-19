@@ -1,0 +1,137 @@
+# 自然街拍互动｜边走边聊到清楚落点
+# ID: community-skill/direct-street-interview-video
+# 来源: T8 非官方案例模板
+
+用途: 用连续街道路线、人物距离变化、自然视差和现场声，把采访或偶遇推进到一个可读互动结果。
+输入格式: [时长/画幅] + [人物与身份锚点] + [互动目的] + [连续路线] + [距离/视线/手势变化] + [结尾状态]
+推荐输入: 10秒，9:16。一位穿青绿色风衣的植物学研究员沿树荫市集步行，画外采访者边退边拍并问她为何收集城市种子；她先与镜头保持一臂距离，随后放慢脚步、举起透明种子盒回答，最后停在摊位侧让镜头看清盒内标本。保持身份服装、路线、自然光、视差与现场声连续；无强行接触、无字幕Logo水印。
+
+必须实现的锚点:
+  1. 开场立即建立互动理由
+  2. 镜头跟随人物地理而运动
+  3. 距离、步态、视线或手势至少发生一次可见变化
+  4. 环境视差、光影和现场声保持连续
+  5. 结尾是可读状态而不是突然截断
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+# MiniMax H3 template
+
+Use the Base form when there are no generation-time references. Use Ref2VA only when the user actually supplies an image or video that must control identity, wardrobe, scene, motion, or sound.
+
+## Ref2VA skeleton
+
+```text
+subject_definitions:
+<Subject 1> is the on-camera [role] whose identity, facial structure, hairstyle, body proportions, and [wardrobe anchor] come from <Picture 1>. Preserve natural skin texture and the same outfit throughout.
+<Picture 1> is the identity and wardrobe reference for <Subject 1>; it is not a mandatory first frame.
+
+summary:
+[reference generation] Create a [TARGET_DURATION]-second [ASPECT_RATIO] documentary street interaction in which <Subject 1> [one-sentence social premise and resolved state].
+
+retention_analysis:
+<Subject 1>: fully_preserved — preserve identity, proportions, hairstyle, and wardrobe while allowing natural walking, speaking, gaze, and gestures.
+<Picture 1>: attribute_transfer — transfer identity and wardrobe only; rebuild the street, route, framing, lighting, and action as an original scene.
+
+detailed_description:
+Natural vertical street-documentary image quality, realistic skin and fabric response, coherent background parallax, and restrained handheld motion. No unsupported resolution claim.
+
+[Shot 1] A first-person camera [backpedals / side-walks] at [framing] on an original [street setting]. <Subject 1> begins [opening action] at [opening distance]. [Moving daylight behavior] crosses both the subject and the street; [foreground/background anchors] shift with continuous parallax. The off-screen interviewer (S1) says <d>[Chinese][SHORT LINE 1]</d>. <Subject 1> (S2) looks toward the lens, [micro-performance], and replies <d>[Chinese][SHORT LINE 2]</d>. Their steps remain synchronized with the route, with realistic foot contact and small step-linked camera sway.
+
+[Optional Shot 2] At [MM:SS.mmm below the target duration], [only if a genuine event boundary is needed]. <Subject 1> [visible relationship-changing action] while the camera [one motivated reframe]. (S1) says <d>[Chinese][OPTIONAL SHORT LINE 3]</d>. (S2) [gesture or gaze response] and replies <d>[Chinese][OPTIONAL SHORT LINE 4]</d>. The action resolves as [permission / pose / reveal / route choice / natural release], held long enough to read before the video ends. Do not begin a new setup at the endpoint.
+
+overall_soundscape:
+Continuous location ambience from [street sound family], soft synchronized footsteps, fabric movement, and only the physical sounds caused by visible actions. Dialogue is not repeated here. No abrupt ambience reset across the optional cut.
+
+non_diegetic_music:
+N/A
+```
+
+Delete the optional shot when the scene is a single continuous event. Define only labels that correspond to real generation-time inputs, and include exactly one retention line per independent label.
+
+## T2VA skeleton
+
+```text
+integrated_multimodal_description: [Shot 1] A [TARGET_DURATION]-second [ASPECT_RATIO] original street-documentary scene. [Stable subject appearance], [social premise], [one route], [one primary camera follow], [performance progression], [moving daylight and parallax], [approved dialogue with speaker IDs and <d> blocks], and [readable resolved state].
+
+overall_soundscape: [Continuous location ambience, synchronized footsteps and action foley, no repeated dialogue.]
+
+non_diegetic_music: N/A
+```
+
+## H3 audit
+
+- First shot has no timestamp; later timestamps increase and remain below the target duration.
+- All prose is English except approved dialogue inside language-tagged `<d>` blocks.
+- Dialogue appears only in the visual timeline.
+- No Seedance `镜头N`, braces, or `@图片N` syntax appears.
+- No research video is declared as an input unless the user separately supplies it for generation.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only)
+Authority: non-official, user-contributed community Skill.
+
+# Natural Street Interaction — Skill 摘要
+
+> **分类：非官方 · 用户贡献。** 本 Skill 由用户提供的 AIGC 样片与提示词组启发，经独立拆解、时长校正和双模型重写形成；不是 MiniMax 或 ByteDance 官方 Skill。
+
+## 一句话机制
+
+在连续的真实街道路线中，让镜头与人物边走边交流；人物的距离、视线、步速与手势逐步缩短社交距离，环境视差、树影和现场声同时证明空间真实，最终落到一个清楚且自然的互动结果。
+
+## 风格
+
+- 竖屏、第一人称、纪实街拍与轻微手机手持感
+- 单一路线上的跟拍或倒退拍摄，不靠无意义快切制造热闹
+- 自然光穿过树叶或建筑缝隙，在人物与背景上连续移动
+- 表演以目光、呼吸、步态、微表情和手势为主
+- 现场环境声优先；对白短、轮次清楚、不过载
+
+## 适用范围
+
+- 街头采访、偶遇、搭讪式剧情、城市漫步和人物介绍
+- 服装、美妆、生活方式、旅行或城市氛围短片
+- 有单人参考图、需要保持身份与服装稳定的 Ref2VA / 多模态参考
+- 4–15 秒内可以由一个连续动作链讲清的互动
+
+## 不适用范围
+
+- 大段口播、超过五轮的复杂辩论或需要字幕解释的知识内容
+- 多地点、多人物群戏、精密舞蹈或大量硬切覆盖镜头
+- 未经明确要求的陌生人强行肢体接触
+- 需要逐帧复刻某个真人、具体地点、穿搭或原对白的请求
+
+## 使用方法
+
+1. 明确互动目的、目标时长、画幅、人物关系、场景路线和结尾。
+2. 如果有素材，给每张图或视频分配唯一角色：身份、服装、环境、动作或声音。
+3. 先写“接近—交流—关系变化—落点”的因果链，再决定是否需要切镜。
+4. 按时长删减对白：10 秒优先 2–3 句短对白；15 秒也不要机械塞满台词。
+5. 分别使用 H3 与 Seedance 模板编译，不能在两种模型之间复制语法。
+6. 检查身份、步态、路线、光影、手部接触、声音与时间是否闭合。
+
+## 可变槽位
+
+| 槽位 | 说明 |
+|---|---|
+| `social_premise` | 偶遇、采访、认出、问路、展示、邀请或道别 |
+| `on_camera_subject` | 身份、两三个稳定外观锚点、服装与当前情绪 |
+| `interviewer_role` | 画外摄影师、同行者、店主、朋友或路人 |
+| `route_geometry` | 直行、侧向并行、拐角会合、短暂停步后继续 |
+| `distance_change` | 从远到近、并肩、停下、转身或保持礼貌距离 |
+| `gesture_chain` | 目光、整理衣物、指向、递物、示范或告别 |
+| `camera_follow` | 倒退跟拍、侧向并行、短暂定住、轻微重构图 |
+| `light_behavior` | 树影、橱窗反射、建筑阴影或云层变化 |
+| `dialogue` | 用户确认的短句、语言、说话顺序与停顿 |
+| `resolved_state` | 许可、姿势、展示、路线、反应或自然离场 |
+
+## 核心质量门
+
+- 第二个事件不能从目标时长终点才开始。
+- 镜头运动必须由人物路线或视线驱动。
+- 触碰必须有动机、双方可读且不会产生手臂穿插。
+- 不把“4K、超高清、电影感”当作缺少动作与空间设计的替代品。
+- 样片只提供机制证据；人物外貌、服装、城市、对白和构图不属于可复制模板。
+
+更深入的不变量、消融解释、转移测试和失败修复见 [template.md](./template.md)。

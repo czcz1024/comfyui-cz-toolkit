@@ -1,0 +1,41 @@
+# 画内涂鸦｜现实互动逐步绘出隐藏世界
+# ID: t8-case-diegetic-doodle-response-escalation-v1
+# 来源: T8 非官方案例模板
+
+用途: 用第一视角真实互动作为涂鸦触发器：每次手、宠物或物件完成一个可见动作，新的线描符号就锚定在对应现实表面；符号从单个提示升级为动作回声、隐藏对象和路线，最后整套图形连接成覆盖环境的可读世界。
+输入格式: 现实第一视角互动 + 首个画内线稿回应 + 连续表面路径 + 至少三类响应图形 + 真实空间与完整绘制世界同框
+推荐输入: 原创玻璃温室内，植物学家的手套触碰一枚露水阀，一只黄铜维修甲虫靠近；阀门玻璃外壳出现一枚青色叶片线稿并停留；路线分成三条叶脉支线，其中一条以小型三角指向标记对准关闭抽屉；植物学家只打开一次，同一青色叶脉沿金属门面铺开；叶片、土槽路线、抽屉叶脉和飞蛾与新出现的阀门、云、水线符号连接到玻璃肋架和地面沟槽；甲虫、手和真实结构全部可读
+
+必须实现的锚点:
+  1. Establish one embodied observer, one responsive subject and the first surface-bound drawing triggered by visible interaction.
+  2. Use a second real action to extend the drawing rule onto a different local surface or route.
+  3. Reveal one new local figure or motif that visibly inherits an earlier line family.
+  4. End on a wider view where prior symbols connect into one coherent environment-wide drawing layer.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Use an embodied observer and one responsive subject to author a diegetic drawing layer through visible real-world actions. Each interaction must add one new surface-anchored symbol that echoes the local object or motion, and later symbols must reuse or connect earlier marks. Escalate from single icon to route, hidden figure and local reflection, then end wide enough to prove the accumulated drawings have become one coherent environment-wide system.
+Invariants:
+- inv-01: Establish one embodied observer, one responsive subject and the first surface-bound drawing triggered by visible interaction.
+- inv-02: Use a second real action to extend the drawing rule onto a different local surface or route.
+- inv-03: Let accumulated drawings direct attention toward one hidden or newly opened area.
+- inv-04: Reveal one new local figure or motif that visibly inherits an earlier line family.
+- inv-05: End on a wider view where prior symbols connect into one coherent environment-wide drawing layer.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Unmotivated floating stickers make the effect decorative.: Establish one embodied observer, one responsive subject and the first surface-bound drawing triggered by visible interaction.
+- Repeating the same icon over the same hand never builds a world.: Use a second real action to extend the drawing rule onto a different local surface or route.
+- Random icons with no search function cannot hand off to discovery.: Let accumulated drawings direct attention toward one hidden or newly opened area.
+- A completely unrelated illustration breaks the accumulated system.: Reveal one new local figure or motif that visibly inherits an earlier line family.
+- Ending on a single sticker or close-up leaves the escalation incomplete.: End on a wider view where prior symbols connect into one coherent environment-wide drawing layer.
+Do not copy from the source: the source small shaggy dog and first-person human hand; the source domestic hallway, cabinet, rug, ball, bowl and paw prints; the source glowing question mark plus banana, paw, bone, bird and dachshund doodles; the source exact dog search route and final hallway drawing layout; AI生成 mark

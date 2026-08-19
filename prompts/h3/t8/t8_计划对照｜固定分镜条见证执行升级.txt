@@ -1,0 +1,41 @@
+# 计划对照｜固定分镜条见证执行升级
+# ID: t8-case-persistent-plan-strip-execution-escalation-v1
+# 来源: T8 非官方案例模板
+
+用途: 让一条静态计划板持续可读，执行区按计划顺序逐步完成动作，并用不断累积的现场变化证明执行正在推进；最后让实际结果与计划末项形成可读闭合。
+输入格式: 持续可读的计划板 + 独立执行区 + 计划顺序推进 + 至少三项可见状态变化 + 计划与终态同框
+推荐输入: 原创极地微缩观测站内，左侧五格黄铜任务计划条始终完整可读，右侧较大执行区建立陶瓷勘测自动机、三座冰晶站、倾斜透镜和折叠信标；自动机支撑身体并把透镜旋到正确轴线，冰面出现一条细琥珀反射；左侧计划条仍固定；信标发出一道稳定蓝白光柱并与计划条最后一格对齐；自动机、三座完成站和完整计划条同框停留
+
+必须实现的锚点:
+  1. Establish one persistent planning artifact and one separate execution field in the opening.
+  2. Advance the execution field while keeping the planning artifact unchanged and readable.
+  3. Accumulate at least two further state changes while preserving subject identity, route and plan visibility.
+  4. Hold a terminal result with the persistent plan still visible for direct comparison.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Keep one compact planning artifact continuously visible and spatially stable while a larger execution field performs the planned stages in order. Let the execution accumulate real state changes and increasing consequence while the plan remains unchanged as an audit reference, then hold a terminal result that can be compared directly with the plan's final duty.
+Invariants:
+- inv-01: Establish one persistent planning artifact and one separate execution field in the opening.
+- inv-02: Advance the execution field while keeping the planning artifact unchanged and readable.
+- inv-03: Convert one planned action into a visible physical consequence inside the execution field.
+- inv-04: Accumulate at least two further state changes while preserving subject identity, route and plan visibility.
+- inv-05: Hold a terminal result with the persistent plan still visible for direct comparison.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- A hidden or late plan turns the sequence into ordinary action footage.: Establish one persistent planning artifact and one separate execution field in the opening.
+- Changing both layers together destroys the audit relationship.: Advance the execution field while keeping the planning artifact unchanged and readable.
+- Decorative motion without consequence cannot establish execution.: Convert one planned action into a visible physical consequence inside the execution field.
+- Disconnected spectacle makes plan and result impossible to compare.: Accumulate at least two further state changes while preserving subject identity, route and plan visibility.
+- Removing the plan before the result abandons the defining proof.: Hold a terminal result with the persistent plan still visible for direct comparison.
+Do not copy from the source: the source gray cat and brown mouse; the source damaged domestic room, furniture and cardboard box; the source persistent nine-panel CAT vs MOUSE pencil storyboard; the source exact chase route and furniture-destruction order; FRAGILE, THIS SIDE UP and the beginnersblog.org watermark

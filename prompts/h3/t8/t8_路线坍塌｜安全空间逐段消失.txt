@@ -1,0 +1,41 @@
+# 路线坍塌｜安全空间逐段消失
+# ID: t8-case-monotonic-route-loss-threshold-v1
+# 来源: T8 非官方案例模板
+
+用途: 主体只朝固定终点前进，走过的路线单调消失，完全跨过阈值后最后连接才断开。
+输入格式: 载体 + 固定方向和终点 + 已走路线逐段消失 + 当前段一次失稳 + 完全过阈值后最后断开
+推荐输入: 透明温室管道中的采样车始终朝安全舱行驶，驶过的管段依次塌陷；当前管段只发生一次摇摆，车辆完全进入安全舱后最后接口才断开。
+
+必须实现的锚点:
+  1. 方向与终点固定
+  2. 后方路线只减不增
+  3. 当前段最多一次可恢复失稳
+  4. 主体完全过阈值后才断开最后连接
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Lock one subject to a single screen-direction destination, then remove traversed route segments monotonically from behind while introducing one instability under the current segment. Alternate local control proof with wide remaining-route proof, and end with the subject fully crossing a safety threshold one beat before the final connection fails.
+Invariants:
+- inv-01: Establish one visible destination and one travel direction.
+- inv-02: Remove only already-traversed safe space from behind.
+- inv-03: Add one recoverable instability under the current segment.
+- inv-04: Alternate close control with wide remaining-route evidence.
+- inv-05: Cross the full threshold before the last connection fails.
+Variable slots:
+- lead_subject: An original subject or system whose identity remains stable.
+- setting: A new setting with fixed spatial anchors.
+- escalation_variable: One visible variable that changes in countable causal stages.
+- performance_rule: A restrained behavior rule that makes the mechanism legible.
+- camera_grammar: A coherent information order that does not copy source shot boundaries.
+- payoff: One clean physical or graphic consequence.
+- sound_family: A new hierarchy of diegetic cues supporting state changes.
+Failure prevention:
+- Changing destination destroys the countdown.: Establish one visible destination and one travel direction.
+- Random forward gaps can make survival impossible rather than tense.: Remove only already-traversed safe space from behind.
+- Too many local hazards obscure the monotonic collapse.: Add one recoverable instability under the current segment.
+- Only close shots hide how much route remains.: Alternate close control with wide remaining-route evidence.
+- Cutting away before full crossing leaves the outcome uncertain.: Cross the full threshold before the last connection fails.
+Do not copy from the source: dark SUV on a suspension bridge; heavy rain and black water; sliding abandoned cars and snapping cables; the source bridge-deck collapse and far-shore anchorage

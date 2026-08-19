@@ -1,0 +1,41 @@
+# 连续跟随｜步态与弯曲地标共同计时
+# ID: t8-case-continuous-follow-geometry-clock-v1
+# 来源: T8 非官方案例模板
+
+用途: 在弯曲受限通道中使用一次不中断的后方跟随；人物步态与画面位置稳定，重复灯具、轨缝与壁肋成为可数进度时钟，隧道曲率缓慢移动消失点，最后停在明显更深的位置，不虚构门槛、偶遇或改道。
+输入格式: 单一主体 + 连续后方跟随 + 重复结构地标 + 弯曲路线视差 + 不切镜的可见进度终态
+推荐输入: 一名管线巡检员沿弯曲地下水廊连续前进，重复灯带、拱肋与接缝成为进度时钟；镜头始终后方跟随，不加入发现或跨越事件。
+
+必须实现的锚点:
+  1. Begin with one stable rear-follow relationship inside a constrained passage.
+  2. Use repeated fixed landmarks as countable progress evidence.
+  3. Let passage curvature shift the vanishing point gradually.
+  4. End at a materially farther position on the same route.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Use one uninterrupted rear follow in a constrained curved passage. Keep the subject's gait and screen position stable while repeated fixed lights, rail joints and wall ribs pass as a countable progress clock; let the changing tunnel curvature slowly shift the vanishing point, then hold a visibly farther position without inventing a threshold, encounter or route change.
+Invariants:
+- inv-01: Begin with one stable rear-follow relationship inside a constrained passage.
+- inv-02: Use repeated fixed landmarks as countable progress evidence.
+- inv-03: Keep gait, travel axis and body scale stable through the middle.
+- inv-04: Let passage curvature shift the vanishing point gradually.
+- inv-05: End at a materially farther position on the same route.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- Changing follow distance hides the route clock.: Begin with one stable rear-follow relationship inside a constrained passage.
+- Featureless walls make movement ambiguous.: Use repeated fixed landmarks as countable progress evidence.
+- Speed ramps or body jumps fake progress.: Keep gait, travel axis and body scale stable through the middle.
+- A sudden turn creates a different mechanism.: Let passage curvature shift the vanishing point gradually.
+- Inventing a threshold or discovery exceeds the source.: End at a materially farther position on the same route.
+Do not copy from the source: source male pedestrian and clothing; source underground rail tunnel; source curved walkway, pipes and light sequence; the exact rear-follow staging

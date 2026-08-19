@@ -1,0 +1,41 @@
+# 轮廓接力｜闪光换形后完成攻势闭环
+# ID: t8-case-silhouette-attack-state-relay-v1
+# 来源: T8 非官方案例模板
+
+用途: 先用武器与披风轮廓建立动作基准，再通过可数的落地姿态推进；一次中央闪光只负责换形交接，新形态以能量弧与腾空段得到证明，最后回到可读的落地终态。
+输入格式: 原创动作主体 + 清楚工具轮廓 + 2个落地动作几何 + 1次遮挡换形 + 效果动作与位移证明 + 落地终态
+推荐输入: 陶窑维修自动机以长夹具和隔热盾建立轮廓，完成两种落地维修姿态；一次蒸汽遮挡后显出冷却配置，沿服务轨切开接缝，再落地于密封窑门旁。
+
+必须实现的锚点:
+  1. Establish one countable full-body action silhouette and its tool before escalation.
+  2. Advance through at least two materially different grounded action geometries.
+  3. Prove the later state through both a committed effect action and a displaced body path.
+  4. End on a readable grounded state that recalls at least one opening silhouette anchor.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Stage one graphic action display as a sequence of countable full-body proof states: establish a weapon-and-cape silhouette, vary grounded attack geometry, use one central flash to hand off into a visibly different form state without asserting identity continuity, prove the new state through one energy arc and one airborne passage, then return to a readable grounded endpoint.
+Invariants:
+- inv-01: Establish one countable full-body action silhouette and its tool before escalation.
+- inv-02: Advance through at least two materially different grounded action geometries.
+- inv-03: Use exactly one occluding transition to hand off between visible form states without claiming hidden identity continuity.
+- inv-04: Prove the later state through both a committed effect action and a displaced body path.
+- inv-05: End on a readable grounded state that recalls at least one opening silhouette anchor.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- Beginning with a flare makes the form change unreadable.: Establish one countable full-body action silhouette and its tool before escalation.
+- Repeated near-identical poses create no escalation.: Advance through at least two materially different grounded action geometries.
+- An unmarked form swap looks accidental; claiming identity exceeds the visible proof.: Use exactly one occluding transition to hand off between visible form states without claiming hidden identity continuity.
+- A costume-only reveal lacks a functional proof.: Prove the later state through both a committed effect action and a displaced body path.
+- Ending mid-flight leaves the state chain unresolved.: End on a readable grounded state that recalls at least one opening silhouette anchor.
+Do not copy from the source: source monochrome armored heroines; spiral spear and white cape; source black void and exact attack poses; the exact masked-to-female form sequence

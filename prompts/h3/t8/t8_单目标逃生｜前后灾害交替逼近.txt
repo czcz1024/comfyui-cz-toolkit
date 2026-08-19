@@ -1,0 +1,41 @@
+# 单目标逃生｜前后灾害交替逼近
+# ID: t8-case-alternating-obstacle-goal-corridor-v1
+# 来源: T8 非官方案例模板
+
+用途: 终点始终可读，身后封闭与前方危险交替出现，以一次恢复和近失结果证明推进能力。
+输入格式: 主体 + 可见终点 + 身后封闭 + 前方危险 + 一次全身恢复 + 近失结果证明
+推荐输入: 维修无人机朝可见气闸前进，身后隔板依次关闭，前方机械臂横扫；它完成一次全身翻转恢复，擦过护盾后进入气闸。
+
+必须实现的锚点:
+  1. 单一终点持续可读
+  2. 前后危险交替而非同时混乱
+  3. 有一次完整恢复动作
+  4. 近失结果可见并证明保护能力
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Keep one destination visible while a single operator advances along a constrained route. Alternate obstacles from behind, ahead and the side so each requires a different physical adaptation without changing the goal. Reserve one deliberate control action for the endpoint, then prove success with a near-miss protective state that visibly intercepts the pursuing hazard.
+Invariants:
+- inv-01: Show the destination before the first obstacle.
+- inv-02: Alternate obstacle direction across at least three vectors.
+- inv-03: Preserve one travel direction and recover after each disruption.
+- inv-04: Require a physical endpoint control action.
+- inv-05: Prove the control with a visible near-miss interception.
+Variable slots:
+- lead_subject: An original subject or system whose identity remains stable.
+- setting: A new setting with fixed spatial anchors.
+- escalation_variable: One visible variable that changes in countable causal stages.
+- performance_rule: A restrained behavior rule that makes the mechanism legible.
+- camera_grammar: A coherent information order that does not copy source shot boundaries.
+- payoff: One clean physical or graphic consequence.
+- sound_family: A new hierarchy of diegetic cues supporting state changes.
+Failure prevention:
+- A hidden target turns the sequence into generic running.: Show the destination before the first obstacle.
+- All hazards from behind produce one-note escalation.: Alternate obstacle direction across at least three vectors.
+- Direction resets make progress impossible to measure.: Preserve one travel direction and recover after each disruption.
+- Automatic rescue removes agency.: Require a physical endpoint control action.
+- A cut to safety does not show why the subject survived.: Prove the control with a visible near-miss interception.
+Do not copy from the source: geothermal reactor catwalk and lava eruptions; helmeted plant technician; falling industrial pipes and steam jet; large wheel control and blast shield

@@ -1,0 +1,41 @@
+# 光学搜索｜远景线索递进到细节确认
+# ID: t8-case-optical-search-evidence-contraction-v1
+# 来源: T8 非官方案例模板
+
+用途: 让同一受限光学视野承担完整搜索：先锁定远处地点，再沿一个可见异常逐级收紧到结构、主体和局部细节；每次靠近都回答一个更具体的问题，最后用极近特征完成确认而不是再切到全知镜头。
+输入格式: 受限光学观察界面 + 远景地点线索 + 中景主体定位 + 近景身份细节 + 极近景反射或局部证据确认
+推荐输入: 原创轨道温室环位于黑色太空中，下方支杆、三段浅色外壳和青色状态灯建立地点锚点；一台黄铜维护自动机沿环轨移动并用单根探针测试冻结接头，圆形检查镜始终存在；自动机举起一枚弧形玻璃密封圈，反射中清楚出现开场温室环、下方支杆和仍脉动的霜缝
+
+必须实现的锚点:
+  1. Establish one persistent constrained optical interface and a distant geographic anchor.
+  2. Identify one unusual structural cue inside the same observed geography.
+  3. Stabilize one closer identity or function proof before the terminal detail.
+  4. End on one micro-detail that visibly echoes or verifies the opening geographic anchor.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Keep one constrained optical observer interface visible throughout. Begin on a distant geographic anchor, find one anomalous structural cue, contract the field of view to a subject linked to that cue, stabilize a closer identity proof, then end on one micro-detail that visibly echoes the opening location. Every optical step must answer a narrower evidence question without switching to an omniscient camera.
+Invariants:
+- inv-01: Establish one persistent constrained optical interface and a distant geographic anchor.
+- inv-02: Identify one unusual structural cue inside the same observed geography.
+- inv-03: Move from place evidence to one subject or active carrier linked to the cue.
+- inv-04: Stabilize one closer identity or function proof before the terminal detail.
+- inv-05: End on one micro-detail that visibly echoes or verifies the opening geographic anchor.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- An unrestricted establishing shot removes the optical-investigation premise.: Establish one persistent constrained optical interface and a distant geographic anchor.
+- A random zoom without a discovered cue becomes decorative.: Identify one unusual structural cue inside the same observed geography.
+- Jumping to an unrelated person breaks the evidence chain.: Move from place evidence to one subject or active carrier linked to the cue.
+- Skipping directly from distant place to detail hides the target relationship.: Stabilize one closer identity or function proof before the terminal detail.
+- A close face with no retained location evidence does not resolve the search.: End on one micro-detail that visibly echoes or verifies the opening geographic anchor.
+Do not copy from the source: the source binocular mask and red field-note interface; MINIMAX storefront, tower banner and building marks; the source tan-suited rooftop woman with red bag; the source red angular sunglasses and reflected building; the source exact storefront-banner-woman-glasses search order and AI生成 mark

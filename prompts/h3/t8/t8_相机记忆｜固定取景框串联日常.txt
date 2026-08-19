@@ -1,0 +1,42 @@
+# 相机记忆｜固定取景框串联日常
+# ID: t8-case-recorder-overlay-memory-route-v1
+# 来源: T8 非官方案例模板
+
+用途: 一个固定相机取景界面贯穿多处日常空间，同一人物每到一处完成一个小动作，最后用手掌触镜物理结束记录。
+输入格式: 同一人物 + 固定相机界面 + 至少3处连续路线空间 + 每处一个小动作 + 一个明确阈值过渡 + 触镜结束
+推荐输入: 年长博物馆修复师在固定口袋相机界面中穿过档案室、修复室、楼梯和雕塑庭院，每处完成一个小动作，最后在屋顶用戴手套的手掌完全盖住镜头。
+
+必须实现的锚点:
+  1. 同一原创相机界面全程不变
+  2. 同一人物穿过至少三处连续空间
+  3. 每处空间有一个小动作
+  4. 至少一次阈值或楼梯过渡
+  5. 结尾触镜物理结束记录
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Lock one recorder-style viewing interface over the entire film, then let one subject move through a compact route of clearly different everyday places. Each place contributes one small human action and one spatial clue; finish with a direct gesture into the lens so the fixed interface feels like a remembered recording rather than decorative graphics.
+Invariants:
+- inv-01: Keep one original recorder interface visually stable for the whole sequence.
+- inv-02: Keep one subject and one observer relationship continuous across at least three places.
+- inv-03: Give each place one small readable action rather than a posed beauty shot.
+- inv-04: Use one physical threshold or travel action between interior and exterior scale.
+- inv-05: End with a direct lens interaction that physically closes the recording.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- If the interface changes every shot, it becomes decorative motion graphics.: Keep one original recorder interface visually stable for the whole sequence.
+- Unrelated people and places become a travel montage.: Keep one subject and one observer relationship continuous across at least three places.
+- Pure posing makes the interface feel like a filter.: Give each place one small readable action rather than a posed beauty shot.
+- Abrupt location swaps lose the feeling of an outing.: Use one physical threshold or travel action between interior and exterior scale.
+- A fade without interaction does not complete the observer relationship.: End with a direct lens interaction that physically closes the recording.
+Do not copy from the source: source young woman; source library and mall route; source drink prop; the exact source camera HUD

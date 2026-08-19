@@ -1,0 +1,41 @@
+# 分组对话覆盖｜两边接力后全桌合流
+# ID: t8-case-subgroup-conversation-recombine-v1
+# 来源: T8 非官方案例模板
+
+用途: 先用第一组双人镜头建立共享社交空间，在组内交接可见发言轮次，再切到桌对面的第二组完成独立回应阶段，最后用更宽构图让所有人物和同一桌面锚点合流；来源对白含义未知，只迁移可见轮次与覆盖顺序。
+输入格式: 稳定群体空间 + 第一小组可见发言轮次 + 第二小组接力 + 1次非语言动作 + 全体同框收束
+推荐输入: 四名原创餐厅工作人员先以两人组建立空间关系，再切到另一两人组完成发言与非语言动作，最后回到四人同框；不规定原片对白含义。
+
+必须实现的锚点:
+  1. Establish the first subgroup and shared table anchors before any cross-table cut.
+  2. Make speaking-turn ownership visibly readable within the first subgroup without assigning source meaning.
+  3. Give the second subgroup one distinct response phase and one listening witness.
+  4. Recombine all participants with the same spatial anchors in a held wide view.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Establish one shared social geography by showing the first seated pair, hand visual speaking-turn ownership within that pair, cut across the table to a second pair for a distinct response phase, then return to a wider composition that recombines all participants and the same table anchors. Source dialogue meaning is unknown; only visible turn ownership and coverage order are reusable.
+Invariants:
+- inv-01: Establish the first subgroup and shared table anchors before any cross-table cut.
+- inv-02: Make speaking-turn ownership visibly readable within the first subgroup without assigning source meaning.
+- inv-03: Cut to a second subgroup that faces back into the same shared space.
+- inv-04: Give the second subgroup one distinct response phase and one listening witness.
+- inv-05: Recombine all participants with the same spatial anchors in a held wide view.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- Opening on singles hides group geography.: Establish the first subgroup and shared table anchors before any cross-table cut.
+- Indistinct mouth and eye ownership makes the cut arbitrary.: Make speaking-turn ownership visibly readable within the first subgroup without assigning source meaning.
+- A new unrelated location breaks the group.: Cut to a second subgroup that faces back into the same shared space.
+- Both people performing at once hides ownership.: Give the second subgroup one distinct response phase and one listening witness.
+- Ending on a pair leaves the larger group unresolved.: Recombine all participants with the same spatial anchors in a held wide view.
+Do not copy from the source: source beach bar and four actors; source clothing and cocktails; source dialogue content; the exact male-pair to female-pair coverage

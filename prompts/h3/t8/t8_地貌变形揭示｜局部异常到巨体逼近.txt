@@ -1,0 +1,41 @@
+# 地貌变形揭示｜局部异常到巨体逼近
+# ID: t8-case-environment-deformation-scale-reveal-v1
+# 来源: T8 非官方案例模板
+
+用途: 先让环境异常看起来仍像地貌，再只揭出一个身份特征；随后用高位或远景证明完整几何及其对环境的尺度影响，最后回到低位视点完成一次近距离逼近。
+输入格式: 环境局部异常 + 单一身份特征 + 高位完整几何证明 + 环境尺度影响 + 低位近距离逼近
+推荐输入: 盐碱滩先出现像地貌的隆起，只显出琥珀观察窗；高位镜头证明它是巨型移动气象舱，最后回到低位让舱体越过测量站近旁。
+
+必须实现的锚点:
+  1. Open on an environmental deformation that can still be mistaken for terrain.
+  2. Reveal one identifying feature while withholding most of the body.
+  3. Use one high or wide view to prove the complete geometry and its environmental consequence.
+  4. Return to a lower viewpoint for one bounded proximity breach.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Begin with an environmental disturbance that could still be mistaken for terrain, reveal one identifying feature before the full body, switch to a high or wide view that proves the complete geometry and its scale effect on the environment, then return to a lower viewpoint for one final proximity breach.
+Invariants:
+- inv-01: Open on an environmental deformation that can still be mistaken for terrain.
+- inv-02: Reveal one identifying feature while withholding most of the body.
+- inv-03: Extend the partial form enough to establish directional body geometry.
+- inv-04: Use one high or wide view to prove the complete geometry and its environmental consequence.
+- inv-05: Return to a lower viewpoint for one bounded proximity breach.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- A full creature opening removes the reveal.: Open on an environmental deformation that can still be mistaken for terrain.
+- Several features at once collapse the ladder.: Reveal one identifying feature while withholding most of the body.
+- Jumping directly to the overhead body feels disconnected.: Extend the partial form enough to establish directional body geometry.
+- A close body texture gives no spatial proof.: Use one high or wide view to prove the complete geometry and its environmental consequence.
+- Ending only overhead remains an illustration.: Return to a lower viewpoint for one bounded proximity breach.
+Do not copy from the source: source ocean serpent; green glowing eyes and storm sea; source whirlpool coil and open jaws; the exact sea-creature reveal order

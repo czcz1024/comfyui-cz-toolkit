@@ -1,0 +1,41 @@
+# 规则闯关｜吸收能力后从平面赛道升维
+# ID: t8-case-rule-acquisition-dimensional-course-escalation-v1
+# 来源: T8 非官方案例模板
+
+用途: 让一个外来主体进入规则清晰的平面路线，先用移动、避障和收集建立关卡语法，再通过一次可见能力获取改变运动方式；临近终点时让同一路线整体升为三维，主体方向、身份和目标连续不断，最终抵达可读终点。
+输入格式: 外来主体 + 平面规则路线 + 两种不同基础规则证明 + 一次可见能力触发 + 功能性新运动方式 + 回到可读终段 + 同一路线升维 + 可读终点
+推荐输入: 15秒，16:9。琥珀玻璃目录标记进入平面档案索引，先等待扫描条通过，再转动镜面解锁光闸；它只接触一次紫色相位印章，变成半透明并穿过不透明隔板，随后回到同一白色光路。临近终点时索引平面升成立体档案中庭，标记保持方向进入白色归还槽并稳定停留。
+
+必须实现的锚点:
+  1. Establish one outsider, one flat rule-bound route and one stable destination direction before any upgrade.
+  2. Show the outsider successfully using at least two different base route rules before capability acquisition.
+  3. Use the acquired capability to enter a different movement mode while keeping identity and destination continuous.
+  4. Return from the upgraded movement to one readable final approach, then extrude the established route near the finish and end at one goal without resetting direction.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Introduce one visually distinct outsider into a rule-bound flat route and establish one stable travel direction. Let the outsider first demonstrate the route's base grammar through movement, avoidance or collection, then acquire exactly one visible capability through physical contact with a clearly presented trigger. Use that capability to enter a genuinely different travel mode while preserving identity and destination. Near the finish, extrude the already-established route into a deeper spatial regime without resetting direction or objective, and hold the outsider at a readable goal so both rule learning and dimensional escalation can be verified.
+Invariants:
+- inv-01: Establish one outsider, one flat rule-bound route and one stable destination direction before any upgrade.
+- inv-02: Show the outsider successfully using at least two different base route rules before capability acquisition.
+- inv-03: Bind exactly one capability change to visible contact with a presented trigger.
+- inv-04: Use the acquired capability to enter a different movement mode while keeping identity and destination continuous.
+- inv-05: Return from the upgraded movement to one readable final approach, then extrude the established route near the finish and end at one goal without resetting direction.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Starting after the upgrade removes proof that the subject learned or changed.: Establish one outsider, one flat rule-bound route and one stable destination direction before any upgrade.
+- An immediate capability change makes the earlier route irrelevant.: Show the outsider successfully using at least two different base route rules before capability acquisition.
+- An unexplained morph reads as a disconnected effect.: Bind exactly one capability change to visible contact with a presented trigger.
+- A cosmetic change without new movement does not escalate the route.: Use the acquired capability to enter a different movement mode while keeping identity and destination continuous.
+- A cut from the upgraded movement to an unrelated 3D finish would hide the route handoff.: Return from the upgraded movement to one readable final approach, then extrude the established route near the finish and end at one goal without resetting direction.
+Do not copy from the source: Nintendo and Mario names, logos, HUD text and website marks; the source Super Mario-style blue-sky brick platform level and native enemies; the source coin rows, question blocks, mushroom power-up, cloud ride and flagpole goal; the source yellow bull character, body inflation gag and exact celebratory pose; the source exact obstacle order, camera conversion and copyrighted game composition

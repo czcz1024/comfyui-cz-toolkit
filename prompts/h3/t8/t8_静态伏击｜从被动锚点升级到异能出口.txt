@@ -1,0 +1,41 @@
+# 静态伏击｜从被动锚点升级到异能出口
+# ID: t8-case-passive-anchor-to-extraordinary-exit-v1
+# 来源: T8 非官方案例模板
+
+用途: 先用长停留把主角固定在一个可读地点，再让威胁进入同一空间并逐次压缩活动余地；主角通过连续恢复和环境锚点维持身份与方向，最后只允许一次超常出口改变冲突状态。
+输入格式: 被动主角与固定地点 + 威胁进入同一空间 + 连续受挫与恢复 + 至少2个环境锚点 + 仅1次超常出口
+推荐输入: 纸艺档案管理员在目录桌旁休息，三只墨迹飞蛾进入同一房间；人物围绕两座编号书架受挫、恢复，最后只出现一次弹出式索引门进入折叠地图走廊。
+
+必须实现的锚点:
+  1. Hold one passive protagonist and a stable location long enough to establish a true calm baseline.
+  2. Let threats enter the already established geography rather than cutting to a new arena.
+  3. Keep at least two environmental anchors readable through the action.
+  4. Reserve one extraordinary device or exit for the final state change.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+A calm-to-extraordinary encounter gains force by first anchoring one passive subject in a stable space, then admitting threats into that same geography, escalating through recoverable exchanges, and reserving one extraordinary transition for the final state change. Repeated environmental anchors prevent action coverage from becoming spatially anonymous.
+Invariants:
+- inv-01: Hold one passive protagonist and a stable location long enough to establish a true calm baseline.
+- inv-02: Let threats enter the already established geography rather than cutting to a new arena.
+- inv-03: Use sequential exchanges with visible recovery, not uninterrupted effortless dominance.
+- inv-04: Keep at least two environmental anchors readable through the action.
+- inv-05: Reserve one extraordinary device or exit for the final state change.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Immediate action removes the transformation arc.: Hold one passive protagonist and a stable location long enough to establish a true calm baseline.
+- A location reset breaks the passive anchor.: Let threats enter the already established geography rather than cutting to a new arena.
+- A single overpowering move collapses the middle ladder.: Use sequential exchanges with visible recovery, not uninterrupted effortless dominance.
+- Abstract effect coverage loses the encounter geometry.: Keep at least two environmental anchors readable through the action.
+- Repeated portals or powers make the final transition ordinary.: Reserve one extraordinary device or exit for the final state change.
+Do not copy from the source: school rooftop; young female student on a bench; source opponents and fight choreography; purple energy weapons and portals; source school-uniform silhouettes

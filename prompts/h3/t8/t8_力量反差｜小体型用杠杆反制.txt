@@ -1,0 +1,42 @@
+# 力量反差｜小体型用杠杆反制
+# ID: t8-case-asymmetric-mass-control-fight-v1
+# 来源: T8 非官方案例模板
+
+用途: 先证明巨大质量差与可用支点，让重型对手完整承诺攻击，小体型主角进入转弯半径并用杠杆重定向动量，最后形成非致命控制。
+输入格式: 巨大重型对手 + 小型主角 + 提前可见支点 + 重型攻击承诺 + 近身预判 + 杠杆重定向 + 非致命控制
+推荐输入: 小型回收机器人面对巨型货运装载机，先让磁缆和系柱可见；等待装载机完整挥臂后钻入转弯半径，借第二次挥动和磁缆杠杆把机械臂安全压在地面。
+
+必须实现的锚点:
+  1. 开场先证明质量差和可用支点
+  2. 重型对手必须先完整承诺动作
+  3. 至少一次冲击证明动量和恢复成本
+  4. 反转只能来自杠杆与重定向
+  5. 结尾非致命且支点因果仍可见
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Make a large mass advantage visually undeniable, then let the smaller subject survive by reading commitment, moving inside the heavy subject's turning radius and using one environmental fulcrum. The reversal must come from timing and leverage, not a sudden power increase; end in clear nonlethal control with both scale relations still visible.
+Invariants:
+- inv-01: Prove the mass difference and one usable environmental fulcrum early.
+- inv-02: Let the heavy subject fully commit before the smaller subject moves inside its recovery path.
+- inv-03: Use at least one impact to reveal momentum and recovery cost.
+- inv-04: Make the decisive reversal depend on leverage or redirection, never sudden strength.
+- inv-05: End in nonlethal visible control with the fulcrum still readable.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- A surprise prop or hidden scale difference makes the reversal arbitrary.: Prove the mass difference and one usable environmental fulcrum early.
+- Early dodging removes the near-miss tension and strategic read.: Let the heavy subject fully commit before the smaller subject moves inside its recovery path.
+- Weight without visible consequence is only character design.: Use at least one impact to reveal momentum and recovery cost.
+- A power-up breaks the causal strategy.: Make the decisive reversal depend on leverage or redirection, never sudden strength.
+- A cut to victory hides the mechanism.: End in nonlethal visible control with the fulcrum still readable.
+Do not copy from the source: source fantasy fighters; source tavern; source green heavy character; source costume and finishing pose

@@ -1,0 +1,41 @@
+# 造型轮播｜身份锁定跨风格世界
+# ID: t8-case-identity-locked-style-world-carousel-v1
+# 来源: T8 非官方案例模板
+
+用途: 锁定同一高机位人物、脸部与核心比例，让背景系统、色彩、服装配件和道具按阶段成套切换；每轮至少改变两个风格通道但保留身份锚点，密度逐步升级后回到可读人像终态。
+输入格式: 固定主体身份与镜头关系 + 至少四个材质/版式不同的风格世界 + 每阶段改变两项风格通道 + 递增密度 + 可读身份终态
+推荐输入: 原创羊皮纸仓库内，一名黄铜发条快递员以椭圆面板、月牙胸章和折叠工具带建立身份；世界切为粉色植物控制台，路线环换成两枚透明种子仪表，前臂变为粉色护甲，脸板、体型和胸章不变；短暂经过琥珀仪器舱后进入克制紫色声学舱，快递员保留椭圆脸板和月牙胸章，佩戴听音盘并只向镜头伸手一次后停留
+
+必须实现的锚点:
+  1. Establish one stable identity, lens relation and recurring accessory against a low-density opening world.
+  2. Change the surrounding style world while keeping face, silhouette and camera axis stable.
+  3. Use at least one additional world with different layout logic rather than a palette swap alone.
+  4. Reach a denser terminal world but preserve a readable portrait-scale identity proof.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Lock one subject identity, lens position and performance scale before cycling through several materially different style worlds. Change at least two coordinated channels per phase—such as backdrop system, palette, graphic density, props or wardrobe accents—while preserving face, silhouette and one recurring accessory. Escalate world density, then return to a readable portrait-scale terminal state that proves identity survived the carousel.
+Invariants:
+- inv-01: Establish one stable identity, lens relation and recurring accessory against a low-density opening world.
+- inv-02: Change the surrounding style world while keeping face, silhouette and camera axis stable.
+- inv-03: Escalate to a second complete world by changing at least two coordinated style channels.
+- inv-04: Use at least one additional world with different layout logic rather than a palette swap alone.
+- inv-05: Reach a denser terminal world but preserve a readable portrait-scale identity proof.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Beginning with maximal clutter hides identity continuity.: Establish one stable identity, lens relation and recurring accessory against a low-density opening world.
+- Simultaneous identity and camera replacement prevents comparison.: Change the surrounding style world while keeping face, silhouette and camera axis stable.
+- Changing only hue leaves the phase materially redundant.: Escalate to a second complete world by changing at least two coordinated style channels.
+- Repeated near-identical chambers become a slideshow of skins.: Use at least one additional world with different layout logic rather than a palette swap alone.
+- Ending on props or an anonymous silhouette loses the identity contract.: Reach a denser terminal world but preserve a readable portrait-scale identity proof.
+Do not copy from the source: the source blonde braided fashion woman; the source white, blue, pink, green, orange and violet Y2K chambers; the source sunglasses, heart jewelry, flip phones, discs, controllers and headphones; the source exact outfit-color order and high-fisheye poses; CYBER POP, loading/score UI and MiniMax/Hailuo marks

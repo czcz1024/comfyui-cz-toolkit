@@ -1,0 +1,42 @@
+# 纪实跟拍｜行进中偶遇再离开
+# ID: t8-case-observer-follow-encounter-v1
+# 来源: T8 非官方案例模板
+
+用途: 侧面跟拍同一人物离开狭窄空间，镜头漂到身后并揭示更大路线；只发生一次偶遇和一次克制回应，人物随后继续离开。
+输入格式: 侧面连续跟拍 + 狭窄起点 + 行进中空间揭示 + 一次偶发横穿 + 一次克制回应 + 继续离开
+推荐输入: 夜班烘焙师从狭窄服务通道走上有顶渡轮码头，镜头从侧面漂到身后；一只信鸽落在路线前方，他只点头并侧移半步，然后继续经过镜头走向服务门。
+
+必须实现的锚点:
+  1. 先侧面跟拍再揭示更大路线
+  2. 人物在镜头转换中保持行走
+  3. 全片只发生一次偶遇
+  4. 回应克制且不停止路线
+  5. 结尾人物继续经过或远离镜头
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Follow one subject through a real public route without stopping the world for coverage. Start in side profile, let the camera drift behind as the space opens, allow one incidental person or event to cross the route, capture a single restrained acknowledgment, then continue past the camera so the encounter remains a lived moment rather than a staged climax.
+Invariants:
+- inv-01: Begin with a side-profile follow before revealing the larger route.
+- inv-02: Keep the subject walking through the camera transition.
+- inv-03: Allow exactly one incidental crossing or encounter to enter the established route.
+- inv-04: Use one restrained acknowledgment without halting the route.
+- inv-05: End with continued movement past or away from camera.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Starting wide removes the observer's gradual reveal.: Begin with a side-profile follow before revealing the larger route.
+- Stopping for coverage makes the passage feel staged.: Keep the subject walking through the camera transition.
+- Multiple incidents turn observation into montage.: Allow exactly one incidental crossing or encounter to enter the established route.
+- A large reaction becomes a climax the scene has not earned.: Use one restrained acknowledgment without halting the route.
+- A posed final look converts the piece into a portrait.: End with continued movement past or away from camera.
+Do not copy from the source: source woman; source flower shop and public square; source children; source wardrobe and exact route

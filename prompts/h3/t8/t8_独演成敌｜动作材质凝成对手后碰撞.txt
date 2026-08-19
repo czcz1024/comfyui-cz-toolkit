@@ -1,0 +1,41 @@
+# 独演成敌｜动作材质凝成对手后碰撞
+# ID: t8-case-solo-form-material-adversary-clash-v1
+# 来源: T8 非官方案例模板
+
+用途: 先用单一主体的完整动作建立可辨招式与材质签名，再让环境材质积累并凝成独立对手；中后段通过一次空间跃迁把双方拉入正面对抗，最后引入第二能量材质完成碰撞并回到主体可读终态。
+输入格式: 单体招式与材质签名 + 环境材质凝成独立对手 + 空间跃迁建立对抗 + 第二能量材质碰撞 + 主体可读终态
+推荐输入: 原创玻璃沙漠黎明，一名气流工程师站在悬空窑桥旁，用黄铜共振环完成一整套螺旋动作，透明压力折射沿路径留下清楚轨迹；团块凝成透明四足晶体对手，沿一端接近悬桥；工程师从另一端进入，双方路线、桥面和距离共同可读；碎片与钴蓝光退去，工程师落在远端平台，以开场可读方向握住共振环，并稳定最后一圈透明压力轮廓
+
+必须实现的锚点:
+  1. Establish one subject's complete movement signature and its material trace before an opponent appears.
+  2. Accumulate the same environmental material around the subject before it gains agency.
+  3. Reserve a contrasting second material for one late clash peak.
+  4. After the collision, restore one readable subject state with the signature action or tool still identifiable.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Begin with one subject performing a complete, readable form that establishes both a movement signature and a material trace. Let environmental residue from that performance accumulate before it condenses into an independent adversary; the opponent must visibly originate from the established material family. Use one spatial crossing to bring both agents into a shared confrontation, introduce a contrasting second material only at the late peak, and close on a readable subject state after the material collision.
+Invariants:
+- inv-01: Establish one subject's complete movement signature and its material trace before an opponent appears.
+- inv-02: Accumulate the same environmental material around the subject before it gains agency.
+- inv-03: Condense the material into an independent opponent and bring both agents onto one readable spatial route.
+- inv-04: Reserve a contrasting second material for one late clash peak.
+- inv-05: After the collision, restore one readable subject state with the signature action or tool still identifiable.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- An immediate enemy gives the material no causal history.: Establish one subject's complete movement signature and its material trace before an opponent appears.
+- A random arriving character is only an unrelated antagonist.: Accumulate the same environmental material around the subject before it gains agency.
+- Abstract weather without an opponent cannot test the movement signature.: Condense the material into an independent opponent and bring both agents onto one readable spatial route.
+- Using both materials from the start flattens the hierarchy.: Reserve a contrasting second material for one late clash peak.
+- Ending inside debris leaves the causal winner and retained skill unclear.: After the collision, restore one readable subject state with the signature action or tool still identifiable.
+Do not copy from the source: the source black-and-white cat swordsman; the source Chinese ink-wash mountains and bamboo; the source tiger and serpentine ink adversaries; the source curved sword and exact martial choreography; the source black-ink and gold-energy battle order plus Hailuo/MiniMax watermarks

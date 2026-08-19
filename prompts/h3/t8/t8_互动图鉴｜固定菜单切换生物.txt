@@ -1,0 +1,42 @@
+# 互动图鉴｜固定菜单切换生物
+# ID: t8-case-persistent-selector-subject-swap-v1
+# 来源: T8 非官方案例模板
+
+用途: 菜单、数据区和主视窗固定不动，选择器逐项切换，每次让名称、参数与主视窗主体同步更新并完成一个定义动作。
+输入格式: 固定选择菜单 + 固定数据区 + 固定主视窗 + 至少4个原创对象 + 每次可见选择 + 同步字段更新 + 一个定义动作
+推荐输入: 固定气象无人机图鉴依次选择五台原创无人机，每次先移动选择器，再同步更新呼号、风力参数和主视窗，并让新无人机在对应天气舱完成一个定义动作。
+
+必须实现的锚点:
+  1. 菜单、数据区和主视窗位置固定
+  2. 每次内容变化前必须有可见选择
+  3. 名称参数和主体同步更新
+  4. 每个被选主体完成一个定义动作
+  5. 结尾保持完整最终选择状态
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Keep one information interface and spatial grid fixed while a visible selector chooses one item at a time. Each selection must update the title, concise attributes and one large live viewport together; the selected subject then performs one short behavior that proves the new state before the next choice.
+Invariants:
+- inv-01: Keep one selector grid, one data zone and one live viewport fixed.
+- inv-02: Show one visible selector action before every content change.
+- inv-03: Update title, attributes and live subject as one synchronized state.
+- inv-04: Give each selected subject one short defining behavior.
+- inv-05: End on a held complete state with selector and selected subject both visible.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Moving interface regions make updates difficult to compare.: Keep one selector grid, one data zone and one live viewport fixed.
+- Unmotivated swaps become a montage.: Show one visible selector action before every content change.
+- Partial updates make the catalog feel broken.: Update title, attributes and live subject as one synchronized state.
+- Idle subjects do not justify a live viewport.: Give each selected subject one short defining behavior.
+- Cutting away immediately removes the proof relation.: End on a held complete state with selector and selected subject both visible.
+Do not copy from the source: CREATURE ENCYCLOPEDIA title; source creature designs; source names and statistics; the exact source grid and cursor path

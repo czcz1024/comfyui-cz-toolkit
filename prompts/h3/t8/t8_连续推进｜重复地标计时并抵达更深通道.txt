@@ -1,0 +1,41 @@
+# 连续推进｜重复地标计时并抵达更深通道
+# ID: t8-case-repeating-landmark-deeper-passage-v1
+# 来源: T8 非官方案例模板
+
+用途: 在受限通道中持续前进，以重复固定地标和门洞视差作为进度时钟；接近结尾时只转向或跨越一次可见边界，并停在材质更深的次级通道，不虚构检查、诊断或隐藏威胁。
+输入格式: 连续受限通道 + 重复地标进度时钟 + 门洞视差逼近 + 单次边界跨越 + 更深次级通道终态
+推荐输入: 植物维护镜头沿根系观察沟连续前进，用编号湿度窗和门洞视差证明进度；结尾只跨越一次气闸，停在更暗的种子库次级通道。
+
+必须实现的锚点:
+  1. Use one continuous constrained passage and stable travel axis.
+  2. Repeat fixed landmarks as a progress clock.
+  3. Turn or cross only once at the late visible threshold.
+  4. End inside a materially deeper secondary passage while retaining one prior-route edge.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Move continuously through one constrained passage, use repeated fixed landmarks and doorway parallax as a progress clock, then turn or cross once at a late visible threshold so the endpoint is a materially deeper secondary passage without inventing an inspection, diagnosis or unseen threat.
+Invariants:
+- inv-01: Use one continuous constrained passage and stable travel axis.
+- inv-02: Repeat fixed landmarks as a progress clock.
+- inv-03: Keep moving while one late doorway grows through parallax.
+- inv-04: Turn or cross only once at the late visible threshold.
+- inv-05: End inside a materially deeper secondary passage while retaining one prior-route edge.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- Unrelated corridors erase route continuity.: Use one continuous constrained passage and stable travel axis.
+- Featureless darkness cannot show distance.: Repeat fixed landmarks as a progress clock.
+- A sudden unrelated doorway cut breaks route continuity.: Keep moving while one late doorway grows through parallax.
+- Repeated detours turn the passage into arbitrary exploration.: Turn or cross only once at the late visible threshold.
+- Stopping before the threshold or hiding all prior geometry feels truncated.: End inside a materially deeper secondary passage while retaining one prior-route edge.
+Do not copy from the source: source dark subway tunnel and rail corridor; source first-person game-like viewpoint; the exact doors, lamps and tunnel route; any unobserved creature or threat claim

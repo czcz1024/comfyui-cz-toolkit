@@ -1,0 +1,41 @@
+# 复古手持｜日常送别回眸
+# ID: t8-case-imperfect-memory-farewell-v1
+# 来源: T8 非官方案例模板
+
+用途: 观察者先发现人物日常，外部信号改变人物目标，一次回应后以有动机的拍摄失误结束。
+输入格式: 观察者媒介 + 日常人物/地点 + 两个日常动作 + 外部信号改变目标 + 一次回应 + 有动机录制失误
+推荐输入: 家用摄像机记录泳池管理员收拾浮板和锁柜门，远处哨声让她改变去向；她回头挥一次手，摄影者追拍时短暂失焦并切到水面。
+
+必须实现的锚点:
+  1. 先建立观察者媒介
+  2. 至少两个普通日常动作
+  3. 外部信号改变目标
+  4. 一次回应后以有动机失误收尾
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+An imperfect continuous observer discovers a subject already engaged in an ordinary routine, lingers through small unperformed actions, then lets one external environmental cue change the subject's goal. A single late acknowledgment briefly closes the distance between subject and operator before a motivated exit and imperfect recording finish. Place, subject, routine, cue, medium defects, acknowledgment and exit remain variable.
+Invariants:
+- inv-01: Begin with the operator discovering the subject inside a legible everyday geography rather than presenting a perfect hero frame.
+- inv-02: Give the subject at least two low-amplitude routine actions before the external cue arrives.
+- inv-03: Use one visible or audible environmental cue to cause a clear change of goal inside the same continuous geography.
+- inv-04: Reserve one brief direct acknowledgment of the operator for the threshold just before exit.
+- inv-05: Let medium imperfections follow operator attention—late focus, overshoot, exposure correction or a missed finish—without obscuring the causal action.
+Variable slots:
+- memory_medium: One era-appropriate consumer format with a specific, restrained defect profile.
+- everyday_place: A coherent public or private location whose geography supports one continuous take.
+- subject_identity: An original person with stable appearance, clothing and relationship to the operator.
+- routine_actions: Two or three small actions with props native to the place.
+- external_cue: One event that visibly changes the subject's goal.
+- acknowledgment: One brief glance, nod, gesture or shared joke near exit.
+- exit_path: A physically continuous departure through the established geography.
+- operator_mistake: One motivated focus, zoom, framing or endpoint error that remains readable.
+Failure prevention:
+- The subject poses for the camera throughout.: Keep attention on routine actions until one brief acknowledgment immediately before exit.
+- Analog defects are applied at constant maximum intensity.: Tie each focus, exposure or framing error to an operator correction and preserve the external cue.
+- The cue and exit are unrelated.: Show the cue entering the established geography, then stage one visible goal change before the exit path.
+- The transfer simply replaces the train station with another stop.: Change place class, routine, cue mechanics, subject-operator relation, medium format and exit behavior together.
+Do not copy from the source: coastal railway platform, Korean signs, sea-facing parallel tracks, silver commuter train and weathered bench; young Korean woman, beige trench coat, blue jeans, brown shoulder bag, takeaway coffee and source appearance; exact stand-sit-sip-train-wave-board sequence and exact fifteen-second boundaries; source early-2000s MiniDV brand/profile, heavy shake pattern, autofocus targets, exposure behavior and downward platform finish

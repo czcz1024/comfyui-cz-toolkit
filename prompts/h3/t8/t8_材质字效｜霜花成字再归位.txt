@@ -1,0 +1,42 @@
+# 材质字效｜霜花成字再归位
+# ID: t8-case-reversible-material-typography-loop-v1
+# 来源: T8 非官方案例模板
+
+用途: 固定竖直玻璃先建立清晰基线，霜晶从同一表面长成一个短词，保持可读后融成真实水珠，最终恢复开场窗口形成闭环。
+输入格式: 固定镜头 + 单一材质基线 + 同材质形成1个短词 + 可读停留 + 同一物理法则溶解 + 回到开场
+推荐输入: 夜间温室竖直玻璃保持清晰，霜晶沿四条成核路径形成 THAW，短暂停留后由下方暖风融成水珠流走，最后恢复同一铜锁扣和虚化叶片构图。
+
+必须实现的锚点:
+  1. 先保持无字的固定材质基线
+  2. 所有字母由同一材质形成
+  3. 全片只出现一个可读短词
+  4. 用同一材料法则完成溶解
+  5. 镜头和空间锚点回到开场状态
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Start from a calm material baseline, generate one localized disturbance from that same material, assemble the disturbance into one short readable word, hold it long enough for verification, then let gravity or flow dissolve every letter back into the original surface. The ending must visually match the opening state closely enough to support a clean loop.
+Invariants:
+- inv-01: Establish a calm baseline using one clearly identifiable material.
+- inv-02: Form every letter from the same disturbed material.
+- inv-03: Use one short word and hold it long enough to read.
+- inv-04: Dissolve the word through the same material law that formed it.
+- inv-05: Return camera and surface close to the opening state.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Without a baseline, the return cannot be judged.: Establish a calm baseline using one clearly identifiable material.
+- A digital overlay breaks causal coherence.: Form every letter from the same disturbed material.
+- Long text or a brief flash becomes illegible.: Use one short word and hold it long enough to read.
+- A fade-out bypasses the material logic.: Dissolve the word through the same material law that formed it.
+- A changed ending removes the satisfying reset.: Return camera and surface close to the opening state.
+Do not copy from the source: source lake sunrise; the word MORNING; source water-letter shapes; source horizon composition

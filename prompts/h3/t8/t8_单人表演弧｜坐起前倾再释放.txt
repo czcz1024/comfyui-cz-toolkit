@@ -1,0 +1,41 @@
+# 单人表演弧｜坐起前倾再释放
+# ID: t8-case-solo-posture-comedy-performance-v1
+# 来源: T8 非官方案例模板
+
+用途: 固定直视镜头里，单人用躺靠、坐起、前倾、手势和后仰释放完成完整表演弧，不依赖来源台词。
+输入格式: 锁定单人镜头 + 躺靠基线 + 连续坐起前倾 + 单一物证动作 + 停顿后带变化回位
+推荐输入: 锁定镜头下，年轻女性水网调度员从侧躺靠连续坐起，前倾说一句原创干冷台词，只举一次滴水传感器标签，停顿后带着笑意旋回。
+
+必须实现的锚点:
+  1. Keep one locked seated-eye-level direct-address frame.
+  2. Move from reclined to upright in one continuous visible shift.
+  3. Insert a readable still pause after the peak.
+  4. Return body depth toward the opening while changing expression.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Use one locked direct-address frame and let a solo speaker's posture carry the arc: relaxed baseline, visible attention shift, forward engagement, compact gesture proof, then an earned release that returns the body toward the original depth. The reusable structure depends on posture, eye line and breath-sized pauses, not on source dialogue meaning.
+Invariants:
+- inv-01: Keep one locked seated-eye-level direct-address frame.
+- inv-02: Move from reclined to upright in one continuous visible shift.
+- inv-03: Use no more than one dominant gesture at the forward peak.
+- inv-04: Insert a readable still pause after the peak.
+- inv-05: Return body depth toward the opening while changing expression.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Coverage changes hide whether the performance arc works.: Keep one locked seated-eye-level direct-address frame.
+- Starting upright removes the primary contrast.: Move from reclined to upright in one continuous visible shift.
+- Constant gesturing flattens emphasis.: Use no more than one dominant gesture at the forward peak.
+- Immediate release makes the peak feel accidental.: Insert a readable still pause after the peak.
+- An unchanged final face makes the arc feel circular rather than resolved.: Return body depth toward the opening while changing expression.
+Do not copy from the source: source male speaker appearance; source green couch and living room; source life-joke prompt wording; source exact gestures and laugh timing

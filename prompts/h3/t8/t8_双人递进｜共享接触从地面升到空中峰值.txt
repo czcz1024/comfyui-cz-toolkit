@@ -1,0 +1,42 @@
+# 双人递进｜共享接触从地面升到空中峰值
+# ID: t8-case-shared-contact-height-escalation-v1
+# 来源: T8 非官方案例模板
+
+用途: 先建立两个主体的深度差，再让同一次共享接触从低位逐级升高到唯一空中峰值，最后回到地面并停留在可读的关系终态。
+输入格式: 两个身份稳定的主体 + 初始距离差 + 低位共同接触 + 至少1次中段升高 + 共享空中峰值 + 落地关系停留
+推荐输入: 两台木偶修理机从不同深度靠近，在低位共同托起一枚发光环，经过腰部与头顶两次交接后一起跃到最高点，落回地面并并肩稳住发光环。
+
+必须实现的锚点:
+  1. Establish two stable roles and a readable depth or distance gap before contact.
+  2. Use one committed approach to create the first low shared contact state.
+  3. Reserve one shared airborne or otherwise clearly highest joint event as the apex.
+  4. Return both roles to a grounded or baseline plane and hold their post-apex relationship without asserting an unsupported result.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Establish two visually distinct roles at different depths, let the nearer role trigger a continuous exchange whose shared contact height rises in readable stages from ground to one joint aerial apex, then return both roles to a grounded held relationship without inventing a winner.
+Invariants:
+- inv-01: Establish two stable roles and a readable depth or distance gap before contact.
+- inv-02: Use one committed approach to create the first low shared contact state.
+- inv-03: Raise contact amplitude or altitude through at least one intermediate exchange while role identity stays stable.
+- inv-04: Reserve one shared airborne or otherwise clearly highest joint event as the apex.
+- inv-05: Return both roles to a grounded or baseline plane and hold their post-apex relationship without asserting an unsupported result.
+Variable slots:
+- role_pair: Two original stable roles with visibly distinct silhouettes or functions.
+- initial_gap: A readable depth, distance or level separation before the first shared action.
+- contact_carrier: One original object, signal or task that both roles visibly affect.
+- height_ladder: At least low, intermediate and peak shared states with continuous causal handoffs.
+- apex_realization: One unmistakably highest joint event, not repeated spectacle.
+- camera_grammar: Proof-oriented framing that compares the baseline, intermediate rise, apex and return.
+- end_relationship: A held post-apex relationship that does not claim an unsupported winner or diagnosis.
+- sound_family: Original story-world cues that distinguish low, rising, apex and settling phases.
+Failure prevention:
+- The two roles start tangled together.: Show stable identities and a readable gap before the first shared action.
+- The first contact is already maximal.: Begin with one low baseline contact so later states can visibly rise.
+- Repeated events stay at one height.: Assign each exchange a higher contact level or larger shared amplitude.
+- Several equal aerial peaks compete for attention.: Reserve one unmistakably highest joint event.
+- The ending invents a winner or skips the return.: Return both roles to the baseline plane and hold a neutral post-apex relationship.
+Do not copy from the source: two fantasy women in black and white dresses; gold and cyan glowing swords; moonlit cloud temple and pine platform; the exact sword-fight choreography and final low stances

@@ -1,0 +1,41 @@
+# 身份机体跃迁｜同一特征跨陆空载具升级
+# ID: t8-case-identity-motif-mobility-class-escalation-v1
+# 来源: T8 非官方案例模板
+
+用途: 先建立一个可辨认身份，再让其核心特征连续嵌入功能等级逐步提升的移动机体；每一阶段都同时保留身份锚点和新机体的可见功能，最后跨入新的运动类别并以完整混合体收束。
+输入格式: 身份锚点 + 至少三种移动机体 + 每阶段保留身份并增加可见功能 + 跨运动类别升级 + 完整混合体终态
+推荐输入: 原创极地研究舱内，一枚石墨色传感圆盘放在冰面，正面三角琥珀标记和侧面三点签名同时亮起一次；采样器在窄裂隙前压缩并接入双滚轮缆车，身份标记保持朝前，滚轮沿张紧钢索横越裂隙；最终气象探针以宽风翼、稳定翼和原传感面完整滑翔，琥珀身份锚点与空中功能同时可读
+
+必须实现的锚点:
+  1. Establish one identity motif with at least two stable visual anchors before machine integration begins.
+  2. Show the motif physically merging with the first mobility body rather than cutting to a finished replacement.
+  3. Escalate through another mobility realization with a visibly different affordance.
+  4. Finish with one larger mobility-class change and hold identity plus function together.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Establish one unmistakable identity motif before any transformation, then migrate that motif through a sequence of complete mobility bodies whose functional class visibly escalates. Each stage must preserve at least two identity anchors while adding one readable new mobility affordance; do not replace one object with an unrelated one. Reserve the largest category change for the final stage and hold the completed identity-machine hybrid long enough to verify both continuity and new function.
+Invariants:
+- inv-01: Establish one identity motif with at least two stable visual anchors before machine integration begins.
+- inv-02: Show the motif physically merging with the first mobility body rather than cutting to a finished replacement.
+- inv-03: Complete one functional mobility class while keeping the identity anchors visibly active.
+- inv-04: Escalate through another mobility realization with a visibly different affordance.
+- inv-05: Finish with one larger mobility-class change and hold identity plus function together.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Starting on a hybrid gives no proof that identity survived the transition.: Establish one identity motif with at least two stable visual anchors before machine integration begins.
+- A hard swap reads as unrelated object replacement.: Show the motif physically merging with the first mobility body rather than cutting to a finished replacement.
+- A static themed shell does not demonstrate a carrier role.: Complete one functional mobility class while keeping the identity anchors visibly active.
+- Changing only color or bodywork leaves the mechanism flat.: Escalate through another mobility realization with a visibly different affordance.
+- Ending mid-morph prevents verification of the new class.: Finish with one larger mobility-class change and hold identity plus function together.
+Do not copy from the source: the source gray-and-white domestic cat; the source wet modern city street; the source silver sports car, black motorcycle and helicopter forms; the source cat face integrated into vehicle noses; the source exact ground-car-motorcycle-rotorcraft order and Hailuo/MiniMax watermarks

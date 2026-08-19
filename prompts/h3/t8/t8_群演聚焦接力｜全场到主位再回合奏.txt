@@ -1,0 +1,41 @@
+# 群演聚焦接力｜全场到主位再回合奏
+# ID: t8-case-ensemble-focus-handoff-v1
+# 来源: T8 非官方案例模板
+
+用途: 先建立完整群体与观众或工作场，再让两名中心贡献者进入共享动作；镜头隔离其中一名主位完成完整证明段，随后重新引入共同主位，并以更宽的同步群体终态收束。
+输入格式: 全体建立 + 主位聚焦 + 次主位回归 + 群体节奏持续 + 回到全体合奏终态
+推荐输入: 机械工坊全体先建立节奏，镜头聚焦粉色主位的工具动作，次主位随后回归并接力，最终退回全景呈现全部工作台同步运行。
+
+必须实现的锚点:
+  1. Establish the full ensemble and surrounding response field before isolating a lead.
+  2. Bring two central contributors into one shared action before ownership narrows.
+  3. Reintroduce the co-lead before the ending.
+  4. Finish wide enough to show the ensemble responding in one synchronized state.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Establish a complete ensemble and its audience or work field, bring two central contributors into a shared action, isolate one lead long enough for a complete proof phrase while the ensemble remains spatially implied, then reintroduce the co-lead and finish on a wider synchronized group state.
+Invariants:
+- inv-01: Establish the full ensemble and surrounding response field before isolating a lead.
+- inv-02: Bring two central contributors into one shared action before ownership narrows.
+- inv-03: Give one lead enough uninterrupted screen ownership to complete a proof phrase.
+- inv-04: Reintroduce the co-lead before the ending.
+- inv-05: Finish wide enough to show the ensemble responding in one synchronized state.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- Opening close hides the ensemble stakes.: Establish the full ensemble and surrounding response field before isolating a lead.
+- An immediate solo gives no handoff.: Bring two central contributors into one shared action before ownership narrows.
+- Rapid cutting never establishes ownership.: Give one lead enough uninterrupted screen ownership to complete a proof phrase.
+- A solo-only ending abandons the opening pair.: Reintroduce the co-lead before the ending.
+- Ending close loses the group payoff.: Finish wide enough to show the ensemble responding in one synchronized state.
+Do not copy from the source: source retro male singers and band; Eddie & The Comet Tails sign; source stage, microphones and audience; the exact rock performance blocking and wardrobe

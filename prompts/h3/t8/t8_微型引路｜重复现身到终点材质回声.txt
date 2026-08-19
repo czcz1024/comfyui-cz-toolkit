@@ -1,0 +1,41 @@
+# 微型引路｜重复现身到终点材质回声
+# ID: t8-case-small-guide-route-destination-echo-v1
+# 来源: T8 非官方案例模板
+
+用途: 用一个小型非语言向导先吸引注意，再让它在不同空间孔洞或路标处重复现身，带动主体与镜头沿连续路线深入；最终向导进入的目的地以同一材质、形状或色彩回声兑现前段承诺。
+输入格式: 小型非语言向导 + 连续跟随路线 + 至少两次孔洞现身 + 向导先入终点 + 材质或图形回声
+推荐输入: 原创纸艺档案馆里，年轻档案员在胡桃木书架旁停下，一只掌心大小的靛蓝发光纸蛾出现在手边，前方第一个圆形书架窗可见；纸蛾从第二个圆孔再次出现并越过一扇折叠目录门，档案员保持原方向跟进；墙图只亮起一次，与纸蛾翅膀相同的靛蓝分枝纹样展开，向导、地图和档案员同框保持
+
+必须实现的锚点:
+  1. Establish one small moving guide and its scale relation before the destination is known.
+  2. Keep guide, follower and route direction spatially connected during movement.
+  3. Let the guide enter or indicate the final destination before the follower arrives.
+  4. Echo one established guide property in the destination result.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Introduce one small nonverbal guide, let it repeatedly appear at spatially connected markers while a follower or camera advances, and end at a destination whose material, shape or color visibly echoes the guide's established identity.
+Invariants:
+- inv-01: Establish one small moving guide and its scale relation before the destination is known.
+- inv-02: Keep guide, follower and route direction spatially connected during movement.
+- inv-03: Use at least two recurring apertures or landmarks as route-progress proofs.
+- inv-04: Let the guide enter or indicate the final destination before the follower arrives.
+- inv-05: Echo one established guide property in the destination result.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- A destination-first opening removes the guide's purpose.: Establish one small moving guide and its scale relation before the destination is known.
+- Unrelated locations turn reappearances into teleportation.: Keep guide, follower and route direction spatially connected during movement.
+- One appearance cannot demonstrate guidance.: Use at least two recurring apertures or landmarks as route-progress proofs.
+- A follower arriving first makes the guide irrelevant.: Let the guide enter or indicate the final destination before the follower arrives.
+- An unrelated endpoint makes the route arbitrary.: Echo one established guide property in the destination result.
+Do not copy from the source: the source bee; market visitor and market stalls; the source shop apertures; honey pastry or food display; the exact bee-follow route and warm food palette

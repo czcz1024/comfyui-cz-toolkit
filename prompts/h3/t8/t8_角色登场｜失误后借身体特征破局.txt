@@ -1,0 +1,41 @@
+# 角色登场｜失误后借身体特征破局
+# ID: t8-case-competence-through-recoverable-failure-v1
+# 来源: T8 非官方案例模板
+
+用途: 先用居所、醒来反应和移动方式建立原创角色，再让技术任务发生可恢复失误；角色把自身独特身体特征当成工具完成破局，并以成果同框收束。
+输入格式: 原创角色居所与移动 + 技术任务 + 可恢复失误 + 身体特征破局 + 成果同框
+推荐输入: 半透明纸蛾气象员在黄铜气象塔醒来，校准棱镜气压计时遭遇阵风失误，随后用翼脉投影诊断气流并修复，最后托起一颗雨珠。
+
+必须实现的锚点:
+  1. Establish habitat, intimate reaction and locomotion before the technical task.
+  2. Show one skilled task with a readable intermediate state.
+  3. Use one identity-defining body feature as a practical tool in the solution.
+  4. End with the repaired or transformed object and a restrained competence pose together.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Introduce one original character through habitat, wake behavior and locomotion before assigning a skilled task. Let the first technical attempt create a visible recoverable failure, then make the character use one identity-defining body feature as a practical reasoning or control instrument. The success state must visibly answer the failure and end in a clean competence pose with the changed object.
+Invariants:
+- inv-01: Establish habitat, intimate reaction and locomotion before the technical task.
+- inv-02: Show one skilled task with a readable intermediate state.
+- inv-03: Keep the failure recoverable and preserve the same task object.
+- inv-04: Use one identity-defining body feature as a practical tool in the solution.
+- inv-05: End with the repaired or transformed object and a restrained competence pose together.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is readable without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific surface.
+- carrier_or_token: One visible material, prop or symbolic anchor that carries the causal mechanism.
+- state_change: A sequence of visible, causally ordered changes rather than decorative montage.
+- camera_grammar: An information order that proves each change without copying source shot boundaries.
+- payoff: A held final state that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of visible-action sounds; no unsupported source-audio claim.
+Failure prevention:
+- Starting at the workbench reduces the character to a decorative technician.: Establish habitat, intimate reaction and locomotion before the technical task.
+- An unexplained accident cannot prove what changed.: Show one skilled task with a readable intermediate state.
+- Replacing the object erases the consequence.: Keep the failure recoverable and preserve the same task object.
+- If any generic tool solves the problem, the body design is only ornament.: Use one identity-defining body feature as a practical tool in the solution.
+- A reaction without the result cannot close the task.: End with the repaired or transformed object and a restrained competence pose together.
+Do not copy from the source: Ayotl name and source folklore attribution; source turtle-like creature, shell markings and color design; hammock wake-up, floating gears, crystal experiment and source equations; the exact source workshop, explosion, self-writing surface and hero pose

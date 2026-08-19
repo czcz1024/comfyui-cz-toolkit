@@ -1,0 +1,41 @@
+# 非对称突破｜密集阻力到空间制度改变
+# ID: t8-case-asymmetric-force-breach-escalation-v1
+# 来源: T8 非官方案例模板
+
+用途: 先建立防守目标与密集阻力场，再引入一个非对称运动力量；局部接触证明动量，广角证明推进，突破后改变空间制度，并以近景后果收束。
+输入格式: 固定目标 + 密集阻力场 + 单一非对称力量 + 3次局部接触 + 突破改变空间
+推荐输入: 被淹物流大厅里，一艘无人拖船通过三次可见接触清出泡沫障碍通道，再一次推开救援闸门，让三艘小艇依次通过。
+
+必须实现的锚点:
+  1. Establish one fixed objective and a dense visible resistance field.
+  2. Introduce one asymmetric force with a clear motion axis.
+  3. Return wide to show progress toward the boundary.
+  4. Let one breach change the spatial regime and hold the consequence.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Establish a fortified objective and dense resisting field, introduce one asymmetric moving force, prove momentum through several local contacts, widen to show progress toward the objective, then use one breach to change the spatial regime before a close held consequence.
+Invariants:
+- inv-01: Establish one fixed objective and a dense visible resistance field.
+- inv-02: Introduce one asymmetric force with a clear motion axis.
+- inv-03: Use multiple local contacts to prove momentum.
+- inv-04: Return wide to show progress toward the boundary.
+- inv-05: Let one breach change the spatial regime and hold the consequence.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- Unanchored action lacks direction.: Establish one fixed objective and a dense visible resistance field.
+- Several equal forces create generic chaos.: Introduce one asymmetric force with a clear motion axis.
+- A distant charge alone does not prove force.: Use multiple local contacts to prove momentum.
+- Only close action hides whether progress occurred.: Return wide to show progress toward the boundary.
+- Ending before entry leaves the objective unresolved.: Let one breach change the spatial regime and hold the consequence.
+Do not copy from the source: source fantasy beast and armored army; castle gate, siege field and fire; the exact creature charge and breach choreography; source medieval costume and weapon design

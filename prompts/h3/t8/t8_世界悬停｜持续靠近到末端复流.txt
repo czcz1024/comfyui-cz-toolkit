@@ -1,0 +1,41 @@
+# 世界悬停｜持续靠近到末端复流
+# ID: t8-case-suspended-world-terminal-resumption-v1
+# 来源: T8 非官方案例模板
+
+用途: 先让一个本应高速运动的复杂环境整体悬停，以连续第一视角推进和重复地标证明时间仍被锁住；局部手部只负责对齐与观察，最后只在片尾发生一次全局复流和速度跃迁。
+输入格式: 复杂环境整体悬停 + 第一视角连续移动 + 至少3个冻结地标 + 局部对齐但不强称接触 + 末端只复流一次
+推荐输入: 头盔视角穿过整体悬停的轨道装配舱，货运环、机械臂、螺栓和冷却液珠始终冻结；探针只与校准棱镜对齐但不接触，片尾所有机构与相机通道只恢复一次。
+
+必须实现的锚点:
+  1. Open on a complex environment whose normally moving elements are visibly suspended.
+  2. Move one embodied observer continuously while at least three environmental landmarks remain frozen.
+  3. Sustain the suspended comparison long enough to show that many independent elements share the same state.
+  4. Resume the world only once at the end, with distributed object motion and camera-speed change occurring together.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Establish a motion-rich environment in a visibly suspended state, then let one embodied observer move continuously through it while recurring objects prove the world remains locked. Introduce one local inspection alignment without requiring contact, sustain the frozen comparison, and reserve one terminal global resumption in which many independent elements and the camera regain motion together.
+Invariants:
+- inv-01: Open on a complex environment whose normally moving elements are visibly suspended.
+- inv-02: Move one embodied observer continuously while at least three environmental landmarks remain frozen.
+- inv-03: Use one local alignment or inspection focus, but do not require unproven physical contact.
+- inv-04: Sustain the suspended comparison long enough to show that many independent elements share the same state.
+- inv-05: Resume the world only once at the end, with distributed object motion and camera-speed change occurring together.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- A quiet empty environment cannot prove suspension.: Open on a complex environment whose normally moving elements are visibly suspended.
+- Cuts or changing landmarks make the state ambiguous.: Move one embodied observer continuously while at least three environmental landmarks remain frozen.
+- A forced touch claim exceeds the visible mechanism.: Use one local alignment or inspection focus, but do not require unproven physical contact.
+- A brief freeze frame reads as an editing trick.: Sustain the suspended comparison long enough to show that many independent elements share the same state.
+- Multiple resumptions dilute the state transition.: Resume the world only once at the end, with distributed object motion and camera-speed change occurring together.
+Do not copy from the source: the source rainy city intersection and neon storefronts; the source first-person bare hand; the source stopped cars, pedestrians and birds; the source orange collision-fragment tableau; the source traffic-resumption staging and signage

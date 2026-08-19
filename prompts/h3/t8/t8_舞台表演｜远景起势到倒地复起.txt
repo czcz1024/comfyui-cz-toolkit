@@ -1,0 +1,42 @@
+# 舞台表演｜远景起势到倒地复起
+# ID: t8-case-performance-fall-rise-arc-v1
+# 来源: T8 非官方案例模板
+
+用途: 单人表演先用大远景建立身体与空间，再推进近景表达、完成一次受控倒地和俯拍停留，最后在独立光束中复起。
+输入格式: 单人表演者 + 巨大空场 + 远景起势 + 近景表达 + 一次受控倒地 + 俯拍确认 + 连续复起
+推荐输入: 打击乐舞者独自在废弃天文台起舞，从大远景轨迹进入近景手部节奏，完成一次膝盖先着地的螺旋倒地，俯拍停留后在开启的穹顶光束中连续起身。
+
+必须实现的锚点:
+  1. 开场先证明全身与巨大场地尺度
+  2. 近景必须晚于动作语言建立
+  3. 全片只有一次决定性下降
+  4. 用俯拍或地面机位证明落地
+  5. 结尾连续复起且不回到开场构图
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Build a solo performance through a scale-changing camera arc: establish the whole body in a large empty venue, advance to close expressive proof, let the body descend into one floor-level low point, then restore vertical energy in a final isolated light. The reusable template excludes any storyboard or prompt-demo overlay and depends on the visible fall-to-rise performance logic.
+Invariants:
+- inv-01: Open with full-body scale inside a visibly larger venue.
+- inv-02: Move closer only after the body's initial movement language is established.
+- inv-03: Use one controlled descent as the single decisive low point.
+- inv-04: Hold the low point with a camera relation that proves floor contact and body geometry.
+- inv-05: End upright in one isolated light, without recreating the opening framing.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Opening close removes the scale contrast needed later.: Open with full-body scale inside a visibly larger venue.
+- Immediate close coverage turns the piece into a generic portrait.: Move closer only after the body's initial movement language is established.
+- Repeated falls become choreography noise rather than structure.: Use one controlled descent as the single decisive low point.
+- A hidden landing weakens physical causality.: Hold the low point with a camera relation that proves floor contact and body geometry.
+- Returning to the exact opening makes the arc feel reset rather than resolved.: End upright in one isolated light, without recreating the opening framing.
+Do not copy from the source: source performer appearance; source industrial hall; source storyboard sheet overlay; the exact source shot order

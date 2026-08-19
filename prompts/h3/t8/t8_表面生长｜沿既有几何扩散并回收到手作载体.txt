@@ -1,0 +1,41 @@
+# 表面生长｜沿既有几何扩散并回收到手作载体
+# ID: t8-case-surface-line-growth-keepsake-loop-v1
+# 来源: T8 非官方案例模板
+
+用途: 先让彩色线条沿真实载体既有几何生长，再扩散成图标或材质标记但不遮掉轮廓；同一线条族连接多个载体，最终回收到手作纪念物并物理关闭。
+输入格式: 真实载体 + 沿既有几何描线 + 同线条族跨载体 + 保留轮廓 + 手作纪念物闭合
+推荐输入: 铜色刺绣线先沿陶瓷原型接缝生长，再跨四件原型形成一致功能标记，最终装订成实体材质样本册并扣上锁扣。
+
+必须实现的锚点:
+  1. Begin the mark by tracing existing carrier geometry.
+  2. Spread marks while preserving the carrier silhouette.
+  3. Change carrier while retaining the mark behavior.
+  4. Collect the journey into a handmade keepsake and physically close it.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Place one recognizable real carrier in frame, let a colored line trace existing geometry before spreading into icons or material marks without erasing the silhouette, use the same line family to bridge to new carriers, then collect the accumulated journey into one handmade keepsake and close it physically.
+Invariants:
+- inv-01: Begin the mark by tracing existing carrier geometry.
+- inv-02: Spread marks while preserving the carrier silhouette.
+- inv-03: Use one consistent line or material family across carriers.
+- inv-04: Change carrier while retaining the mark behavior.
+- inv-05: Collect the journey into a handmade keepsake and physically close it.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- A floating overlay feels disconnected.: Begin the mark by tracing existing carrier geometry.
+- Full occlusion destroys before/after comparison.: Spread marks while preserving the carrier silhouette.
+- Unrelated styles feel like separate effects.: Use one consistent line or material family across carriers.
+- One surface cannot demonstrate a transferable system.: Change carrier while retaining the mark behavior.
+- A final random landmark adds no structural payoff.: Collect the journey into a handmade keepsake and physically close it.
+Do not copy from the source: source world landmarks and neon crayon doodles; Eiffel Tower, Big Ben, Colosseum, Opera House and pyramids; source globe sketchbook and closing hand; the exact travel-icon order and drawings

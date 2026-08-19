@@ -1,0 +1,41 @@
+# 尺度奇观阶梯｜每镜重置参照再逼近
+# ID: t8-case-viewpoint-scale-spectacle-ladder-v1
+# 来源: T8 非官方案例模板
+
+用途: 每个短段先重置熟悉视点与尺度参照，再让一个不可能的空中形态进入；通过观察距离与遮挡变化逐步逼近，最终以近距离视点遭遇收束。
+输入格式: 5个熟悉尺度参照 + 每镜1个巨型原创形态 + 视点变化 + 距离逐步缩短 + 近距离终态
+推荐输入: 五种原创巨型空中种子结构依次出现在风场、列车窗、采石场、温室与维护车视点中，每次距离更近，最后从车顶正上方掠过。
+
+必须实现的锚点:
+  1. Give each vignette an immediately familiar scale anchor.
+  2. Use one dominant impossible silhouette per vignette.
+  3. Increase proximity, not just nominal size.
+  4. End with a viewpoint-level encounter that preserves spatial legibility.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Reset a familiar viewpoint and scale anchor in each vignette, introduce one impossible airborne form that preserves readable silhouette, vary observer distance and occlusion, then escalate proximity until the final viewpoint encounter feels immediate rather than merely larger.
+Invariants:
+- inv-01: Give each vignette an immediately familiar scale anchor.
+- inv-02: Use one dominant impossible silhouette per vignette.
+- inv-03: Change observer carrier or occlusion between vignettes.
+- inv-04: Increase proximity, not just nominal size.
+- inv-05: End with a viewpoint-level encounter that preserves spatial legibility.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- A blank sky provides no scale proof.: Give each vignette an immediately familiar scale anchor.
+- Several equal forms create visual noise.: Use one dominant impossible silhouette per vignette.
+- Identical viewpoints flatten the ladder.: Change observer carrier or occlusion between vignettes.
+- Distant forms remain postcards.: Increase proximity, not just nominal size.
+- An abstract final close-up loses the observer relationship.: End with a viewpoint-level encounter that preserves spatial legibility.
+Do not copy from the source: source giant whale, manta, nautilus, jellyfish and shark; Shanghai skyline, airplane window, highway and car POV; the exact animal order and city landmarks; source blue atmospheric spectacle palette

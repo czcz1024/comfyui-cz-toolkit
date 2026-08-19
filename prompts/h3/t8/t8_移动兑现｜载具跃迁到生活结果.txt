@@ -1,0 +1,41 @@
+# 移动兑现｜载具跃迁到生活结果
+# ID: t8-case-mobility-route-to-human-benefit-v1
+# 来源: T8 非官方案例模板
+
+用途: 用极短篇幅把载具身份、出发、性能跃迁、地理抵达和人的最终使用结果串成一条因果链；技术奇观必须被具体生活结果兑现，结尾不能停在无目的飞驰。
+输入格式: 载具与起点 + 1次改变通行方式的能力跃迁 + 可追踪路线 + 抵达物微距 + 人物实际使用结果
+推荐输入: 河上医疗小艇离开太阳能诊所，展开水翼穿越芦苇浅水区，抵达淹水村庄；微距展示冷却药剂胶囊，最后由护士把胶囊装入受损幼苗培养器。
+
+必须实现的锚点:
+  1. Establish the carrier and departure point before accelerating the route.
+  2. Use one visible capability upgrade that changes how the carrier traverses space.
+  3. Present the delivered object or service in tactile close detail at arrival.
+  4. End with a beneficiary visibly using the result.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+A mobility proof becomes meaningful when an identified carrier departs, demonstrates one unmistakable capability upgrade, crosses a legible route, arrives at a specific destination, and hands the sequence to a human-scale benefit. The beneficiary action must visibly consume or use the delivered result rather than merely posing beside it.
+Invariants:
+- inv-01: Establish the carrier and departure point before accelerating the route.
+- inv-02: Use one visible capability upgrade that changes how the carrier traverses space.
+- inv-03: Preserve a readable destination transition instead of random travel montage.
+- inv-04: Present the delivered object or service in tactile close detail at arrival.
+- inv-05: End with a beneficiary visibly using the result.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Opening mid-flight removes the state change and route promise.: Establish the carrier and departure point before accelerating the route.
+- Decorative light with no route effect is not an upgrade.: Use one visible capability upgrade that changes how the carrier traverses space.
+- Unrelated locations make the journey untraceable.: Preserve a readable destination transition instead of random travel montage.
+- Skipping arrival detail leaves the benefit abstract.: Present the delivered object or service in tactile close detail at arrival.
+- A product beauty shot does not prove human benefit.: End with a beneficiary visibly using the result.
+Do not copy from the source: black sport motorcycle; blue airborne motorcycle energy; Japanese urban and residential route; grilled meal close-up; female diner eating with chopsticks

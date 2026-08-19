@@ -1,0 +1,39 @@
+# 二维角色｜真人接触三级反应
+# ID: t8c005-cross-medium-contact-reaction
+# 来源: T8 非官方案例模板
+
+用途: 真实世界一次接触触发平面角色的三级反应，并以媒介自身的变化收尾。
+输入格式: 平面角色 + 真实场景 + 一次跨媒介接触 + 三级反应 + 媒介专属结尾
+推荐输入: 书桌贴纸上的纸片机器人被真人手指轻触：先轻颤，再鼓起并喷出纸屑火花，最后整张桌垫折成通往它的纸桥。
+
+必须实现的锚点:
+  1. 平面与真实媒介同框
+  2. 只有一次关键接触
+  3. 反应至少三级升级
+  4. 结尾由平面媒介自身完成
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+A single flat 2D character shares a locked photoreal environment with a real hand; one small cross-medium contact causes a three-stage readable reaction that ends in a medium-specific impossible effect.
+Invariants:
+- inv-01: Keep exactly one flat animated character inside an otherwise photoreal, stable environment.
+- inv-02: Show real-to-animated contact before the reaction begins.
+- inv-03: Escalate in three readable states: neutral, discomfort, impossible payoff.
+- inv-04: Keep the camera locked and let contact, expression, and effects move attention.
+Variable slots:
+- photoreal_arena: A stable real location with clear depth and one interaction surface.
+- flat_character: One original 2D paper- or sticker-like adult mascot, visually distinct from the source.
+- real_agent: One live-action hand or tool entering from a consistent edge.
+- contact_object: A small real object whose motion can visibly cross the medium boundary.
+- sensation: A simple cause such as cold, static, scent, or weight, not source heat/chili.
+- reaction_states: Three visually distinct but causally continuous poses.
+- payoff_effect: An original safe effect appropriate to the new sensation.
+- sound: Real location ambience plus contact-synced foley and one effect accent.
+Failure prevention:
+- The animated character no longer looks flat against the real scene.: Keep constant paper thickness, a crisp outline, planar deformation, and a consistent contact shadow.
+- The reaction begins before contact.: Hold neutral expression through the contact frame, then delay the first change by a short readable beat.
+- The adaptation still feels like the source spicy-food gag.: Change arena, character category, contact object, sensation, palette, reaction graphics, and final effect together.
+Do not copy from the source: source girl character, hairstyle, clothes, face, outline, or childlike proportions; source kitchen, wok, food, seasoning jar, spoon interaction, and camera composition; chili or heat tasting, lateral tear jets, red forehead, and fire breathing; exact reaction timing and source visual effects

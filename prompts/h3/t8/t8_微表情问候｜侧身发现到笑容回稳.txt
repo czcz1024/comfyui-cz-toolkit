@@ -1,0 +1,41 @@
+# 微表情问候｜侧身发现到笑容回稳
+# ID: t8-case-microexpression-greeting-arc-v1
+# 来源: T8 非官方案例模板
+
+用途: 用近乎锁定的人像镜头完成五段微表情问候：侧身开始、建立直视、短暂垂眼停顿、闭眼笑容达到峰值，再回到开放而放松的表情；不换场景、不加大动作。
+输入格式: 单一人像 + 侧身开始 + 稳定直视 + 垂眼停顿 + 1次峰值表情 + 开放表情回稳
+推荐输入: 年长纸张修复师侧身拿着修复地图，转头直视、垂眼停顿、闭眼微笑，再睁眼回到放松表情；全程保持同一安静档案室。
+
+必须实现的锚点:
+  1. Begin from a readable side orientation rather than immediate frontal address.
+  2. Reach and hold direct gaze before the emotional peak.
+  3. Use one countable peak expression without a large body gesture.
+  4. Recover to an open relaxed state and hold.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Use one nearly locked portrait to make a greeting readable through five small state changes: begin in side orientation, establish direct gaze, lower the gaze into a brief self-contained pause, peak with one closed-eye smile, and recover to an open relaxed expression without changing setting or adding a large gesture.
+Invariants:
+- inv-01: Begin from a readable side orientation rather than immediate frontal address.
+- inv-02: Reach and hold direct gaze before the emotional peak.
+- inv-03: Insert one brief downward-gaze pause with the body still anchored.
+- inv-04: Use one countable peak expression without a large body gesture.
+- inv-05: Recover to an open relaxed state and hold.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- Starting frontal removes the orientation change.: Begin from a readable side orientation rather than immediate frontal address.
+- A passing glance gives no stable connection.: Reach and hold direct gaze before the emotional peak.
+- Continuous smiling flattens the arc.: Insert one brief downward-gaze pause with the body still anchored.
+- A broad wave or jump overwhelms the facial proof.: Use one countable peak expression without a large body gesture.
+- Ending at the closed-eye peak feels cut off.: Recover to an open relaxed state and hold.
+Do not copy from the source: source anime schoolgirl; source stairwell and shopping bag; source sailor-style shirt and denim skirt; the exact shy-girl facial design

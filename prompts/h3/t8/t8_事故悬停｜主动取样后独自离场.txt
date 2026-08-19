@@ -1,0 +1,41 @@
+# 事故悬停｜主动取样后独自离场
+# ID: t8-case-suspended-accident-active-sampling-v1
+# 来源: T8 非官方案例模板
+
+用途: 把一次突发事故锁在最大混乱状态，让唯一仍能行动的主体穿过固定证据、主动取走其中几件物体并完成离场；悬停现场始终不复流，异常由主体独占行动权来证明。
+输入格式: 日常多人场景 + 单次事故峰值悬停 + 唯一可动主体 + 两处主动取样 + 悬停不复流的离场
+推荐输入: 原创轨道种子库内，两名技术员检修密封种子罐，一只黄铜维护甲虫停在地面，透明冷却管处于受压状态；甲虫从三串固定液珠下穿过，依次扫描技术员、漂浮罐体和琥珀诊断片，不触动它们；甲虫携带两片样品穿过舱门，门闭合前广角证明整座事故现场仍悬停，最终不复流
+
+必须实现的锚点:
+  1. Establish an ordinary routine and the routes of at least two participants before the accident.
+  2. Use one accident to distribute several independently readable objects across depth.
+  3. Have the mobile subject selectively remove at least two separated objects without releasing the rest.
+  4. End with the subject leaving while a wider view still proves the accident remains suspended.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Establish an ordinary shared routine, interrupt it with one physical accident that distributes several readable objects, and suspend the accident at maximum disorder. Let exactly one subject retain normal agency, deliberately sample at least two separated pieces of the frozen event, then leave while the wider tableau remains visibly locked. The persistent world state, not a later restart, is the payoff.
+Invariants:
+- inv-01: Establish an ordinary routine and the routes of at least two participants before the accident.
+- inv-02: Use one accident to distribute several independently readable objects across depth.
+- inv-03: At peak disorder, keep all participants and objects fixed except one clearly mobile subject.
+- inv-04: Have the mobile subject selectively remove at least two separated objects without releasing the rest.
+- inv-05: End with the subject leaving while a wider view still proves the accident remains suspended.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Opening on suspended debris turns the event into unexplained decoration.: Establish an ordinary routine and the routes of at least two participants before the accident.
+- One floating prop cannot prove a shared physical state.: Use one accident to distribute several independently readable objects across depth.
+- If several people move, the freeze becomes an editing ambiguity.: At peak disorder, keep all participants and objects fixed except one clearly mobile subject.
+- A passive walk-through never tests the suspension.: Have the mobile subject selectively remove at least two separated objects without releasing the rest.
+- A global restart would replace the mechanism with a generic time-freeze release.: End with the subject leaving while a wider view still proves the accident remains suspended.
+Do not copy from the source: 1990s American diner; the source black-haired woman and pink-uniform waitress; red vinyl booths and checkerboard floor; breakfast tray, eggs, bacon, toast and coffee spill; the source food-sampling gag and elevator exit; Seedance 2.5 attribution

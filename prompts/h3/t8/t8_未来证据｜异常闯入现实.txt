@@ -1,0 +1,41 @@
+# 未来证据｜异常闯入现实
+# ID: t8-case-evidence-ladder-reality-v1
+# 来源: T8 非官方案例模板
+
+用途: 稳定现实中，同一证据载体连续更新，最后异常内容延迟跨入现实。
+输入格式: 有边界的证据载体 + 稳定现实 + 同一变量连续2次更新 + 延迟跨界 + 一次反应
+推荐输入: 温室里的黄铜叶片扫描器连续吐出两张状态纸条，第二张显示尚未出现的霜纹；短暂停顿后霜纹从纸面蔓延到真实叶片，园艺师只后退一步。
+
+必须实现的锚点:
+  1. 现实基线稳定
+  2. 同一证据载体至少两次更新
+  3. 异常先在证据内出现
+  4. 跨界延迟发生且只有一次克制反应
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+A bounded evidence carrier first contradicts a stable live scene, then updates the same spatial variable in two increasingly urgent states before the represented change crosses its boundary into shared reality. Repeated verification, invariant geometry and delayed performance make the transition legible; the carrier, genre, phenomenon, location, camera grammar and emotional payoff remain variable.
+Invariants:
+- inv-01: Establish a live baseline and one bounded evidence carrier that disagree about the same place, object or state.
+- inv-02: Update one countable spatial, temporal or material variable inside the evidence at least twice while preserving recognizable anchors.
+- inv-03: Keep the live scene stable long enough for the evidence mismatch to be checked before any physical crossing occurs.
+- inv-04: Cross the evidence boundary only after the escalation has reached its nearest or most consequential state, and show one unambiguous physical consequence.
+- inv-05: Let the subject's verification and delayed recognition follow the evidence hierarchy rather than performing fear or wonder before the audience can see the cause.
+Variable slots:
+- live_baseline: One stable place or system with clear anchors that can be checked repeatedly.
+- evidence_carrier: A bounded sensor, map, recording, material sample or display; it must not reuse the source camera or instant photograph.
+- advancing_variable: One countable distance, quantity, color, crack, waveform or growth state that changes twice.
+- verification_action: A repeated human or mechanical check that compares evidence with the live baseline.
+- boundary_crossing: One physically legible moment when the represented state affects the live scene.
+- emotional_register: Horror, wonder, comedy, tenderness or technical urgency derived from the new concept.
+- camera_grammar: Original coverage whose information order differs from table-to-corridor-to-print-to-eye close-ups.
+- sound_family: A designed hierarchy of carrier cues, update cues, brief reset and physical payoff.
+Failure prevention:
+- The evidence carrier shows random new imagery on every check.: Lock shared anchors and change only one countable variable across the update ladder.
+- The physical payoff starts before the second evidence update.: Hold the live baseline stable until the audience has compared at least two carrier states.
+- The new instance is merely a different monster inside a different photograph.: Change the carrier modality, genre, location, camera structure, emotional register and boundary-crossing physics together.
+- Reaction acting overwhelms the visual proof.: Delay the strongest performance until the crossing is visible and finish on one readable consequence.
+Do not copy from the source: old instant camera, developing print, abandoned photo room, broken window and nested dark corridor; young male source appearance, tall shadow person, over-shoulder corridor reveal and extreme terrified-eye ending; source cold blue-black palette, exact flash rhythm, exact cut boundaries and exact approach distances; phrases and concepts such as future camera, photograph the future, instant photograph and tall shadow figure

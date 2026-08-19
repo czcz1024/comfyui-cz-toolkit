@@ -1,0 +1,41 @@
+# 连续变线｜逐层防守到垂直终结
+# ID: t8-case-successive-gates-vertical-finish-v1
+# 来源: T8 非官方案例模板
+
+用途: 先固定球场、球与篮筐关系，让持球者连续穿过多层可见防守门，每次用不同路线变化解决空间问题；最后只做一次垂直篮筐动作，并用人群反应与共享场地收束。
+输入格式: 稳定主体与手持物 + 固定终点 + 至少3道可见空间门 + 每次不同变线 + 单次垂直终结 + 不虚构比分的反应终态
+推荐输入: 轨道温室快递无人机携带发光种子胶囊，依次压低、变线和侧滚穿过三道不同风幕，只借最终上升气流完成一次上方对接；两名植物学家隔窗反应，结尾不出现比分或胜负文字。
+
+必须实现的锚点:
+  1. Establish one stable carrier, handled token and fixed terminal goal before escalation.
+  2. Use at least three visible spatial gates, each requiring a different route change.
+  3. Use the last route opening for one decisive vertical terminal action.
+  4. End on visible witness reaction and shared geography without asserting an unshown numerical result.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Build a short action proof around successive spatial gates: establish one carrier, one handled token and a fixed terminal goal; let each visible blocker force a different route change while preserving shared geography; convert the final opening into one decisive vertical terminal action; then hold a separate witness reaction without inventing an unshown numerical result.
+Invariants:
+- inv-01: Establish one stable carrier, handled token and fixed terminal goal before escalation.
+- inv-02: Use at least three visible spatial gates, each requiring a different route change.
+- inv-03: Preserve the carrier, token and terminal direction across every route change.
+- inv-04: Use the last route opening for one decisive vertical terminal action.
+- inv-05: End on visible witness reaction and shared geography without asserting an unshown numerical result.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Without all three anchors, later movement reads as disconnected athletic montage.: Establish one stable carrier, handled token and fixed terminal goal before escalation.
+- Repeated identical dodges do not create escalating proof.: Use at least three visible spatial gates, each requiring a different route change.
+- Losing the token or goal axis breaks the causal route.: Preserve the carrier, token and terminal direction across every route change.
+- Multiple terminal attempts diffuse the climax.: Use the last route opening for one decisive vertical terminal action.
+- A scoreboard or victory claim would exceed the visible proof.: End on visible witness reaction and shared geography without asserting an unshown numerical result.
+Do not copy from the source: source urban basketball player; source basketball and hoop; source defenders and crowd; source street-court wardrobe; source dunk and crowd-reaction staging

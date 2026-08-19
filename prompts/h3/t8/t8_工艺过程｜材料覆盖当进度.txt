@@ -1,0 +1,39 @@
+# 工艺过程｜材料覆盖当进度
+# ID: t8-case-material-progress-clock-v1
+# 来源: T8 非官方案例模板
+
+用途: 同一工艺物保持连续，用只增不减的材料变量作为清晰进度钟。
+输入格式: 同一工艺物 + 一个只增不减的材料变量 + 4个阶段 + 成品揭晓
+推荐输入: 同一块陶瓷浮雕保持在转台上，釉色覆盖从边缘、纹路、主体到全部表面只增不减，最后窑火反光中揭晓成品。
+
+必须实现的锚点:
+  1. 同一工艺物贯穿
+  2. 选定材料变量只增不减
+  3. 至少四个可区分阶段
+  4. 最后明确揭晓成品
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Compress a multi-stage making process around one persistent artifact and one irreversible visual variable that only increases—coverage, polish, oxidation, translucency or revealed pattern. Alternate contact-level macro proof with scale-restoring views, ensure each cut advances the same artifact, and reserve the longest hold for the completed state. Craft, object, material, palette, stage count and final display are variable.
+Invariants:
+- inv-01: Establish one artifact in an unadvanced base state.
+- inv-02: Keep object identity and defining geometry stable across process cuts.
+- inv-03: Advance one irreversible material variable in a single direction.
+- inv-04: Show direct tool-to-material contact at each key state change.
+- inv-05: Give the finished artifact a longer clean hold after the final operation.
+Variable slots:
+- lead_subject: An original subject whose identity and silhouette remain stable.
+- setting: A new setting with fixed spatial anchors and no source-specific location.
+- escalation_variable: One readable variable that changes monotonically or in countable stages.
+- performance_rule: One restrained performance rule that makes the mechanism legible.
+- camera_grammar: A coherent information order that does not copy the source shot boundaries.
+- payoff: One clean physical or graphic consequence that closes the causal chain.
+- sound_family: A new hierarchy of diegetic cues supporting each state change.
+Failure prevention:
+- Different objects appear at different stages.: Lock one artifact silhouette, motif and scale across every cut.
+- Coverage jumps backward or changes hue randomly.: Choose one irreversible variable and make every cut advance it.
+- Only finished beauty shots are shown.: Include direct tool contact and readable intermediate states before the final hold.
+Do not copy from the source: red bulbous vase with raised coiled dragon-like relief; gold leaf applied over red lacquer; source Chinese numbered stage plaques; source artisan face, workshop and exact tool sequence

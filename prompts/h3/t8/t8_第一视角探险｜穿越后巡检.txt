@@ -1,0 +1,41 @@
+# 第一视角探险｜穿越后巡检
+# ID: t8-case-threshold-inspection-passage-v1
+# 来源: T8 非官方案例模板
+
+用途: 从入口跨过阈值后连续通行，局部检查异常，再给出可见但不武断的路线终态。
+输入格式: 远景入口 + 跨过阈值 + 连续通行 + 局部异常检查 + 可见路线终态（不下诊断）
+推荐输入: 植物学小队进入树根洞穴，跨过明暗阈值后沿狭窄通道前进；领队停下检查一条轻摆的空气丝带，未下结论，随后全队继续沿原路线深入。
+
+必须实现的锚点:
+  1. 入口与阈值清楚
+  2. 阈值后保持空间连续
+  3. 只检查一个局部线索
+  4. 结尾显示路线状态但不虚构诊断
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+A remote scale view identifies one consequential threshold, a single cut crosses it, and an extended continuous follow converts abstract environment into embodied passage. Moving light, partner or tool coordination and one local material cue interrupt forward motion; the sequence then ends on a clearly visible post-inspection route state without claiming the cue was diagnosed or resolved. Terrain, participants, material cue, route, camera carrier and final route state remain variable.
+Invariants:
+- inv-01: Use the opening scale view to identify one precise threshold or route, not merely an attractive landscape.
+- inv-02: Cross the threshold with one decisive edit or occlusion, then preserve spatial continuity long enough to feel embodied travel.
+- inv-03: Bind participants, lights and tools into a clear coordination pattern whose spacing changes with the route.
+- inv-04: Interrupt travel with one local material or environmental cue that can be indicated, measured or physically reacted to.
+- inv-05: After the inspection, end on one clearly visible route state—continue, pause or change direction—without claiming a diagnosis or hazard response unless directly shown.
+Variable slots:
+- threshold_environment: A specific opening, hatch, canopy, chamber or access point with visible scale context.
+- field_team: One to three original humans, animals or machines with stable roles and silhouettes.
+- route_geometry: A continuous, physically traversable path with stable orientation anchors.
+- reveal_light: Headlamp, UV beam, lantern, reflected daylight or moving shadow that reveals material layers.
+- local_cue: One plausible airflow, vibration, moisture, sound, particulate or structural change.
+- inspection_action: A gesture or tool action that directs attention to the cue without relying on text.
+- post_inspection_route_state: A visible continuation, pause or direction change after inspection; causation or diagnosis is optional and must not be attributed to the source unless shown.
+- camera_carrier: Aerial, cable, body, rover or handheld path suited to the new environment.
+Failure prevention:
+- The opening landscape has no relationship to the interior route.: Make the threshold visibly identifiable in the exterior and match its orientation at the cut.
+- The continuous follow is only forward walking.: Use changing participant spacing, moving reveal light and one local cue that visibly interrupts attention or pace.
+- The environment looks like glass or fantasy material.: Specify weight, deposits, moisture, abrasion, sound and tool interaction native to the new material.
+- The transfer is only the same two explorers in a different cave.: Change team topology, environment class, tool relationship, cue physics, camera carrier and post-inspection route state together.
+Do not copy from the source: glacier valley, blue ice cave, black oval aperture and translucent cyan tunnel; two glaciologists, orange and blue-yellow suits, helmets, crampons, backpacks and ice axes; the exact three-second aerial push followed by the same high front-left-to-rear follow route; source prompt's under-ice water, seasonal melting, marking and retreat scenario

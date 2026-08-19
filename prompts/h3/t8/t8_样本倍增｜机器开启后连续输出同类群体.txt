@@ -1,0 +1,41 @@
+# 样本倍增｜机器开启后连续输出同类群体
+# ID: t8-case-exemplar-triggered-output-multiplication-v1
+# 来源: T8 非官方案例模板
+
+用途: 先让一个可辨样本与封闭机器同框，经过一次外部触发后打开独立输出阈值；同类实例从阈值连续出现并在机器周围累积，而原样本始终留在顶部作为身份对照，最终同框证明倍增结果。
+输入格式: 样本与封闭机器同框 + 一次外部触发 + 独立输出阈值打开 + 同类实例连续输出累积 + 原样本保留为身份对照
+推荐输入: 原创纸艺天文工坊内，一台黑黄铜立式折叠织机保持关闭，一枚清晰黄铜折纸星放在顶部对照托架，奶油色脚踏板同时可见；第一枚匹配的黄铜折纸星从侧槽折出并挂到一根空线，顶部原样本仍留在独立托架；顶部原样本、中央织机、仍开启的侧槽和四枚不同深度的匹配星同时可见，形成完整小型星座
+
+必须实现的锚点:
+  1. Establish one identity exemplar and one closed production device in the same readable frame.
+  2. Use one visible trigger and show a distinct output threshold opening before the first result.
+  3. Repeat one-at-a-time outputs through the same threshold and accumulate them in visible space.
+  4. Hold exemplar, device, open threshold and accumulated outputs together.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Place one unmistakable exemplar beside or on a closed production device and keep both readable. Use one visible trigger, then require the device to expose a separate output threshold before any result appears. Release matching instances one at a time through that same threshold while the exemplar remains unchanged as a comparison anchor. Accumulate the outputs in visible space and finish with exemplar, device, threshold and group readable together.
+Invariants:
+- inv-01: Establish one identity exemplar and one closed production device in the same readable frame.
+- inv-02: Use one visible trigger and show a distinct output threshold opening before the first result.
+- inv-03: Release one matching instance through the threshold while keeping the exemplar unchanged.
+- inv-04: Repeat one-at-a-time outputs through the same threshold and accumulate them in visible space.
+- inv-05: Hold exemplar, device, open threshold and accumulated outputs together.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Without an exemplar, repeated outputs have no identity reference.: Establish one identity exemplar and one closed production device in the same readable frame.
+- Results appearing before the threshold opens look arbitrary.: Use one visible trigger and show a distinct output threshold opening before the first result.
+- Replacing the exemplar with the output is transformation, not multiplication.: Release one matching instance through the threshold while keeping the exemplar unchanged.
+- A sudden crowd cut hides the repeated production rule.: Repeat one-at-a-time outputs through the same threshold and accumulate them in visible space.
+- Ending on the crowd alone discards origin proof.: Hold exemplar, device, open threshold and accumulated outputs together.
+Do not copy from the source: the source orange-and-white cats; the source large office copier and scanner bed; the source human hand pressing the control panel; the source lower paper-output hatch; the source exact cat-on-top and cats-exiting accumulation gag plus Hailuo/MiniMax marks

@@ -20,7 +20,7 @@ class ReciveAndEdit:
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("OUTPUT",)
     FUNCTION = "process_cache"
-    CATEGORY = "CZ/LLM"
+    CATEGORY = "CZ/Text"
     OUTPUT_NODE = True
 
     def process_cache(self, update_switch, input_string=None, cache_string=None):

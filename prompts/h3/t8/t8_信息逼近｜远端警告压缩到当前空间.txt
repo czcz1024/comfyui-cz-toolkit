@@ -1,0 +1,41 @@
+# 信息逼近｜远端警告压缩到当前空间
+# ID: t8-case-message-distance-collapse-v1
+# 来源: T8 非官方案例模板
+
+用途: 先让远端信息给出模糊空间警告，主体据此检查一个仍为空的方向；第二条信息必须更精确地把发送者位置压缩到主体当前空间，最后只保留转身前的反应与未揭示威胁。
+输入格式: 独处主体 + 远端模糊警告 + 空场验证 + 当前盲区精确警告 + 不揭示来源的反应
+推荐输入: 原创射电望远镜控制室内，一名夜班技术员独自在固定控制台前，北阵列观察缝、墙钟和她唯一的影子先建立；技术员只检查北阵列，碟面和维护路为空，灯保持熄灭，不出现人物或移动物；技术员发现第二道影边，停止动作并开始向控制台一侧转头，发送者始终不揭示
+
+必须实现的锚点:
+  1. Establish stable local geography before any message changes its meaning.
+  2. Use one bounded first message that warns about a direction but keeps the sender remote or ambiguous.
+  3. Use a second message to locate the sender inside the subject's current blind spot.
+  4. End on a held reaction or beginning turn before the sender is revealed.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Establish one subject inside stable, easily rechecked geography. Deliver a first bounded message with an ambiguous spatial warning, let the subject inspect the indicated area and find no confirmed source, then deliver a second message that precisely locates the sender inside the subject's immediate blind spot. End on the subject's delayed reaction or initial turn without revealing the sender.
+Invariants:
+- inv-01: Establish stable local geography before any message changes its meaning.
+- inv-02: Use one bounded first message that warns about a direction but keeps the sender remote or ambiguous.
+- inv-03: Let the subject visibly inspect the indicated area without confirming a threat.
+- inv-04: Use a second message to locate the sender inside the subject's current blind spot.
+- inv-05: End on a held reaction or beginning turn before the sender is revealed.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Abstract darkness provides no spatial reference.: Establish stable local geography before any message changes its meaning.
+- An immediate close-proximity claim skips the ladder.: Use one bounded first message that warns about a direction but keeps the sender remote or ambiguous.
+- Showing the sender early collapses suspense.: Let the subject visibly inspect the indicated area without confirming a threat.
+- A repeated vague warning does not escalate spatially.: Use a second message to locate the sender inside the subject's current blind spot.
+- A full creature reveal replaces the mechanism with a jump scare.: End on a held reaction or beginning turn before the sender is revealed.
+Do not copy from the source: the source blonde woman and cream sweater; the source warm residential hallway and dark doorway; the source smartphone call interface; DON'T LOOK. LOOK BEHIND YOU.; I'M STANDING RIGHT BEHIND YOU.; the source exact face-phone-hallway alternation

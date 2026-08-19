@@ -1,0 +1,42 @@
+# 手势对齐｜前景动作触发后景状态
+# ID: t8-case-foreground-effector-background-state-change-v1
+# 来源: T8 非官方案例模板
+
+用途: 固定分层构图先给出一个后景基准状态，前景动作沿清楚路径完成视线对齐，只触发一次状态变化，再通过保持、清开与回指确认结果持续。
+输入格式: 固定前后景 + 可读基准状态 + 单一前景动作路径 + 一次对齐触发 + 状态保持 + 清开后确认
+推荐输入: 黄铜天文馆木偶抬起细指示杆，与后景月盘清楚对齐；月盘只转一次，机械标签从 PARKED 翻成 TRACKING。木偶先保持共同证明，再放下指示杆，最后只点亮一个绿色确认灯。
+
+必须实现的锚点:
+  1. Establish one stable subject-target geography and one readable baseline state before the effector enters.
+  2. Use one unambiguous effector path that ends in a clean foreground-to-background alignment with the target.
+  3. Change exactly one target state during or immediately after the alignment, without asserting literal contact that is not shown.
+  4. End on the persistent changed state with one brief acknowledgment or recall gesture, not a second state change.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+In a fixed layered composition, establish one readable background state, move one foreground effector along a clean path until it visually aligns with the target, change exactly one target state during that alignment, hold the new state long enough to read, then clear the effector and finish by recalling or acknowledging the persistent result.
+Invariants:
+- inv-01: Establish one stable subject-target geography and one readable baseline state before the effector enters.
+- inv-02: Use one unambiguous effector path that ends in a clean foreground-to-background alignment with the target.
+- inv-03: Change exactly one target state during or immediately after the alignment, without asserting literal contact that is not shown.
+- inv-04: Hold the aligned effector and changed state together, then clear the effector while the result persists.
+- inv-05: End on the persistent changed state with one brief acknowledgment or recall gesture, not a second state change.
+Variable slots:
+- foreground_subject: One original subject with a clearly readable effector and stable identity.
+- background_target: One original target whose baseline and changed states are visually distinct.
+- effector_path: One clean trajectory ending at a precise apparent alignment.
+- state_pair: One before state and one after state; no additional state family.
+- depth_grammar: A composition that keeps foreground effector, subject and rear target simultaneously legible.
+- confirmation_hold: Enough time to read both aligned action and changed result.
+- release_or_recall: Clear the target once, then optionally acknowledge the unchanged result.
+- sound_family: Original physical cues for approach, state change, hold and release.
+Failure prevention:
+- The target state is not readable before the gesture.: Hold one high-contrast baseline state before the effector enters.
+- The effector overlaps several controls or follows an ambiguous path.: Use one target and one clean vector ending in precise alignment.
+- Several background elements change together.: Change exactly one declared state pair and freeze all other anchors.
+- The hand or tool never clears the result.: After the joint confirmation hold, retract it so the changed state can be read independently.
+- The ending triggers a second state change.: Use only an acknowledgment gesture or light sweep while preserving the confirmed state.
+Do not copy from the source: T8star-Aix; +关注; 已关注; source profile counts and platform labels; source face, hairstyle and brown shirt; source pink-white profile interface and exact pointing placement

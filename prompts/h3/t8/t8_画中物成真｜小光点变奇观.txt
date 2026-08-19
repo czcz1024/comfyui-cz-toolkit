@@ -1,0 +1,39 @@
+# 画中物成真｜小光点变奇观
+# ID: t8-case-created-mark-boundary-crossing-v1
+# 来源: T8 非官方案例模板
+
+用途: 被创作的小标记获得自主性，跨出实体边界，扩张并改变真实环境。
+输入格式: 被创作的小标记 + 获得自主性 + 越过实体边界 + 扩大/复制 + 改变环境
+推荐输入: 刺绣布上的银色小鹤先眨眼，随后从布面跨出，复制成一群微光纸鹤，绕舞台飞行并重新点亮整片空间。
+
+必须实现的锚点:
+  1. 起点明确是被创作的标记
+  2. 先出现自主动作
+  3. 必须跨过真实边界
+  4. 扩张后改变环境而非只放大
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Begin with a small mark being intentionally created on a bounded physical surface. Let it acquire autonomy before crossing the surface edge, preserve one continuous trajectory into the live environment, then multiply or scale until its emitted property changes the surrounding world. Creation, autonomy, crossing, multiplication and environmental consequence must occur in that order; medium, creature, setting, emission, scale and emotion are variable.
+Invariants:
+- inv-01: Show the mark being completed on a readable physical surface.
+- inv-02: Prove autonomy while the mark is still near its source boundary.
+- inv-03: Use one continuous path to cross from authored surface into shared space.
+- inv-04: Multiply or enlarge only after the first entity has crossed.
+- inv-05: Let the scaled phenomenon visibly alter environmental light, motion or material.
+Variable slots:
+- lead_subject: An original subject whose identity and silhouette remain stable.
+- setting: A new setting with fixed spatial anchors and no source-specific location.
+- escalation_variable: One readable variable that changes monotonically or in countable stages.
+- performance_rule: One restrained performance rule that makes the mechanism legible.
+- camera_grammar: A coherent information order that does not copy the source shot boundaries.
+- payoff: One clean physical or graphic consequence that closes the causal chain.
+- sound_family: A new hierarchy of diegetic cues supporting each state change.
+Failure prevention:
+- The swarm appears before a single entity crosses.: Hold on one autonomous entity until it visibly passes the source edge.
+- The live environment is already brightly lit.: Protect a subdued baseline so the emitted property can change it.
+- The new version simply swaps one glowing insect for another.: Change creation medium, entity class, environment, emission physics, camera and emotional payoff.
+Do not copy from the source: yellow-pencil firefly drawn in a rain-covered sketchbook; warm golden insect swarm in a gloomy urban alley; source hand, page angle, street geography and pedestrian arrangement; MiniMax or Hailuo watermark placement

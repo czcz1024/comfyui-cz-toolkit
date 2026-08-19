@@ -1,0 +1,41 @@
+# 环境前沿｜局部点燃到全域占据
+# ID: t8-case-environmental-front-area-escalation-v1
+# 来源: T8 非官方案例模板
+
+用途: 在同一地理中用一个可追踪的环境前沿逐阶段扩张：局部起点、连续蔓延、跨越地标、遮蔽更多空间，最终用广角证明场地状态已整体改变；不依赖来源中的战斗身份或火焰表面。
+输入格式: 有边界环境 + 单一连续变化前沿 + 至少2个固定地标 + 占据面积逐级扩大 + 终态广角对照
+推荐输入: 圆形水族实验室中，掌大蓝色藻团从进水口连续扩张，依次越过三座编号珊瑚门；最终俯拍证明大部分水槽已改变，同时保留一个清水口袋对照。
+
+必须实现的锚点:
+  1. Establish a bounded environment, an untouched region and one localized starting front.
+  2. Grow one contiguous front instead of spawning unrelated effects everywhere.
+  3. Increase occupied area and material state, not just brightness.
+  4. Hold a final wide comparison showing transformed and residual untouched regions.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Environmental escalation is legible when one contiguous front grows through a fixed geography and each phase occupies a larger measurable area. Static anchors must remain visible long enough to prove propagation, and the final wide state should show that the environment—not merely exposure or color grading—has materially changed.
+Invariants:
+- inv-01: Establish a bounded environment, an untouched region and one localized starting front.
+- inv-02: Grow one contiguous front instead of spawning unrelated effects everywhere.
+- inv-03: Cross at least two fixed spatial anchors in order.
+- inv-04: Increase occupied area and material state, not just brightness.
+- inv-05: Hold a final wide comparison showing transformed and residual untouched regions.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Opening on a fully transformed field removes progression.: Establish a bounded environment, an untouched region and one localized starting front.
+- Random flashes create spectacle without a readable process.: Grow one contiguous front instead of spawning unrelated effects everywhere.
+- Without anchors, apparent growth may be only camera movement.: Cross at least two fixed spatial anchors in order.
+- Exposure shifts can imitate escalation without propagation.: Increase occupied area and material state, not just brightness.
+- A tight climax cannot verify site-wide change.: Hold a final wide comparison showing transformed and residual untouched regions.
+Do not copy from the source: dark battlefield terrain; large silhouetted creature; orange fire waves; source ignition layout; source battle and flame climax

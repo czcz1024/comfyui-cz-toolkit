@@ -1,0 +1,41 @@
+# 背景异常｜先被观众发现再由记录设备证实
+# ID: t8-case-background-anomaly-recording-reveal-v1
+# 来源: T8 非官方案例模板
+
+用途: 先让异常出现在背景而人物继续日常活动，再用记录设备把异常隔离成证据；异常改变或离开记录画面后，人物才出现延迟反应。
+输入格式: 背景异常先出现 + 前景保持日常 + 记录设备取证 + 证据场变化 + 延迟反应
+推荐输入: 单名温室工程师校准阀门时，远处压力窗出现非人形霜纹；墙装机械观察镜固定取证，霜纹沿铜管迁移后人物才转身。
+
+必须实现的锚点:
+  1. Reveal the anomaly to the viewer before the subjects notice it.
+  2. Keep foreground behavior ordinary during the first anomaly state.
+  3. Change the anomaly inside or against the evidence field.
+  4. Delay the human reaction until after the proof changes.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Place an anomaly in the background before foreground subjects notice it, preserve ordinary foreground behavior, use a recording or inspection device to isolate the anomaly as evidence, let the anomaly visibly disrupt or leave that evidence field, then delay the subjects' reaction until after the proof changes.
+Invariants:
+- inv-01: Reveal the anomaly to the viewer before the subjects notice it.
+- inv-02: Keep foreground behavior ordinary during the first anomaly state.
+- inv-03: Use one device or inspection frame to isolate the anomaly.
+- inv-04: Change the anomaly inside or against the evidence field.
+- inv-05: Delay the human reaction until after the proof changes.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- Simultaneous discovery removes suspense.: Reveal the anomaly to the viewer before the subjects notice it.
+- Immediate panic spends the escalation.: Keep foreground behavior ordinary during the first anomaly state.
+- A random close-up does not prove discovery.: Use one device or inspection frame to isolate the anomaly.
+- An unchanged recording adds no causal turn.: Change the anomaly inside or against the evidence field.
+- Early reaction breaks the asymmetry.: Delay the human reaction until after the proof changes.
+Do not copy from the source: source anime women and neon alley; purple ghost silhouette and smartphone screen; the exact phone-recording disappearance storyboard; source character designs and palette; source phone 00:00 recording UI; source red record button

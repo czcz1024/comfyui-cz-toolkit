@@ -1,0 +1,39 @@
+# 角色登场｜细节到全身揭晓
+# ID: t8-case-staged-character-reveal-v1
+# 来源: T8 非官方案例模板
+
+用途: 从标志细节开始，逐层扩展到面部、动作和全身英雄定格。
+输入格式: 标志细节→局部轮廓→面部→一次动作→全身英雄定格
+推荐输入: 先拍老式列车长的黄铜打票钳，再露出制服轮廓和面部；他只完成一次打票动作，最后在蒸汽站台中全身英雄定格。
+
+必须实现的锚点:
+  1. 从可识别细节开始
+  2. 揭晓尺度逐步扩大
+  3. 角色只做一次代表动作
+  4. 以全身定格完成身份确认
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Reveal one stable character through a controlled information ladder: signature detail, partial or rear silhouette, face, one restrained personality action and complete hero view. Each stage must answer one identity question while preserving exact defining features and calm secondary motion. Character, medium, environment, reveal detail, gesture, camera axis and mood are variable.
+Invariants:
+- inv-01: Begin on one signature detail rather than the full design.
+- inv-02: Use a partial or rear silhouette before showing the face.
+- inv-03: Preserve defining identity, materials and silhouette through every stage.
+- inv-04: Allow only one restrained signature action after the face reveal.
+- inv-05: End on a clean complete hero view and hold it.
+Variable slots:
+- lead_subject: An original subject whose identity and silhouette remain stable.
+- setting: A new setting with fixed spatial anchors and no source-specific location.
+- escalation_variable: One readable variable that changes monotonically or in countable stages.
+- performance_rule: One restrained performance rule that makes the mechanism legible.
+- camera_grammar: A coherent information order that does not copy the source shot boundaries.
+- payoff: One clean physical or graphic consequence that closes the causal chain.
+- sound_family: A new hierarchy of diegetic cues supporting each state change.
+Failure prevention:
+- The complete character appears in the first shot.: Crop to one signature detail and delay face/full body.
+- Outfit or face changes between stages.: Declare identity anchors and repeat them in every shot.
+- The introduction becomes an action montage.: Use one restrained gesture and reserve the final seconds for a stable hero hold.
+Do not copy from the source: source black-haired female design with cream oversized sleeves and red ties; repeated character-sheet strip beneath every shot; source sunlit stone courtyard and exact orbit; source hand-to-eye gesture, boots and final low-angle pose

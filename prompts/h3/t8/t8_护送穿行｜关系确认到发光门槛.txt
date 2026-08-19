@@ -1,0 +1,41 @@
+# 护送穿行｜关系确认到发光门槛
+# ID: t8-case-protector-led-route-to-threshold-v1
+# 来源: T8 非官方案例模板
+
+用途: 先用近距离动作建立保护者与需要护送者的关系，再让保护者转身确认路线、持续保持可见接触并穿过熟悉空间；晚段只跨越一个视觉明确的门槛，保持两人共同进入的证据。
+输入格式: 保护者与被护送者 + 关系基线 + 路线确认 + 持续引导接触 + 共同跨越单一门槛
+推荐输入: 原创机械档案馆里，黄铜图书管理员自动机用一只关节臂护住小纸鸟，并在两者之间系好蓝色引导带；两者穿过两道折叠档案架，蓝带持续绷直，自动机始终位于小鸟与移动书架之间；自动机先跨过并在同一动作中引导小鸟进入，最终两者在暖色书库内同框，蓝带与接触不变
+
+必须实现的锚点:
+  1. Establish the protector and dependent role through visible contact before travel.
+  2. Show the protector choose or confirm one route before escorting.
+  3. Keep both identities and recurring landmarks traceable.
+  4. Cross one distinct threshold together and hold connection.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Establish a protector-dependent relationship before movement, show the protector choose and lead one continuous route while maintaining readable contact, preserve both identities through the environment, then cross one visually distinct threshold together and hold their connection.
+Invariants:
+- inv-01: Establish the protector and dependent role through visible contact before travel.
+- inv-02: Show the protector choose or confirm one route before escorting.
+- inv-03: Maintain readable physical or spatial guidance through the route.
+- inv-04: Keep both identities and recurring landmarks traceable.
+- inv-05: Cross one distinct threshold together and hold connection.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Starting in motion obscures the relationship.: Establish the protector and dependent role through visible contact before travel.
+- An unexplained cut to travel removes agency.: Show the protector choose or confirm one route before escorting.
+- Independent walking weakens protection.: Maintain readable physical or spatial guidance through the route.
+- Losing one subject breaks the route.: Keep both identities and recurring landmarks traceable.
+- Separate crossings or a premature cut leave the outcome unclear.: Cross one distinct threshold together and hold connection.
+Do not copy from the source: the source father and child; the exact apartment and wardrobe; the source embrace and escort choreography; the exact glowing portal appearance; the source family identity

@@ -1,0 +1,40 @@
+# 人物旅程｜从困境走向目标
+# ID: t8c004-pressure-to-goal-journey
+# 来源: T8 非官方案例模板
+
+用途: 让人物从可见困境出发，经过连续物理过渡，抵达目标并完成动作。
+输入格式: 人物困境 + 可见目标空间 + 3个物理过渡 + 抵达后的完成动作
+推荐输入: 疲惫的钟表匠被困在地下维修间，远处钟塔是目标；他穿过狭窄管道、升降平台和风雨屋顶，抵达后重新启动大钟。
+
+必须实现的锚点:
+  1. 起点困境明确
+  2. 目标空间提前可见或可理解
+  3. 至少三个连续物理过渡
+  4. 抵达后完成目标动作
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+A recognizable person remains the emotional coordinate while an externally observed journey moves from constrained work pressure into an expanded goal space. Context is revealed through material interactions and camera parallax rather than direct exposition; scale and light increase toward the transition, and a final task-completing interaction—not a gesture to the lens—turns anticipation into earned arrival. Shot count, camera carrier and reveal order are variable.
+Invariants:
+- inv-01: Keep one recognizable person emotionally legible across changing spaces, using face, posture or task behavior as the recurring anchor rather than requiring a selfie.
+- inv-02: Make every contextual reveal originate from a physical interaction—moving a cart, opening geometry, passing an obstacle or handing off an object—and let the camera discover it through parallax, reframing or occlusion.
+- inv-03: Create one legible transition from compressed effort to expanded possibility using at least two of scale, light, depth, sound or traffic flow; the transition may occur through a door, lift, ramp, curtain, bend or temporal match.
+- inv-04: Choose a capture grammar appropriate to each new world and keep its rules consistent; controlled documentary texture may come from parallax, shallow focus, operator lag or environmental occlusion, not a fixed bundle of DV defects.
+- inv-05: Resolve arrival through one task-completing physical interaction between the person and the goal environment, while their emotional state remains readable without addressing the lens.
+Variable slots:
+- traveler: One original adult subject with stable identity and a clear reason to move.
+- prep_space: A compressed, imperfectly lit working area with readable practical obstacles.
+- context_reveals: One to three physically motivated discoveries whose order and camera implementation change with the instance.
+- material_handoff: An object, obstacle or collaborator changes the route or objective; avoid mirror-based self-checks.
+- goal_threshold: A brighter, wider destination visibly different from the prep space.
+- capture_texture: Select an instance-specific external, fixed, body-mounted or handheld grammar; do not reuse a bundled source artifact signature.
+- resolution_action: A material action that proves the person has entered or completed the goal, with no direct-to-camera hand sign.
+- shot_structure: Choose three to six events with an order justified by the new task; do not map source beats one-to-one.
+Failure prevention:
+- Camera changes occur without a material cause or simply imitate turn-and-return selfie coverage.: Tie each reframe to an object, obstacle, collaborator or changed route; vary carrier and shot count with the instance.
+- The destination appears too early.: Hide it behind real geometry and reserve the brightest, widest composition for the final third.
+- A new concept preserves the source's entire MiniDV defect signature.: Select a different coherent capture grammar and derive texture from the new environment while locking identity and route direction.
+Do not copy from the source: source face, ethnicity cues, hair, earrings and stage wardrobe; concert backstage corridor, dressing mirror, curtain and exact stage-light composition; exact dialogue, countdown, finger-heart gesture and performer premise; creator-specific DV artifact bundle, wrist-turn/return pattern, mirror readiness check or shot timing copied beat for beat

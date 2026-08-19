@@ -1,0 +1,42 @@
+# 升级讽刺｜新物登场旧爱被移走
+# ID: t8-case-earnest-upgrade-displacement-v1
+# 来源: T8 非官方案例模板
+
+用途: 先建立对旧物的真诚依恋，再让升级与移走同时发生；群体把掌声转向新物，最后用完全认真的制度化终态保留未解决的反差。
+输入格式: 被珍爱的旧物 + 一个具体依恋动作 + 新旧同时进出 + 群体掌声转移 + 真诚但不解决依恋的终态
+推荐输入: 纸艺温室里，毛毡园丁珍爱旧雨量计，折纸知更鸟在底座筑巢；自动气象塔进入时旧雨量计同时被推出，知更鸟仍随旧物离场，园丁真诚鼓掌，最后停在无文字的太阳徽记终态。
+
+必须实现的锚点:
+  1. 先证明旧物被真诚珍爱
+  2. 用一个具体身体动作锁定依恋
+  3. 新物进入与旧物移走必须同镜同时发生
+  4. 群体掌声转向新物且不回应被移走者
+  5. 结尾保持制度化真诚并保留未解决依恋
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+First make an existing object feel sincerely valued, then bind one restrained subject to it through a specific physical attachment. Introduce the upgrade and remove the valued object in the same spatial event so progress and loss are inseparable. Redirect the surrounding group's genuine enthusiasm to the replacement while the attached subject remains visible but unattended. Finish with completely earnest institutional closure, preserving the unresolved attachment so the satire comes from the image logic rather than a wink or joke.
+Invariants:
+- inv-01: Establish the current object or system as sincerely valued before introducing its replacement.
+- inv-02: Bind one restrained character or creature to the current object through a concrete physical attachment action.
+- inv-03: Show the replacement entering while the valued object exits in one shared spatial proof.
+- inv-04: Redirect group approval to the replacement while the attached subject remains visible but socially unattended.
+- inv-05: End with an authoritative promotional closure that remains completely sincere and does not resolve the attachment.
+Variable slots:
+- lead_subject: An original, stable subject or group with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical or social consequence.
+- sound_family: An original hierarchy of diegetic cues supporting state changes.
+Failure prevention:
+- If replacement arrives first, the satire is only a product comparison.: Establish the current object or system as sincerely valued before introducing its replacement.
+- Generic smiles give the audience no specific cost to track.: Bind one restrained character or creature to the current object through a concrete physical attachment action.
+- Separate before-and-after shots hide who or what is displaced.: Show the replacement entering while the valued object exits in one shared spatial proof.
+- If the group notices or apologizes, the institutional certainty collapses into ordinary drama.: Redirect group approval to the replacement while the attached subject remains visible but socially unattended.
+- A wink, angry reaction or explanatory joke releases the tension and weakens the satire.: End with an authoritative promotional closure that remains completely sincere and does not resolve the attachment.
+Do not copy from the source: Mark IV; Mark V; OPEN MIND INC.; The Future Arrives Thursday.; 1950s appliance showroom family; boy dragged while hugging old machine

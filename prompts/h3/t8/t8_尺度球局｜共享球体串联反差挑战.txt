@@ -1,0 +1,41 @@
+# 尺度球局｜共享球体串联反差挑战
+# ID: t8-case-scale-mismatch-sports-token-challenge-v1
+# 来源: T8 非官方案例模板
+
+用途: 用一个持续可见的球体把尺度反差对手、固定目标和动作阶段串在同一场地：控球建立规则、巨体封锁空间、小体型改变路线、抛物线把挑战推向目标，最后以双方可见反应收束但不臆测得分。
+输入格式: 两种明显尺度 + 共享球体或令牌 + 固定目标 + 可见变线 + 单一轨迹 + 不虚构结果的反应终态
+推荐输入: 硬币大小的配送机器人控制发光珠，巨型充气守门体封锁桌面通道；机器人变线并把珠子抛向悬空铜环，结尾保持双方和目标同框，不在未确认时宣称成功。
+
+必须实现的锚点:
+  1. Establish two clearly different scales, one shared token and one fixed target in the same arena.
+  2. Use repeated token control to prove who currently owns the action.
+  3. Show one readable token trajectory toward the fixed target.
+  4. End on a visible shared reaction state and only claim success if the target result is directly shown.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+A scale-mismatch challenge stays coherent when one shared token remains visible across control, obstruction, route change and an attempt toward a fixed target. Court or arena markings must preserve geography, and the ending may show reaction or suspense without claiming a result that is not visibly confirmed.
+Invariants:
+- inv-01: Establish two clearly different scales, one shared token and one fixed target in the same arena.
+- inv-02: Use repeated token control to prove who currently owns the action.
+- inv-03: Let the larger body obstruct space while the smaller body changes route rather than matching size.
+- inv-04: Show one readable token trajectory toward the fixed target.
+- inv-05: End on a visible shared reaction state and only claim success if the target result is directly shown.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Hiding any one element reduces the scene to unrelated spectacle.: Establish two clearly different scales, one shared token and one fixed target in the same arena.
+- A disappearing token breaks the causal chain.: Use repeated token control to prove who currently owns the action.
+- Equalized movement makes the size contrast cosmetic.: Let the larger body obstruct space while the smaller body changes route rather than matching size.
+- A cut directly to reaction hides the challenge's decisive action.: Show one readable token trajectory toward the fixed target.
+- An unsupported score claim invents the payoff.: End on a visible shared reaction state and only claim success if the target result is directly shown.
+Do not copy from the source: basketball court; small male player; giant female defender; basketball and hoop staging; source crowd and reaction close-ups

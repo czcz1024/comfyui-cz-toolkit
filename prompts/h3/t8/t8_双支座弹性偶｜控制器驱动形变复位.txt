@@ -1,0 +1,41 @@
+# 双支座弹性偶｜控制器驱动形变复位
+# ID: t8-case-dual-support-elastic-character-control-v1
+# 来源: T8 非官方案例模板
+
+用途: 让两个图形角色分别绑定到持续可见的物理支座；每轮只改变一种可读控制参数，以共同响应、独立响应和第三种关系测试证明绑定规则，最后让两支座重新稳定并恢复可辨双角色终态。
+输入格式: 两个可见支座绑定双角色 + 共享响应 + 独立响应 + 第三种关系测试 + 所有权不互换 + 配对终态
+推荐输入: 原创磁悬观测室内，两座黄铜万向节底座位于独立同心环；A座系青色方眼种荚，B座系琥珀月牙眼种荚；两座底座沿不同半径绕中央校准标记运行一圈，两枚种荚形成耦合环绕但系绳始终分离；两座底座进入并排插槽，斜向张力释放，两枚种荚恢复成紧凑可辨形态；眼标、系绳和停靠灯同框停留
+
+必须实现的锚点:
+  1. Establish two distinct graphic characters, each visibly bound to one stable physical support.
+  2. Change one measurable support parameter and make both characters answer through a readable shared response.
+  3. Apply a third materially different support relation or controller path without repeating the prior response.
+  4. Synchronize both supports and finish with two legible characters still attached to their original sides.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Bind two simple graphic characters to two continuously visible physical supports. Change only one measurable support parameter at a time so the pair first demonstrates a shared response, then an asymmetric independent response, then a third materially different relation test. The order, axis and controller may change across instances; character identity and support ownership must remain readable until both supports stabilize into a legible paired state.
+Invariants:
+- inv-01: Establish two distinct graphic characters, each visibly bound to one stable physical support.
+- inv-02: Change one measurable support parameter and make both characters answer through a readable shared response.
+- inv-03: Change a different parameter asymmetrically so one character responds while both bindings remain intact.
+- inv-04: Apply a third materially different support relation or controller path without repeating the prior response.
+- inv-05: Synchronize both supports and finish with two legible characters still attached to their original sides.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Floating characters with no support cannot make gesture causality readable.: Establish two distinct graphic characters, each visibly bound to one stable physical support.
+- Changing body shape without a matching support change feels arbitrary.: Change one measurable support parameter and make both characters answer through a readable shared response.
+- Applying identical changes to both sides never demonstrates separate ownership.: Change a different parameter asymmetrically so one character responds while both bindings remain intact.
+- Repeating the same axis and order makes the middle a surface routine.: Apply a third materially different support relation or controller path without repeating the prior response.
+- Losing a face, swapping sides or ending as abstract ribbons breaks identity closure.: Synchronize both supports and finish with two legible characters still attached to their original sides.
+Do not copy from the source: the source dark-haired woman in a white sweater and beige trousers; the source cream goose-like cartoon blobs with tiny eyes and orange beaks; the source apartment interior and fixed vertical framing; the source exact palm choreography and extreme long-neck ending; MiniMax and Hailuo AI watermarks

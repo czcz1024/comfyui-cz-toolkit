@@ -1,0 +1,41 @@
+# 步速到抵达｜目的地延迟出现并由环境庆祝
+# ID: t8-case-pace-to-destination-celebration-v1
+# 来源: T8 非官方案例模板
+
+用途: 先建立安静旅人与尚未揭示的路线，再由步行提升到奔跑并扩大空间；目的地在投入行动后才出现，接近时由环境触发庆祝，最后三者同框收束。
+输入格式: 安静旅人 + 步行转奔跑 + 延迟目的地揭示 + 环境庆祝 + 人路目的地同框
+推荐输入: 夜间植物学家沿温室水渠由步行转奔跑，种子库在叶帘后延迟出现，接近时环形灌溉装置依次启动，最后三者同框。
+
+必须实现的锚点:
+  1. Begin with a quiet traveler and no visible destination.
+  2. Increase pace while preserving one travel direction.
+  3. Use one environmental celebration triggered near approach.
+  4. Hold traveler, route and destination in one final field.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Begin with a quiet traveler and an unrevealed route, increase body pace from walk to run while widening the path, delay the destination until forward commitment is established, activate one external celebration as the traveler approaches, then hold traveler, route and destination in one legible arrival field.
+Invariants:
+- inv-01: Begin with a quiet traveler and no visible destination.
+- inv-02: Increase pace while preserving one travel direction.
+- inv-03: Reveal the destination only after the pace change.
+- inv-04: Use one environmental celebration triggered near approach.
+- inv-05: Hold traveler, route and destination in one final field.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- Showing the goal immediately removes discovery.: Begin with a quiet traveler and no visible destination.
+- A cut to a different traveler breaks the journey.: Increase pace while preserving one travel direction.
+- An early destination becomes wallpaper.: Reveal the destination only after the pace change.
+- Random spectacle has no route relationship.: Use one environmental celebration triggered near approach.
+- A destination-only close-up loses the journey.: Hold traveler, route and destination in one final field.
+Do not copy from the source: source woman, sheep, grassland and fantasy castle; source dusk fireworks and hill reveal; the exact walk-run-castle storyboard; source wardrobe and pastoral palette

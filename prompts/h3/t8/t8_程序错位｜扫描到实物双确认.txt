@@ -1,0 +1,41 @@
+# 程序错位｜扫描到实物双确认
+# ID: t8-case-procedure-mismatch-nested-proof-v1
+# 来源: T8 非官方案例模板
+
+用途: 超尺度主体认真执行熟悉程序，扫描先揭示嵌套对象，随后同一对象实体出现完成双确认。
+输入格式: 超尺度主体 + 熟悉程序 + 3个不同尺度失配 + 扫描先显示嵌套对象 + 同一对象实体出现并同框
+推荐输入: 巨型纸艺飞蛾认真通过行李安检，托盘、传送带和扫描门连续出现尺度失配；屏幕先显示箱内的小纸蛾，开箱后同一只小纸蛾实体飞出，与大飞蛾同框。
+
+必须实现的锚点:
+  1. 主体与程序尺度明显失配
+  2. 至少三个不同失配证明
+  3. 扫描先于实物揭晓
+  4. 实物必须是扫描中的同一对象且两种尺度同框
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Place one visibly mis-scaled subject inside a familiar step-by-step procedure and require sincere compliance. Let each successive checkpoint expose a different physical fit failure while the subject preserves dignity. Use imaging to reveal a nested counterpart inside one bound container, then physically expose the same counterpart and hold both scales plus the main subject's reaction so the physical reveal independently confirms the scan.
+Invariants:
+- inv-01: Use a procedure with immediately recognizable ordered checkpoints.
+- inv-02: Keep the subject sincere and restrained throughout compliance.
+- inv-03: Escalate through different fit failures rather than repeated alarms.
+- inv-04: Reveal the nested counterpart first through an imaging device while it remains inside the same bound container.
+- inv-05: Physically expose the same counterpart and hold a visible reaction with both scales present.
+Variable slots:
+- lead_subject: An original subject or system whose identity remains stable.
+- setting: A new setting with fixed spatial anchors.
+- escalation_variable: One visible variable that changes in countable causal stages.
+- performance_rule: A restrained behavior rule that makes the mechanism legible.
+- camera_grammar: A coherent information order that does not copy source shot boundaries.
+- payoff: One clean physical or graphic consequence.
+- sound_family: A new hierarchy of diegetic cues supporting state changes.
+Failure prevention:
+- An unfamiliar process cannot create clear mismatch.: Use a procedure with immediately recognizable ordered checkpoints.
+- Deliberate clowning weakens the procedural contrast.: Keep the subject sincere and restrained throughout compliance.
+- One repeated mismatch becomes monotonous.: Escalate through different fit failures rather than repeated alarms.
+- Immediate emergence removes the scan-to-physical double-proof structure.: Reveal the nested counterpart through imaging first while it remains inside the same container.
+- A screen-only ending can be read as an error, while an off-screen reveal cannot prove continuity.: Show the same counterpart physically with both scales and the main subject reaction in frame.
+Do not copy from the source: full-size T-rex at airport security; tiny sunglasses and snakeskin purse; metal detector, security wand and baggage scanner; miniature T-rex emerging from the purse

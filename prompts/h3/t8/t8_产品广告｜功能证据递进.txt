@@ -1,0 +1,44 @@
+# 产品广告｜功能证据递进
+# ID: t8c001-product-proof-state-machine
+# 来源: T8 非官方案例模板
+
+用途: 先给结果，再用多个可见证据逐层证明产品功能，最后收束到行动。
+输入格式: 产品/服务 + 目标人群 + 3个不同证明状态 + 最终行动
+推荐输入: 一款便携净水器，面向户外徒步者：先展示喝到清水的结果，再依次用滤芯剖面、浑水变清和营地实用场景证明功能，最后出现简短购买行动。
+
+必须实现的锚点:
+  1. 先结果后证据
+  2. 至少三个不同证明状态
+  3. 证据必须可见且递进
+  4. 结尾有明确行动或产品收束
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+A compressed launch film behaves as a flexible proof state machine rather than a fixed storyboard: an outcome, operation, internal mechanism, maximum contrast event, breadth proof and final action may be merged or reordered as long as each state answers a new product question. A strict material, light and typography system maintains coherence while shot count, information order, camera carrier and breadth device change across instances.
+Invariants:
+- inv-01: Within the first third, establish one emotionally legible outcome and its causal relationship to the product; outcome-first and proof-first openings are both valid.
+- inv-02: Make each information state answer a different product question, but merge related questions and vary their order according to the new product's strongest causal proof.
+- inv-03: Concentrate one maximum contrast event after enough setup to make it legible; the peak may be physical, spatial, typographic or human, and its position is variable.
+- inv-04: Bind different modules with one strict contrast system, typography behavior and recurring assembly physics.
+- inv-05: Prove breadth once before the final action using a device native to the new concept—continuous space, physical transformation, one montage, radial staging or audience behavior—not a mandatory card row or grid.
+- inv-06: Keep all visible copy short, complete and motion-safe: text lands at final size on a cut or via a hard mask and remains sharp long enough to read.
+Variable slots:
+- product_identity: One original fictional product name and a single-sentence emotional promise.
+- hero_benefit_image: An original person, object or environment showing the desired outcome rather than the interface.
+- capability_modules: Two or three visually distinct proofs that answer different product questions.
+- operation_proof: One legible control, process or physical mechanism that demonstrates how the product works.
+- peak_event: One maximum contrast event expressed through physical, spatial, typographic or human change.
+- breadth_device: One original non-redundant method for proving multiple contexts; avoid the source card-row plus grid pair.
+- graphic_system: A palette, material, light behavior and typography rule unrelated to the source campaign.
+- final_action: One concise CTA displayed in a stable closing lockup.
+- information_order: Choose an order derived from the new product's causal logic, not the source's nine-state sequence.
+- shot_structure: Use five to eight states with materially different boundaries, merges and camera implementations.
+Failure prevention:
+- The film is only a sequence of attractive product shots.: Assign each beat a distinct question and require an observable proof before the next cut.
+- Every beat tries to be the visual climax.: Use restrained assembly motion early, one dominant kinetic peak, then simplify toward the CTA.
+- Typography becomes unreadable or dominates the product.: Limit copy, land it complete at final size, hold it sharp and keep moving effects behind the text plane.
+- A palette swap leaves the source campaign visibly recognizable.: Change product category, hero subject, materials, information order, shot count, camera implementation, breadth device, copy and final action in addition to color.
+Do not copy from the source: MiniMax H3, HailuoAI, Create Beyond, LIVE RIGHT NOW, AVAILABLE NOW and every other source string; source woman, violet jellyfish, nebula, purple speed streaks and identical product-category imagery; source wordmarks, logos, translucent panel compositions, editing interface and creator-card layouts; the exact nine-panel storyboard, exact beat durations, exact typography positions and source color palette

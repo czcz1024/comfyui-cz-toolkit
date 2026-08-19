@@ -1,0 +1,41 @@
+# 世界换材｜主体不断线穿过环境突变
+# ID: t8-case-route-continuity-through-world-conversion-v1
+# 来源: T8 非官方案例模板
+
+用途: 先用稳定地形和连续跟拍锁定主体路线，在一次明确冲击点让周围世界整体换成另一套物质规则；主体运动、方向和速度连续不断，最终用新世界中的可读出口证明不是普通转场。
+输入格式: 连续移动主体 + 原世界基线 + 单次全局换材 + 方向速度不断线 + 新世界终点
+推荐输入: 原创地图工坊里，黄铜发条种子沿奶油色纸面的一条靛蓝河线滚动，远处蓝线信标保持在同一轴线上；到达折痕顶点时，周围纸地图只转换一次为深织物峡谷，墨线变成缝线山脊，种子路线不重置；种子接近蓝线信标，织物峡谷完整保留，不恢复开场平面地图
+
+必须实现的锚点:
+  1. Establish one subject, one travel axis and one ordinary environmental rule before conversion.
+  2. Keep subject identity, direction and motion continuous through the decisive instant.
+  3. Use passing geometry or material response to prove the new world persists around the same route.
+  4. End on continued travel toward a readable destination under the converted rule, not a reset to the opening world.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Lock one moving subject to a legible route, perform one global environmental material conversion around that uninterrupted motion, then prove persistence by continuing toward a visible destination under the new world's rules.
+Invariants:
+- inv-01: Establish one subject, one travel axis and one ordinary environmental rule before conversion.
+- inv-02: Keep subject identity, direction and motion continuous through the decisive instant.
+- inv-03: Convert the environment only once with a visibly global material change.
+- inv-04: Use passing geometry or material response to prove the new world persists around the same route.
+- inv-05: End on continued travel toward a readable destination under the converted rule, not a reset to the opening world.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Beginning inside the converted world removes the causal contrast.: Establish one subject, one travel axis and one ordinary environmental rule before conversion.
+- A motion reset makes the change read as an unrelated scene cut.: Keep subject identity, direction and motion continuous through the decisive instant.
+- Several unrelated transformations weaken the governing rule.: Convert the environment only once with a visibly global material change.
+- A single flash frame cannot prove a persistent new world.: Use passing geometry or material response to prove the new world persists around the same route.
+- Returning to the original environment cancels the conversion consequence.: End on continued travel toward a readable destination under the converted rule, not a reset to the opening world.
+Do not copy from the source: the source mountain biker; rocky alpine ridge and dirt jump; transparent glass shard maze; the source rider wardrobe and bicycle; the exact cliff-to-glass spectacle and framing

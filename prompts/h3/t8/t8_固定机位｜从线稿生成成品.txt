@@ -1,0 +1,38 @@
+# 固定机位｜从线稿生成成品
+# ID: t8c002-fixed-composition-medium-ladder
+# 来源: T8 非官方案例模板
+
+用途: 锁定构图，用不可逆的制作阶段让同一对象从草图逐步成为成品。
+输入格式: 对象 + 固定构图 + 4个不可逆制作阶段 + 终态小动作
+推荐输入: 固定正面构图中的纸艺灯塔：铅笔轮廓、纸片立体搭建、色彩与纹理完成、内部灯光点亮，最后纸浪轻轻摆动。
+
+必须实现的锚点:
+  1. 构图锁定
+  2. 同一对象连续成长
+  3. 至少四个不可逆阶段
+  4. 终态有轻微活化动作
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+A fixed composition turns creation into a readable causal ladder: low-commitment guides establish geometry, committed structure locks it, material finish adds specificity, contextual details certify completion, and one restrained in-medium motion supplies the final surprise.
+Invariants:
+- inv-01: Lock the camera and reserve stable spatial zones before any marks appear.
+- inv-02: Progress from low-commitment guides to committed structure to material colour or finish.
+- inv-03: Delay secondary labels, studies or context until the hero form is already readable.
+- inv-04: End with one subtle motion that remains faithful to the finished medium while the support stays inert.
+Variable slots:
+- support: One stable physical or graphic surface with reserved hero and context zones.
+- hero_subject: A single dominant form readable first as guides, then structure, then finish.
+- representation_ladder: Three visibly distinct commitment stages appropriate to the chosen medium.
+- context_details: Two to four secondary marks or diagrams that arrive only after the hero reads.
+- finish_palette: A restrained palette that clarifies material stages.
+- living_idle: One small loop or response that does not leave or volumize the surface.
+- sound_ladder: Material sounds change with each process stage, followed by one payoff accent.
+Failure prevention:
+- All layers appear together as a generic dissolve.: Give each representation stage a distinct material behavior and complete one milestone before the next begins.
+- The support or camera drifts during creation.: Lock framing, shadows, surface texture and prior marks; permit motion only inside active drawing regions.
+- The final animation breaks into three dimensions.: Restrict the payoff to one flat, local, low-amplitude motion that preserves the medium boundary.
+Do not copy from the source: the source bird species, pose, branch and natural-history subject; the antique two-page folio, exact plate geometry and wooden tabletop; source handwriting, taxonomic wording, plate number and page marks; the exact timecode pattern, colour placement, final blink and tail gesture

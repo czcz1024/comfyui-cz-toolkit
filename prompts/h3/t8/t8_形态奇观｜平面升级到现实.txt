@@ -1,0 +1,42 @@
+# 形态奇观｜平面升级到现实
+# ID: t8c003-dimensional-carrier-loop
+# 来源: T8 非官方案例模板
+
+用途: 同一载体从平面、空间、体积一路升级到环境峰值，再回到原位留下残留。
+输入格式: 现实锚点 + 单一载体 + 平面→空间→体积→环境峰值 + 回到原位的残留
+推荐输入: 桌上的咖啡杯保持原位，蒸汽先变成平面线条，再成为空间丝带和立体水流，扩展成充满房间的雾海，最后回到杯口只留一滴发光水珠。
+
+必须实现的锚点:
+  1. 同一载体贯穿
+  2. 形态按维度升级
+  3. 峰值改变环境
+  4. 回到初始锚点并留下残留
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+A small anomaly leaves a low-information real anchor as one continuously tracked carrier, escalates from flat trace to spatial figure to volumetric material, uses a contact peak to distribute its visual grammar across ordinary environmental anchors, then contracts into a reduced residue that returns to an opening-equivalent location.
+Invariants:
+- inv-01: Introduce one legible impossible seed on a stable ordinary anchor before explaining it.
+- inv-02: Keep one identifiable carrier or trajectory visible across every handoff, and motivate camera attention with that carrier.
+- inv-03: Escalate through at least three materially different representation regimes before the environmental peak.
+- inv-04: Use recurring practical anchors first as ordinary objects and later as hosts for the transformed visual grammar.
+- inv-05: After the maximum-scale state, reduce the effect to one small residue and return it to the origin or a clear opening analogue.
+Variable slots:
+- origin_anchor: A visually simple real surface or object that can host the first anomaly and the final residue.
+- carrier: One trackable point, filament, droplet, particle or shadow whose path remains causally continuous.
+- representation_ladder: At least three distinct stages such as trace, spatial figure, volumetric material and environment-wide system.
+- practical_anchor_chain: Two to four ordinary environmental objects revisited during propagation.
+- contact_trigger: One physically readable interaction or threshold crossing that causes the largest propagation change.
+- environment_rewrite_medium: A coherent graphic or material grammar that can spread across the existing setting without replacing its geometry.
+- camera_follow_strategy: A motivated follow, track, orbit or focus handoff that keeps the carrier legible; exact carrier and shot count may vary.
+- return_residue: A quieter, smaller state related to the carrier but not a copy of the source feather-like ending.
+- designed_sound_family: Newly authored material and propagation sounds synchronized to the chosen transformation; not asserted as source audio.
+Failure prevention:
+- The film stacks unrelated glowing effects without a persistent carrier.: Give every state the same trajectory, colour seed or material fingerprint and show each handoff on a recurring anchor.
+- The environment changes before the carrier earns the scale increase.: Complete trace, spatial figure and volumetric stages before activating the world-scale grammar.
+- The final return copies the source page-and-feather ending.: Change the origin class, residue material, camera implementation and return path while preserving only scale contraction and structural closure.
+- Camera motion competes with the small carrier.: Use one motivated move per beat, slow at each handoff and keep at least one stable practical anchor in frame.
+Do not copy from the source: the source open sketchbook, two standing figures, warm shop-like clutter, bicycle, exposed bulb, denim pocket, leaves and magazine stacks; the source star-led white trail, angular hovering drawing, cyan-pink-violet spiral, feather-like residue and exact colour sequence; the exact page-to-floor-to-person-to-lamp-to-bicycle-to-page traversal, compositions and beat durations; the creator name, MiniMax H3 marketing claim, After Effects comparison and all source-thread wording

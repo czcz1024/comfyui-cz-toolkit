@@ -1,0 +1,41 @@
+# 尺度展开｜微小材质扩张后原样回收
+# ID: t8-case-material-scale-expansion-exact-return-loop-v1
+# 来源: T8 非官方案例模板
+
+用途: 先锁定一个可辨认的微小材质锚点与触发动作，让同一材质逐级扩张为更大结构和完整世界，再沿可追踪的反向路径把所有尺度层收回，最终回到与开场一致的原始锚点。
+输入格式: 微小材质锚点 + 可见触发 + 至少两级尺度扩张 + 最大世界保持 + 沿同一谱系精确回收原点
+推荐输入: 原创黑橡木剧场地面上，一团紧实白色羊毛位于黄铜音叉下方，小击锤只敲一次，毛团、音叉脚和木纹位置清楚；同一纤维扩展成多层云带，再显出板岩色山脊与房间尺度雾气，一根细羊毛线仍连接天空与地面原点；山脊收成雾，雾收成白云，白云收成纤维并缠回原来同一毛团，音叉和木纹恢复开场关系
+
+必须实现的锚点:
+  1. Establish one compact material anchor, surrounding surface and visible trigger before expansion.
+  2. Let fragments of the anchor visibly generate the first larger structure.
+  3. Hold one complete maximum-scale world before contraction begins.
+  4. Reverse the same lineage and optical axis to restore the original anchor and trigger relationship.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Lock one small, materially specific anchor and one visible trigger in a stable composition. Expand fragments of that same material through several readable scale levels until they form a complete world, while retaining at least one origin cue. Hold the maximum scale, then reverse the same material lineage and camera axis until the original anchor, trigger relationship and surrounding surface are restored for an exact visual loop.
+Invariants:
+- inv-01: Establish one compact material anchor, surrounding surface and visible trigger before expansion.
+- inv-02: Let fragments of the anchor visibly generate the first larger structure.
+- inv-03: Expand through at least two readable scale levels while retaining an origin cue.
+- inv-04: Hold one complete maximum-scale world before contraction begins.
+- inv-05: Reverse the same lineage and optical axis to restore the original anchor and trigger relationship.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- A generic glow has no material history.: Establish one compact material anchor, surrounding surface and visible trigger before expansion.
+- A hard cut to a new world breaks causality.: Let fragments of the anchor visibly generate the first larger structure.
+- Immediate maximum scale feels like an unrelated reveal.: Expand through at least two readable scale levels while retaining an origin cue.
+- Continuous blur hides whether expansion completed.: Hold one complete maximum-scale world before contraction begins.
+- Returning to a similar but different object is only a thematic echo.: Reverse the same lineage and optical axis to restore the original anchor and trigger relationship.
+Do not copy from the source: the source mixed chili and seed spice pile; the source adult fingers pinching the pile; the source rustic wooden tabletop; the source orange-blue galaxy and planet arrangement; the source Yapper watermark and exact spice-cosmos-spice composition

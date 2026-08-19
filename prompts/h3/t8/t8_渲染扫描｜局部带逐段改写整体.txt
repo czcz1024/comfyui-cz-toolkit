@@ -1,0 +1,41 @@
+# 渲染扫描｜局部带逐段改写整体
+# ID: t8-case-bounded-render-band-progressive-conversion-v1
+# 来源: T8 非官方案例模板
+
+用途: 让一条边界清楚的活动带沿主体移动，带内即时显示转换后的媒介，带外继续保留原状态；多次通过累积覆盖整体，最后让扫描带退出以证明完整、稳定的转换结果。
+输入格式: 稳定主体 + 边界清楚的转换带 + 新旧状态同框 + 单向累积覆盖 + 载体退出后的完整结果
+推荐输入: 原创文物修复室里，一张风化木质戏剧面具固定在炭灰支架上，发光竖尺停在面具外，开场全部保持木材；第二次通过中心，眼鼻口在木与玻璃边界上保持一致，已完成区域不回退；竖尺完全滑出，完整玻璃面具独立留在原支架上，只出现一次自然展厅光变化
+
+必须实现的锚点:
+  1. Establish a stable subject and composition before the first conversion pass.
+  2. Keep one readable moving boundary with old and new states visible at the same time.
+  3. Accumulate converted coverage in an ordered progression rather than resetting each pass.
+  4. Remove or deactivate the carrier only after the whole target region is converted and hold the stable result.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Move one sharply bounded rendering carrier across a stable subject; convert only the area inside it, preserve alignment across both edges, accumulate coverage through distinct passes, then remove the carrier and hold the fully converted result.
+Invariants:
+- inv-01: Establish a stable subject and composition before the first conversion pass.
+- inv-02: Keep one readable moving boundary with old and new states visible at the same time.
+- inv-03: Preserve identity, pose and spatial alignment across every boundary crossing.
+- inv-04: Accumulate converted coverage in an ordered progression rather than resetting each pass.
+- inv-05: Remove or deactivate the carrier only after the whole target region is converted and hold the stable result.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Starting mid-conversion hides what changed.: Establish a stable subject and composition before the first conversion pass.
+- A full-frame dissolve removes the bounded comparison.: Keep one readable moving boundary with old and new states visible at the same time.
+- Misregistered features look like morphing or a new subject.: Preserve identity, pose and spatial alignment across every boundary crossing.
+- Resetting the prior area destroys the build toward a whole result.: Accumulate converted coverage in an ordered progression rather than resetting each pass.
+- Ending with the carrier active leaves completion ambiguous.: Remove or deactivate the carrier only after the whole target region is converted and hold the stable result.
+Do not copy from the source: the source young woman; the exact bedroom or studio interior; the anime portrait style; the horizontal hand-carried render strip; the exact face-to-body conversion order

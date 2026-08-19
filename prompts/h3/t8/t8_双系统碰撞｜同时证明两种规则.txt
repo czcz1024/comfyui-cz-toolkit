@@ -1,0 +1,41 @@
+# 双系统碰撞｜同时证明两种规则
+# ID: t8-case-dual-system-convergence-proof-v1
+# 来源: T8 非官方案例模板
+
+用途: 先分别建立两个对立系统的独立规则，再让它们一次汇聚形成持久第三状态。
+输入格式: 系统A材质/规则 + 系统B材质/规则 + 分别建立 + 一次汇聚碰撞 + 双方共同形成的第三状态
+推荐输入: 实验台左侧是会结晶的液态玻璃，右侧是会脉动的磁性沙；分别证明各自规则后，它们只汇聚一次，形成同时透明且持续脉动的悬浮晶格。
+
+必须实现的锚点:
+  1. 两个系统先独立成立
+  2. 材质或运动规则明确不同
+  3. 只发生一次关键汇聚
+  4. 第三状态同时保留双方证据
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Establish two systems separately with distinct color, material physics, motion cadence and starting zones. Alternate equal proof beats while their spatial distance decreases, align them on one readable axis, permit exactly one convergence event, and end on a third shared result that neither system produced alone.
+Invariants:
+- inv-01: Give each system an independent establishing proof.
+- inv-02: Keep material physics and cadence distinct before convergence.
+- inv-03: Reduce one visible spatial gap across matched views.
+- inv-04: Allow only one terminal meeting event.
+- inv-05: Leave a persistent third-state consequence.
+Variable slots:
+- lead_subject: An original subject or system whose identity remains stable.
+- setting: A new setting with fixed spatial anchors.
+- escalation_variable: One visible variable that changes in countable causal stages.
+- performance_rule: A restrained behavior rule that makes the mechanism legible.
+- camera_grammar: A coherent information order that does not copy source shot boundaries.
+- payoff: One clean physical or graphic consequence.
+- sound_family: A new hierarchy of diegetic cues supporting state changes.
+Failure prevention:
+- Immediate collision makes the systems interchangeable.: Give each system an independent establishing proof.
+- Shared motion grammar erases opposition.: Keep material physics and cadence distinct before convergence.
+- Random angles obscure whether convergence is approaching.: Reduce one visible spatial gap across matched views.
+- Repeated clashes dilute the payoff.: Allow only one terminal meeting event.
+- A flash followed by reset provides no outcome evidence.: Leave a persistent third-state consequence.
+Do not copy from the source: two female elemental warriors; fire magic versus ice magic; ruined stone arena at sunset; weapons, petals and the source mid-air collision pose

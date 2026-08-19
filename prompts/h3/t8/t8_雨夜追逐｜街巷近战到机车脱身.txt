@@ -1,0 +1,41 @@
+# 雨夜追逐｜街巷近战到机车脱身
+# ID: t8-case-pursuit-handoff-escape-corridor-v1
+# 来源: T8 非官方案例模板
+
+用途: 追逐先建立方向，中段用一次近身阻断改变节奏，再把主体交接到更快载具完成脱身。
+输入格式: 被追主体 + 单一追逐轴线 + 一次紧凑阻断 + 立即步行→更快载具交接 + 持续加速结尾
+推荐输入: 盐碱地科研信使被两台勘测车追赶，窄沟槽中只做一次反撬夹臂，随后立即踏上沙地滑板并沿原轴持续加速。
+
+必须实现的锚点:
+  1. Establish one readable pursuit axis before any combat.
+  2. Use one narrow threshold to compress the lead and threat.
+  3. Complete an immediate, visible foot-to-faster-carrier handoff after the encounter.
+  4. End with sustained carrier acceleration along the established travel direction.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Establish a readable pursuit corridor, interrupt running with one compact close encounter, then immediately complete a visible foot-to-faster-carrier handoff while preserving the established travel axis. Hold sustained acceleration on that axis; the source does not prove that the encounter creates the carrier or that pursuer distance increases on screen.
+Invariants:
+- inv-01: Establish one readable pursuit axis before any combat.
+- inv-02: Use one narrow threshold to compress the lead and threat.
+- inv-03: Limit the close encounter to one clear block, counter and release.
+- inv-04: Complete an immediate, visible foot-to-faster-carrier handoff after the encounter.
+- inv-05: End with sustained carrier acceleration along the established travel direction.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Action without geography becomes visual noise.: Establish one readable pursuit axis before any combat.
+- An arbitrary fight feels detached from the chase.: Use one narrow threshold to compress the lead and threat.
+- A long fight replaces the escape mechanism.: Limit the close encounter to one clear block, counter and release.
+- A delayed or disconnected carrier cut breaks the pursuit handoff.: Complete an immediate, visible foot-to-faster-carrier handoff after the encounter.
+- A stationary carrier beauty shot does not complete the escape progression.: End with sustained carrier acceleration along the established travel direction.
+Do not copy from the source: source masked runner; source wet neon street and parking garage; source black sedan pursuers; source motorcycle theft and exact fight choreography

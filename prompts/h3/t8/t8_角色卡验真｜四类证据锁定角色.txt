@@ -1,0 +1,41 @@
+# 角色卡验真｜四类证据锁定角色
+# ID: t8-case-recurring-identity-board-v1
+# 来源: T8 非官方案例模板
+
+用途: 固定角色卡反复出现，用姿态、操作、步态和面部四类不同证据验证同一身份。
+输入格式: 角色 + 固定角色卡 + 4种不同证明（姿态/操作/步态/面部） + 实景英雄定格
+推荐输入: 陶瓷服务机器人与固定角色卡反复对照：证明站姿比例、端盘操作、走廊步态和面部灯光表情，最后在美术馆实景中英雄定格。
+
+必须实现的锚点:
+  1. 角色卡布局保持一致
+  2. 同一身份跨镜稳定
+  3. 四类证据功能不同
+  4. 结尾进入真实场景完成验证
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Use one fixed identity board as a recurring visual checkpoint between four different live-scene proofs: silhouette and pose, small performance action, locomotion and face-level detail. Keep the board layout stable while camera scale and environment vary, then remove or subordinate the board so the verified live subject owns the final hero composition.
+Invariants:
+- inv-01: Establish the identity board and live subject together before major action.
+- inv-02: Return to the same board layout between distinct live proofs.
+- inv-03: Each live proof must test a different identity dimension.
+- inv-04: Keep defining proportions and markers continuous across board and scene.
+- inv-05: End on the verified live subject rather than a board-only frame.
+Variable slots:
+- lead_subject: An original subject or system whose identity remains stable.
+- setting: A new setting with fixed spatial anchors.
+- escalation_variable: One visible variable that changes in countable causal stages.
+- performance_rule: A restrained behavior rule that makes the mechanism legible.
+- camera_grammar: A coherent information order that does not copy source shot boundaries.
+- payoff: One clean physical or graphic consequence.
+- sound_family: A new hierarchy of diegetic cues supporting state changes.
+Failure prevention:
+- A hidden reference cannot function as visible evidence.: Establish the identity board and live subject together before major action.
+- A changing board destroys the reference baseline.: Return to the same board layout between distinct live proofs.
+- Repeated face close-ups do not prove gait or silhouette.: Each live proof must test a different identity dimension.
+- Marker drift breaks the verification mechanism.: Keep defining proportions and markers continuous across board and scene.
+- A board-only ending feels like documentation, not completion.: End on the verified live subject rather than a board-only frame.
+Do not copy from the source: blonde anime cowgirl with black hat and sunglasses; Route 66 sunset and vintage muscle car; low-angle boots then sunglasses close-up; the NOVA character sheet layout and source end card

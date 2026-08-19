@@ -1,0 +1,41 @@
+# 微缩逃亡｜巨物追赶到资源补给
+# ID: t8-case-miniature-pursuit-foraging-route-v1
+# 来源: T8 非官方案例模板
+
+用途: 先用巨物校准微缩尺度，再让同一人物连续改变跑、弹、爬、平衡等动作，最终抵达可用资源。
+输入格式: 微缩主体 + 巨型移动压力 + 3种材质动作动词 + 连续路线 + 取得并使用资源
+推荐输入: 手掌高折纸勘测员逃离滚动清洁刷，依次用弹性量尺带起跳、木线轴攀爬、钢尺平衡，最终取得并点亮电池珠。
+
+必须实现的锚点:
+  1. Calibrate miniature scale with one ordinary oversized moving force in the opening.
+  2. Change the movement verb at every material handoff.
+  3. Preserve one travel direction and subject identity across scale changes.
+  4. End with an earned resource that the subject visibly secures or uses.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Make scale readable immediately by placing a miniature subject beside one ordinary oversized force, then convert pursuit into a route of three materially different terrain actions. Each surface must change the subject's movement verb—run, spring, climb, balance or reach—and the final resource must be earned by the route rather than presented as a decorative giant object.
+Invariants:
+- inv-01: Calibrate miniature scale with one ordinary oversized moving force in the opening.
+- inv-02: Change the movement verb at every material handoff.
+- inv-03: Use at least three surfaces with visibly different physical responses.
+- inv-04: Preserve one travel direction and subject identity across scale changes.
+- inv-05: End with an earned resource that the subject visibly secures or uses.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- A tiny subject alone has no reliable scale.: Calibrate miniature scale with one ordinary oversized moving force in the opening.
+- Continuous running through new backgrounds becomes a chase montage.: Change the movement verb at every material handoff.
+- Repeated rigid platforms add no new problem-solving.: Use at least three surfaces with visibly different physical responses.
+- Discontinuous geography turns actions into unrelated vignettes.: Preserve one travel direction and subject identity across scale changes.
+- A decorative giant object is not a payoff.: End with an earned resource that the subject visibly secures or uses.
+Do not copy from the source: source tiny boy; source giant human hand; source strawberry and pink flower; source backyard garden route and eating payoff

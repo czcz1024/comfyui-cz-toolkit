@@ -1,0 +1,41 @@
+# 第一视角查岗｜遮挡失效到摆烂收口
+# ID: t8-case-first-person-concealment-evidence-ladder-v1
+# 来源: T8 非官方案例模板
+
+用途: 第一人称身体运动连续推进，遮挡每失败一次就暴露更深证据，最后以人物停止遮挡并后仰回到桌前状态收口。
+输入格式: 第一人称观察者 + 固定工作区 + 至少2次遮挡失败 + 物证到面部交接 + 停止遮挡的结尾
+推荐输入: 第一人称温室查验：学徒先用记录板遮住发光托盘，盖板又推出报警传感器；镜头从物证抬到脸，学徒停止遮挡并平静浇水。
+
+必须实现的锚点:
+  1. Use one continuous embodied first-person observer whose height and distance changes come from physical movement.
+  2. Require at least two concealment attempts that each expose a deeper contradiction.
+  3. Hand off from object proof to a sustained facial or bodily reaction.
+  4. End with a visible behavior change rather than a third reveal.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Keep one embodied first-person observer continuous while a subject attempts several visible concealments. Each intervention must expose a deeper, independently readable contradiction; camera height and proximity change only through the observer's body, and the payoff is a visible turn from active concealment to stopping the concealment and settling back into the workstation state rather than another reveal.
+Invariants:
+- inv-01: Use one continuous embodied first-person observer whose height and distance changes come from physical movement.
+- inv-02: Require at least two concealment attempts that each expose a deeper contradiction.
+- inv-03: Keep every evidence layer spatially nested inside one stable work area.
+- inv-04: Hand off from object proof to a sustained facial or bodily reaction.
+- inv-05: End with a visible behavior change rather than a third reveal.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Third-person cutaways break the inspection logic.: Use one continuous embodied first-person observer whose height and distance changes come from physical movement.
+- Random reveals do not form a proof ladder.: Require at least two concealment attempts that each expose a deeper contradiction.
+- Geographically unrelated clues feel edited rather than discovered.: Keep every evidence layer spatially nested inside one stable work area.
+- Ending on a screen leaves the human payoff unresolved.: Hand off from object proof to a sustained facial or bodily reaction.
+- Continuous escalation without a state change has no closure.: End with a visible behavior change rather than a third reveal.
+Do not copy from the source: visible FBI insignia; source game interface; source male-torso image grid; source red warning interface; source revealing wardrobe and body framing; source envelope covering a phone; source under-desk reveal; source final recline-and-workstation action; source office worker and supervisor; exact source conversation wording

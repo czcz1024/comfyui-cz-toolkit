@@ -1,0 +1,41 @@
+# 动作成字｜方向笔画驱动角色切换与终态标记
+# ID: t8-case-direction-stroke-role-switch-v1
+# 来源: T8 非官方案例模板
+
+用途: 第一位角色的动作生成强方向笔画，落地后笔画变成构图分隔；第二位角色沿同一图形轴进入并把笔画弯成新几何，最终标记由两次动作共同完成。
+输入格式: 第一动作生成方向笔画 + 落地变分隔 + 第二角色沿同轴进入 + 笔画变形 + 无文字终态标记
+推荐输入: 蓝色纸艺自动机把炭黑直尺变成构图分隔，琥珀自动机沿同轴进入并把直尺弯成螺旋，两次动作共同形成无文字涡轮标记。
+
+必须实现的锚点:
+  1. Bind the first action to one dominant directional stroke.
+  2. Use the first landing to change the stroke's composition role.
+  3. Let the second action bend or reconfigure the stroke.
+  4. Hold one final mark that visibly inherits both actions.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Let one performer action generate or align with a strong directional stroke, use the landing to convert that stroke into a composition divider, switch to a second performer on the same graphic axis, let the second action bend the stroke into a new geometry, then hold the completed abstract mark as the consequence of both actions.
+Invariants:
+- inv-01: Bind the first action to one dominant directional stroke.
+- inv-02: Use the first landing to change the stroke's composition role.
+- inv-03: Introduce a second performer on the established graphic axis.
+- inv-04: Let the second action bend or reconfigure the stroke.
+- inv-05: Hold one final mark that visibly inherits both actions.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- A decorative line adds no causal role.: Bind the first action to one dominant directional stroke.
+- A normal landing leaves no graphic consequence.: Use the first landing to change the stroke's composition role.
+- A new unrelated frame breaks continuity.: Introduce a second performer on the established graphic axis.
+- An unchanged divider makes the second role redundant.: Let the second action bend or reconfigure the stroke.
+- A random title card cannot prove the two-action construction.: Hold one final mark that visibly inherits both actions.
+Do not copy from the source: source red-white-black characters and skateboard; source graffiti rail, bar swing and number eight; the exact two-performer graphic choreography; source color blocking and final mark; source large numeral 8; source repeated 8 motif

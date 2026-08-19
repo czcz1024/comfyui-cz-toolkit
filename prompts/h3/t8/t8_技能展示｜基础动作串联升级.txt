@@ -1,0 +1,41 @@
+# 技能展示｜基础动作串联升级
+# ID: t8-case-base-loop-skill-ladder-v1
+# 来源: T8 非官方案例模板
+
+用途: 持续基础动作连接逐级高级技能，每个机位只证明一种运动，峰值后回到基础循环。
+输入格式: 持续基础动作 + 3种高级技能 + 每次不同功能机位 + 节奏/接触声连续 + 回到基础动作
+推荐输入: 检修无人机保持稳定巡航基础动作，依次完成窄缝侧飞、旋转扫描和高速对接；每段用不同机位证明技能，峰值后回到同一巡航节奏。
+
+必须实现的锚点:
+  1. 基础动作反复返回
+  2. 至少三项技能逐级变难
+  3. 每个机位只承担一种证明任务
+  4. 峰值后回到基础循环
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Start inside one continuous base motion and make it the mandatory entry and exit for every distinct skill. Increase difficulty across countable stages, assign each camera angle a verification purpose such as contact, clearance, rotation or recovery, combine learned principles near the end, then perform one peak variation and visibly return to the unchanged base loop.
+Invariants:
+- inv-01: Begin mid-loop and keep the base motion active between every skill.
+- inv-02: Every skill must depart from and visibly return to the loop.
+- inv-03: Increase difficulty through distinct movement properties.
+- inv-04: Give each camera angle one proof job.
+- inv-05: After the peak, return to the original loop without stopping.
+Variable slots:
+- lead_subject: An original subject or system whose identity remains stable.
+- setting: A new setting with fixed spatial anchors.
+- escalation_variable: One visible variable that changes in countable causal stages.
+- performance_rule: A restrained behavior rule that makes the mechanism legible.
+- camera_grammar: A coherent information order that does not copy source shot boundaries.
+- payoff: One clean physical or graphic consequence.
+- sound_family: A new hierarchy of diegetic cues supporting state changes.
+Failure prevention:
+- Static resets turn the piece into disconnected highlights.: Begin mid-loop and keep the base motion active between every skill.
+- Cuts can otherwise hide failed transitions.: Every skill must depart from and visibly return to the loop.
+- More of the same move adds speed but not progression.: Increase difficulty through distinct movement properties.
+- Decorative angle changes can obscure mechanics.: Give each camera angle one proof job.
+- A freeze at the peak abandons the connective rule.: After the peak, return to the original loop without stopping.
+Do not copy from the source: male capoeira practitioner in white abada; Salvador da Bahia colorful street; ginga and named capoeira moves; berimbau rhythm and the source character sheet

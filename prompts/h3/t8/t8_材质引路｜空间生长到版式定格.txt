@@ -1,0 +1,41 @@
+# 材质引路｜空间生长到版式定格
+# ID: t8-case-material-carrier-format-collapse-v1
+# 来源: T8 非官方案例模板
+
+用途: 从一个微小材质锚点开始，让同一连续材质先引导运镜、再形成有厚度的可读结构并扩展成环境，最后通过俯视升维把立体场景压成一张保持人物与材质关系的平面版式。
+输入格式: 稳定主体 + 微小材质原点 + 同材质引导运镜/形成实体结构/扩成环境 + 单次升高 + 保留历史的版式终态
+推荐输入: 极地档案室里，黄铜勘测甲虫从一枚冰种拉出唯一霜丝；霜丝引导镜头、形成实体 K-42 代码并展开晶体风图舱，最后只升高一次，把甲虫、代码和路径收束成可读野外图表页。
+
+必须实现的锚点:
+  1. Introduce one small material guide on the same optical axis as a stable subject.
+  2. Keep one continuous material family responsible for camera guidance, color accumulation and spatial growth.
+  3. Expand the same material into an environment that still contains the original subject and prior palette.
+  4. Use one late camera rise to resolve the dimensional scene into a held graphic sheet that preserves subject and material history.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Begin with one small material guide aligned to a stable subject. Keep that same material visually continuous as it pulls the camera, accumulates color and depth, becomes one readable physical structure, and expands into an inhabitable environment. Reserve one final camera rise that compresses the dimensional world into a held graphic sheet while preserving the subject and material history.
+Invariants:
+- inv-01: Introduce one small material guide on the same optical axis as a stable subject.
+- inv-02: Keep one continuous material family responsible for camera guidance, color accumulation and spatial growth.
+- inv-03: Let the material form one readable, depth-bearing structure inside the scene and hold it briefly.
+- inv-04: Expand the same material into an environment that still contains the original subject and prior palette.
+- inv-05: Use one late camera rise to resolve the dimensional scene into a held graphic sheet that preserves subject and material history.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Without a small origin and stable subject, the sequence starts as an ungrounded effects montage.: Introduce one small material guide on the same optical axis as a stable subject.
+- Changing material rules between phases breaks the transformation chain.: Keep one continuous material family responsible for camera guidance, color accumulation and spatial growth.
+- Flat overlay copy or unreadable decoration cannot prove physical integration.: Let the material form one readable, depth-bearing structure inside the scene and hold it briefly.
+- A disconnected new room would read as a scene swap.: Expand the same material into an environment that still contains the original subject and prior palette.
+- An arbitrary end card would not prove continuity with the preceding world.: Use one late camera rise to resolve the dimensional scene into a held graphic sheet that preserves subject and material history.
+Do not copy from the source: the source black-haired fashion model and printed white dress; the source watercolor ribbon palette and ivory paper gallery; LET SILENCE BLOOM; AQUARELLE No.7; WEAR THE UNSEEN; the source flower-petal chamber and fashion-ad poster layout; MiniMax and Hailuo AI watermarks

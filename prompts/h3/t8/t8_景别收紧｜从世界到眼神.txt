@@ -1,0 +1,41 @@
+# 景别收紧｜从世界到眼神
+# ID: t8-case-scale-contraction-evidence-funnel-v1
+# 来源: T8 非官方案例模板
+
+用途: 景别从宏大环境逐步收紧，按人物、局部发现、自有装置和眼神反应形成证据漏斗。
+输入格式: 宏大环境 + 稳定人物/双人 + 地面或局部发现 + 人物自有装置 + 最后近景反应
+推荐输入: 轨道维修舱先展示宏大地球背景，两名工程师保持稳定位置；镜头收紧到地面金属垫片，再到其中一人的腕部检测器，最后停在两人克制交换的眼神。
+
+必须实现的锚点:
+  1. 景别持续收紧
+  2. 人物空间关系稳定
+  3. 证据从环境转到局部再到装置
+  4. 最后用近景反应闭合
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Begin with monumental environment scale and a tiny stable subject pair. Contract framing in discrete evidence steps—paired medium, full-body investigation, object inspection, subject-owned mechanism insert and eye-level reaction—so every scale change answers one question and raises a more personal one. Preserve route, axis and identity, keep performance restrained, and stop at the facial endpoint instead of adding another action branch.
+Invariants:
+- inv-01: Establish world scale, route and the stable subject group in an extreme or very wide opening.
+- inv-02: Contract framing through ordered information layers rather than random beauty shots.
+- inv-03: Move the evidence from the shared environment to a local object and then to a mechanism owned by the lead subject.
+- inv-04: Preserve the same route axis, subject identities and wardrobe or material markers across every scale change.
+- inv-05: End on one restrained face or sensor response immediately after the closest mechanism proof.
+Variable slots:
+- lead_subject_group: One stable person, pair or machine group whose identity remains continuous.
+- monumental_setting: A setting with a readable route and strong wide-scale geography.
+- local_discovery: One small external object or state that justifies stopping.
+- owned_mechanism: One tool, garment mechanism or device physically associated with the lead subject.
+- scale_ladder: A deliberate wide-to-close information order in which each scale reveals new evidence.
+- performance_rule: Restrained testing and recognition rather than exaggerated reaction.
+- final_response: One face, lens or status response that closes the sequence.
+Failure prevention:
+- Opening close removes the scale contrast and makes later inserts feel arbitrary.: Begin with a route-readable monumental wide and stable subject group.
+- Repeated similar coverage reveals no new question and produces a flat montage.: Assign one new evidence job to every scale contraction.
+- Unrelated props do not create an inward causal progression.: Link the external discovery and subject-owned mechanism through one visible state.
+- Continuity drift makes the scale ladder look like disconnected footage.: Lock route axis, identity and material markers across all shots.
+- A new action after the reaction restarts the sequence and weakens the funnel closure.: Hold the final face or sensor response as the endpoint.
+Do not copy from the source: two wuxia women in white and green robes; misty Chinese immortal valley settlement; silver sword, pebble test and the source Mandarin dialogue; the unverified four-step audio-before-action rule and exact source shot boundaries

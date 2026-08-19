@@ -1,0 +1,41 @@
+# 重复复位｜多场景小灾难逐次升级
+# ID: t8-case-repeat-reset-escalating-mishap-anthology-v1
+# 来源: T8 非官方案例模板
+
+用途: 同一角色关系反复执行普通准备、主动动作、可见后果、见证者反应和场景复位；每轮更换物理问题并提高后果强度。
+输入格式: 固定角色关系 + 三轮准备/动作/后果/反应 + 场景复位 + 后果逐轮升级 + 最大结果同框
+推荐输入: 原创定格工坊第一幕，铜质学徒机器人拉动松弹簧，垫圈在同一盏绿色监督灯前散开；磁刷把颜料珠拉成扩大轨迹，绿灯清楚后仰，后果大于第一幕；铜机器人、倾斜绿灯与最大齿轮场同框停住，不加入对白或修复结果
+
+必须实现的锚点:
+  1. Keep the same active-role and witness relationship readable across every reset.
+  2. Establish an ordinary object and action before each mishap.
+  3. Increase consequence scale or spatial reach across rounds.
+  4. Hold both roles and the largest consequence together.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Repeat a compact vignette grammar across different spaces: ordinary setup, one autonomous action by the same active role, one visible material consequence, one reaction by the recurring witness, then a clean reset. Change the physical problem each round and increase consequence scale before a held final reaction.
+Invariants:
+- inv-01: Keep the same active-role and witness relationship readable across every reset.
+- inv-02: Establish an ordinary object and action before each mishap.
+- inv-03: Use a different material consequence in each round.
+- inv-04: Increase consequence scale or spatial reach across rounds.
+- inv-05: Hold both roles and the largest consequence together.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Changing both roles turns the sequence into unrelated clips.: Keep the same active-role and witness relationship readable across every reset.
+- Opening on a mess removes responsibility and timing.: Establish an ordinary object and action before each mishap.
+- Repeating one mishap adds no proof.: Use a different material consequence in each round.
+- Random intensity without a ladder feels arbitrary.: Increase consequence scale or spatial reach across rounds.
+- Cutting before the reaction loses the payoff.: Hold both roles and the largest consequence together.
+Do not copy from the source: the source toddler and mother; the exact household rooms; the source food, furniture or domestic props; the exact mishap order and reactions; the source wardrobe and family identity

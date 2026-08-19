@@ -1,0 +1,42 @@
+# UGC测评｜开箱到一口实证
+# ID: t8-case-first-person-testimonial-proof-v1
+# 来源: T8 非官方案例模板
+
+用途: 真人与未开封产品同框起手，完整开箱后给一个关键微距证据，再完成真实使用，并让产品与变化后的反应一起收口。
+输入格式: 出镜测评者 + 未开封产品 + 完整内容展示 + 一个产品专属微距证据 + 一次完整使用 + 产品与反应同框
+推荐输入: 陶艺师测评便携手冲套件：先展示密封盒并完整摆出部件，微距证明滤网四分之一圈锁定，完成一次无渗漏冲煮与品尝，最后举起套件和干燥接缝并克制点头。
+
+必须实现的锚点:
+  1. 开场测评者与未开封产品同框
+  2. 先完整展示内容再进入细节
+  3. 只有一个产品专属功能证据
+  4. 必须完成一次真实使用并保留结果
+  5. 结尾产品与变化后的反应同框
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Structure a first-person product testimonial as a proof ladder: introduce the unopened object and speaker together, expose contents, isolate one tactile or functional macro proof, let the speaker perform one genuine use action, then hold the product and changed reaction together. The product claim must be earned by visible use rather than spoken hype.
+Invariants:
+- inv-01: Open with presenter and unopened product in the same frame.
+- inv-02: Reveal the complete contents before isolating details.
+- inv-03: Choose one product-specific tactile or functional proof.
+- inv-04: Perform one complete use action with the outcome still visible.
+- inv-05: End with product and changed human reaction readable together.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- A product-only beauty shot lacks testimonial ownership.: Open with presenter and unopened product in the same frame.
+- Macro-first editing can hide what is actually being evaluated.: Reveal the complete contents before isolating details.
+- Generic close-ups create polish without evidence.: Choose one product-specific tactile or functional proof.
+- A cut before the result turns use into implication.: Perform one complete use action with the outcome still visible.
+- A reaction without the object can feel unrelated or staged.: End with product and changed human reaction readable together.
+Do not copy from the source: source woman; source burger and fries; source packaging; source caption and kitchen-like setting

@@ -1,0 +1,41 @@
+# 表演让位于环境｜近脸到全景的连续退镜
+# ID: t8-case-performance-environment-pullback-v1
+# 来源: T8 非官方案例模板
+
+用途: 从身份清楚的近脸表演开始，表演不中断，单次连续退镜把视觉主导权逐步从面部交给身体，再交给响应中的环境；结尾人物仍可辨，但环境成为主角。
+输入格式: 近脸表演基准 + 连续后退镜头 + 逐层环境参照 + 人物动作不中断 + 人景关系全景终态
+推荐输入: 原创风场舞者从面部近景开始持续表演，镜头连续后退，依次揭示服装、步道、海崖与天空光带，最后人景同框。
+
+必须实现的锚点:
+  1. Open close enough to establish one stable performer identity.
+  2. Keep one continuous performance thread through the camera retreat.
+  3. Transfer visual dominance through camera distance rather than a subject transformation.
+  4. End wide with both performer and responsive environment readable.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Begin in an identity-close performance frame, keep the performance continuous while one unbroken pullback gradually transfers visual dominance from face to body and then to a responsive environment, and end with the performer still readable inside the now-dominant wide setting.
+Invariants:
+- inv-01: Open close enough to establish one stable performer identity.
+- inv-02: Keep one continuous performance thread through the camera retreat.
+- inv-03: Reveal the first environmental response before the frame becomes wide.
+- inv-04: Transfer visual dominance through camera distance rather than a subject transformation.
+- inv-05: End wide with both performer and responsive environment readable.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- Opening wide makes the performer secondary too early.: Open close enough to establish one stable performer identity.
+- Stopping performance breaks the causal link.: Keep one continuous performance thread through the camera retreat.
+- A sudden final background replacement feels unrelated.: Reveal the first environmental response before the frame becomes wide.
+- Changing the performer instead of the frame changes the mechanism.: Transfer visual dominance through camera distance rather than a subject transformation.
+- A landscape-only ending discards the opening anchor.: End wide with both performer and responsive environment readable.
+Do not copy from the source: source female singer; source shoreline and aurora; source translucent dress and face lighting; the exact vocal-performance pullback

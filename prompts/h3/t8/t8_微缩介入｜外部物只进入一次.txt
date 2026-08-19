@@ -1,0 +1,41 @@
+# 微缩介入｜外部物只进入一次
+# ID: t8-case-inert-scale-active-intervention-v1
+# 来源: T8 非官方案例模板
+
+用途: 静态标准物先校准微缩尺度，内部日常稳定后，不同外部执行物只进入一次并改变局部状态。
+输入格式: 静态标准物开场校准 + 微型日常 + 校准物保持不动 + 不同外部执行物只进入一次 + 局部状态改变与反应同框
+推荐输入: 一枚静止登山扣校准高山气象站的微缩尺度，小维修员继续日常作业；随后一把真实尺寸镊子只进入一次，扶正天线，局部状态改变与小人的反应同时可见。
+
+必须实现的锚点:
+  1. 静态标准物先校准尺度
+  2. 微型日常先稳定建立
+  3. 外部执行物与校准物不是同一物
+  4. 外部物只介入一次且结果与反应同框
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Use one familiar inert object at the opening to calibrate a miniature world immediately. Let the small actors, tools, motion, shadows and atmosphere then sustain a coherent routine while the calibrator remains passive. Later, introduce one different external execution object exactly once, let it change one local state, and hold the intervention, affected object and internal reaction together so the story shifts from scale observation to outside control.
+Invariants:
+- inv-01: Calibrate scale early with one familiar inert standard object.
+- inv-02: Prove the known miniature world through coordinated routine and local physics.
+- inv-03: Keep the opening calibrator passive after its proof.
+- inv-04: Introduce one different external execution object only once in continuous entry.
+- inv-05: Show one changed local state and internal reaction with both scales visible.
+Variable slots:
+- lead_subject: An original subject or system whose identity remains stable.
+- setting: A new setting with fixed spatial anchors.
+- escalation_variable: One visible variable that changes in countable causal stages.
+- performance_rule: A restrained behavior rule that makes the mechanism legible.
+- camera_grammar: A coherent information order that does not copy source shot boundaries.
+- payoff: One clean physical or graphic consequence.
+- sound_family: A new hierarchy of diegetic cues supporting state changes.
+Failure prevention:
+- Without calibration the later intervention is mistaken for a scale reveal.: Calibrate scale early with one familiar inert standard object.
+- A static model offers no relation to disrupt.: Prove the known miniature world through coordinated routine and local physics.
+- An active calibrator collapses the two external roles.: Keep the opening calibrator passive after its proof.
+- Repeated tools or cuts turn the event into ordinary handling.: Introduce one different external execution object only once in continuous entry.
+- A hovering tool without consequence does not alter the relationship.: Show one changed local state and internal reaction with both scales visible.
+Do not copy from the source: miniature barbecue on a kitchen table; full-size human hand entering the scene; foreground fork and wooden tabletop; tiny men in colorful sweaters around a smoking grill

@@ -1,0 +1,39 @@
+# 机械同行｜启动后稳定伴行
+# ID: t8-case-mechanical-convoy-proof-v1
+# 来源: T8 非官方案例模板
+
+用途: 装置启动并达到阈值后带动负载，连续镜头证明它确实稳定跟随。
+输入格式: 机械装置启动→达到可见阈值→负载起浮→连续镜头证明稳定跟随
+推荐输入: 档案馆标本箱底部的磁力足逐个启动，指示灯达到绿色阈值后箱体轻微起浮，连续跟拍证明它稳定跟随管理员推车穿过走廊。
+
+必须实现的锚点:
+  1. 启动过程可见
+  2. 阈值状态可读
+  3. 负载在阈值后才移动
+  4. 连续镜头证明稳定伴行
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Embed one impossible following behavior inside a familiar transport routine, make a visible device produce a clear causal threshold before the behavior begins, then sustain a single view long enough to prove a stable matched-speed convoy. Setup, activation, acceleration, lift and proof must remain continuous; operator, payload, lead transport, lift mechanism, route, camera axis and tone are variable.
+Invariants:
+- inv-01: Establish the secondary payload grounded in an ordinary transport routine.
+- inv-02: Show one mechanical device fitted and activated before lift.
+- inv-03: Let device output increase until a visible threshold triggers smooth lift.
+- inv-04: Match the payload's forward speed to the lead transport in one sustained view.
+- inv-05: Keep the operator calm and the moving payload mechanically stable after the impossible event.
+Variable slots:
+- lead_subject: An original subject whose identity and silhouette remain stable.
+- setting: A new setting with fixed spatial anchors and no source-specific location.
+- escalation_variable: One readable variable that changes monotonically or in countable stages.
+- performance_rule: One restrained performance rule that makes the mechanism legible.
+- camera_grammar: A coherent information order that does not copy the source shot boundaries.
+- payoff: One clean physical or graphic consequence that closes the causal chain.
+- sound_family: A new hierarchy of diegetic cues supporting each state change.
+Failure prevention:
+- The payload floats before the mechanism activates.: Hold a grounded baseline and show output increasing before lift.
+- Cuts hide the lift or matched-speed proof.: Use one continuous view across activation, lift and travel.
+- The operator panics or the payload becomes visibly unstable.: Keep operator behavior calm and preserve rigid, mechanically supported payload motion.
+Do not copy from the source: young woman in cream sweats riding a pale scooter; silver tabby cat wearing a yellow propeller helmet; source suburban house and street; source side tracking composition and cat body pose

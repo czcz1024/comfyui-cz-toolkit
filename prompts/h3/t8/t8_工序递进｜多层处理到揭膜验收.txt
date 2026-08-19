@@ -1,0 +1,41 @@
+# 工序递进｜多层处理到揭膜验收
+# ID: t8-case-procedure-ladder-layered-finish-v1
+# 来源: T8 非官方案例模板
+
+用途: 固定同一处理表面，让不同工具或材料逐步改变下一步所需状态；晚段只揭除一次覆盖层，最后用独立检查动作证明稳定结果。
+输入格式: 固定处理表面 + 多工具单一职责 + 层层累积 + 单次揭除 + 两种独立验收
+推荐输入: 原创博物馆修复台上，裂纹象牙色陶瓷面具固定在炭灰支架，修复师先干刷清除裂纹网灰尘；扫描器经过修复区，透明保护涂层只沿已验证裂纹刷开，每件工具只负责一种动作；斜掠光扫过陶瓷，修复师再用小放大镜从第二角度检查，两个证明后保持稳定修复面
+
+必须实现的锚点:
+  1. Establish one stable treatment surface and baseline before application.
+  2. Give each tool or material a distinct visible duty.
+  3. Use one late covering-layer removal as the decisive reveal.
+  4. Verify the finished surface with a separate inspection action.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Lock one treatment surface and orientation, apply distinct tools or materials where each step changes the state needed by the next, accumulate a readable covering layer, perform one late removal or rinse, then use a separate inspection action to verify the stable finished surface.
+Invariants:
+- inv-01: Establish one stable treatment surface and baseline before application.
+- inv-02: Give each tool or material a distinct visible duty.
+- inv-03: Keep intermediate layers relevant to the next step.
+- inv-04: Use one late covering-layer removal as the decisive reveal.
+- inv-05: Verify the finished surface with a separate inspection action.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- Starting mid-process hides the initial condition.: Establish one stable treatment surface and baseline before application.
+- Random tools provide no process logic.: Give each tool or material a distinct visible duty.
+- Resetting the surface destroys progression.: Keep intermediate layers relevant to the next step.
+- Several repeated peels weaken the event.: Use one late covering-layer removal as the decisive reveal.
+- Ending during removal leaves completion untested.: Verify the finished surface with a separate inspection action.
+Do not copy from the source: the source woman's face and beauty identity; skincare cream, serum and cosmetic device; facial mask and exact peel; the source treatment setting; mirror, mist and source treatment order

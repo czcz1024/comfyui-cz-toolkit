@@ -1,0 +1,41 @@
+# 多功能救援线｜跨裂隙送补给再撤离
+# ID: t8-case-tool-to-traversal-rescue-chain-v1
+# 来源: T8 非官方案例模板
+
+用途: 同一根绳索从发射、攀爬、摆荡到进入持续承担路线职责，短接触建立跟随后由一人带领双方共同离开。
+输入格式: 不可达目标 + 单一绳线工具 + 至少3种路线职责 + 救援接触 + 独立路线共同离开
+推荐输入: 冰洞医护员发射同一根红色救援线，依次用它滑送医疗舱、建立扶手并短距提升背包；接触被困制图员后，两人沿独立荧光旗路线共同离开。
+
+必须实现的锚点:
+  1. Introduce one unreachable destination and one compact traversal tool together.
+  2. Keep one tether and one stable attachment through launch and its first visible route role.
+  3. Make one brief contact inside the destination establish the rescue choice.
+  4. After contact, keep both subjects visibly leaving together with one subject leading.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Introduce one compact traversal tool before the destination is reachable, then reuse the same line or tether through launch, climb, pendulum redirect and entry. Every phase must preserve the attachment point and route geometry; after one brief contact establishes the rescue choice, one subject visibly leads and both leave together without claiming the source tether carries them during departure.
+Invariants:
+- inv-01: Introduce one unreachable destination and one compact traversal tool together.
+- inv-02: Keep one tether and one stable attachment through launch and its first visible route role.
+- inv-03: Reuse the tether for at least three distinct route roles.
+- inv-04: Make one brief contact inside the destination establish the rescue choice.
+- inv-05: After contact, keep both subjects visibly leaving together with one subject leading.
+Variable slots:
+- lead_subject: An original stable subject or pair with a readable role.
+- setting: A new setting with fixed spatial anchors and no source-specific surface.
+- escalation_variable: One causal variable that changes through visible stages.
+- performance_rule: A restrained acting or motion rule that keeps the mechanism legible.
+- camera_grammar: An information order that proves each state without copying source shot boundaries.
+- payoff: A clean final physical, informational or social consequence.
+- sound_family: An original hierarchy of diegetic cues; no unsupported source-audio claim.
+Failure prevention:
+- A tool without a visible destination has no narrative role.: Introduce one unreachable destination and one compact traversal tool together.
+- Changing lines or hidden anchors breaks continuity.: Keep one tether and one stable attachment through launch and its first visible route role.
+- A single swing is only an action beat.: Reuse the tether for at least three distinct route roles.
+- A decorative arrival has no payoff.: Make one brief contact inside the destination establish the rescue choice.
+- Cutting away after contact leaves the rescue choice unproven.: After contact, keep both subjects visibly leaving together with one subject leading.
+Do not copy from the source: source masked swordsman; source Chinese pagoda and princess; source crossbow grappling tool; source window entry and exact moonlit escape

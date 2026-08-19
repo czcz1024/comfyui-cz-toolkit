@@ -1,0 +1,41 @@
+# 多人攻势接力｜独立入场后同步收束
+# ID: t8-case-multi-agent-attack-entry-relay-v1
+# 来源: T8 非官方案例模板
+
+用途: 先建立稳定的中央威胁几何与外围团队，再让不同成员以独立入场路线完成各自证明动作；角色职责清楚后才允许路线重叠，最终以同步投入而不是混乱群殴收束。
+输入格式: 固定中央挑战 + 至少3个角色/系统 + 各自独立入场路线与职责 + 延迟的高位路线 + 同步收束
+推荐输入: 三台原创温室服务机分别从地面、玻璃墙和上方处理同一根结；每条路线先独立证明职责，最后同步拉、稳、冷并完成收纳。
+
+必须实现的锚点:
+  1. Establish one spatially persistent challenge field and the full team before any individual entry.
+  2. Give the first participant one complete entry path and proof action.
+  3. Delay the most displaced entry until earlier roles are readable.
+  4. End with synchronized commitment while preserving each participant's route identity.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Establish one persistent central threat geometry and a team outside it, then give distinct team members separate entry arcs and proof actions while the threat remains spatially stable. Escalate from single entries to overlapping paths only after each role is readable, and end with a synchronized multi-agent commitment rather than an unstructured melee.
+Invariants:
+- inv-01: Establish one spatially persistent challenge field and the full team before any individual entry.
+- inv-02: Give the first participant one complete entry path and proof action.
+- inv-03: Give a second participant a materially different route or action responsibility against the same field.
+- inv-04: Delay the most displaced entry until earlier roles are readable.
+- inv-05: End with synchronized commitment while preserving each participant's route identity.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- Opening on a close strike hides team geography.: Establish one spatially persistent challenge field and the full team before any individual entry.
+- Several simultaneous first actions create noise.: Give the first participant one complete entry path and proof action.
+- A repeated route is only a costume swap.: Give a second participant a materially different route or action responsibility against the same field.
+- An early overhead entry spends the strongest spatial change too soon.: Delay the most displaced entry until earlier roles are readable.
+- An unstructured crowd obscures who contributes what.: End with synchronized commitment while preserving each participant's route identity.
+Do not copy from the source: recognizable Demon Slayer characters; source tatami room and tentacled white antagonist; source swords, uniforms and colored slash arcs; the exact anime combat choreography

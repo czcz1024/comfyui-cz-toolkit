@@ -1,0 +1,41 @@
+# 对决节奏｜静止密战一击定局
+# ID: t8-case-calm-dense-decisive-delay-v1
+# 来源: T8 非官方案例模板
+
+用途: 先安静建立，进入连续密集交换，再用一次决定性干预、短暂假稳定和延迟结果终结。
+输入格式: 两个主体/系统 + 可读静止 + 连续密集交换 + 一次决定性干预 + 短暂假稳定 + 延迟结果
+推荐输入: 两组动力雕塑先静止对峙，随后连续交换高速磁片；其中一组只做一次反向脉冲，场面短暂恢复平静，数秒后对方结构延迟塌落。
+
+必须实现的锚点:
+  1. 安静建立可读
+  2. 中段交换连续且高密
+  3. 决定性干预只有一次
+  4. 假稳定后才出现不可逆结果
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Organize a two-agent confrontation into three readable states: measured stillness, one continuous dense exchange, and a single decisive intervention. After the intervention, preserve one short false-stability beat before an irreversible physical consequence confirms the result; end on the initiator's controlled state rather than another attack.
+Invariants:
+- inv-01: Begin with readable stillness and a clear relation between both agents.
+- inv-02: Treat the middle as one continuous exchange rather than unrelated highlights.
+- inv-03: Use only one identifiable state-changing intervention.
+- inv-04: Hold a short false-stability beat after intervention.
+- inv-05: Confirm the outcome through irreversible physical state while the initiator stays controlled.
+Variable slots:
+- lead_subject: An original subject or system whose identity remains stable.
+- setting: A new setting with fixed spatial anchors.
+- escalation_variable: One visible variable that changes in countable causal stages.
+- performance_rule: A restrained behavior rule that makes the mechanism legible.
+- camera_grammar: A coherent information order that does not copy source shot boundaries.
+- payoff: One clean physical or graphic consequence.
+- sound_family: A new hierarchy of diegetic cues supporting state changes.
+Failure prevention:
+- Immediate action removes the contrast state.: Begin with readable stillness and a clear relation between both agents.
+- Disconnected cuts make the decisive event arbitrary.: Treat the middle as one continuous exchange rather than unrelated highlights.
+- Multiple finishers compete for causal credit.: Use only one identifiable state-changing intervention.
+- Immediate collapse loses the delayed proof.: Hold a short false-stability beat after intervention.
+- A reaction-only ending fails to prove the result.: Confirm the outcome through irreversible physical state while the initiator stays controlled.
+Do not copy from the source: female swordswoman in red; white-robed assassin; snow-covered temple courtyard; blade trap, finishing cut and delayed kneeling fall

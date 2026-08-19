@@ -1,0 +1,41 @@
+# 冲击后揭示｜从私密困境到城市尺度真因
+# ID: t8-case-intimate-impact-aftermath-reveal-v1
+# 来源: T8 非官方案例模板
+
+用途: 先在狭小受保护空间建立私密困境，再让巨大外力突然移动承载体；局部撞击与长停留反应证明后果，最后广角揭示城市尺度真因。
+输入格式: 受困主体 + 外力移动承载体 + 局部撞击证明 + 反应停留 + 广角真因揭示
+推荐输入: 玻璃修复师在狭小修复舱内固定器皿，压力波把整舱推过被淹大厅；撞上软缓冲后长停留反应，最后揭示中庭上方巨型水族箱破裂。
+
+必须实现的锚点:
+  1. Begin with an intimate confined baseline before the large event.
+  2. Let one external force visibly displace the established carrier.
+  3. Hold one post-impact reaction after motion stops.
+  4. Reveal the larger cause only after local consequence is clear.
+
+--- H3 写法指导 ---
+MiniMax H3 native adapter. Realize every required mechanism anchor as a concrete visible event inside the native H3 integrated description or Ref2VA detailed description. Preserve the exact H3 Base/Ref2VA field order, [Shot N] timeline, camera continuity, soundscape and music separation. Do not emit Seedance 镜头N or @图片N syntax. The case mechanism is lower priority than user intent, observable media, hard constraints, duration, fixed shot count, official H3 rules, official creative presets and a manual reference template.
+
+--- Creative DNA ---
+Reusable Creative DNA (mechanism and production grammar only):
+Begin inside a tight protected or confined relationship, let one immense external force abruptly displace the carrier, prove impact and disorientation locally, hold a survivor reaction long enough to register consequence, then widen to reveal the much larger environmental cause and aftermath.
+Invariants:
+- inv-01: Begin with an intimate confined baseline before the large event.
+- inv-02: Let one external force visibly displace the established carrier.
+- inv-03: Prove impact through local physical aftermath.
+- inv-04: Hold one post-impact reaction after motion stops.
+- inv-05: Reveal the larger cause only after local consequence is clear.
+Variable slots:
+- lead_subject: An original stable subject or pair whose role is clear without source identity.
+- setting: A materially new setting with fixed spatial anchors and no source-specific location.
+- causal_carrier: One object, route, mark or device that visibly carries the causal chain.
+- state_change: Five ordered states with observable handoffs, not a decorative montage.
+- camera_grammar: A new proof-oriented information order that does not copy source shot boundaries.
+- payoff: A held final consequence that resolves or recontextualizes the setup.
+- sound_family: An original hierarchy of story-world cues supporting each visible change.
+Failure prevention:
+- Opening on destruction removes scale contrast.: Begin with an intimate confined baseline before the large event.
+- Unrelated disaster inserts do not move the story.: Let one external force visibly displace the established carrier.
+- Skipping impact makes the carrier teleport.: Prove impact through local physical aftermath.
+- Cutting immediately to spectacle loses the human cost.: Hold one post-impact reaction after motion stops.
+- An early wide reveal spends the final information too soon.: Reveal the larger cause only after local consequence is clear.
+Do not copy from the source: source woman and automobile; burning giant machines and falling wreckage; source street destruction and source end card; the exact trapped-car crash storyboard; STILL HUMAN end card; WATCH CHAPTER ONE ON YOUTUBE
