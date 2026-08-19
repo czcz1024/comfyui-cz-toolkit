@@ -4,7 +4,6 @@
 """
 
 import re
-import random
 
 from . import models_util as mu
 
@@ -33,8 +32,7 @@ class LLMGenerator:
                 "top_k": ("INT", {"default": 40, "min": 0, "max": 100, "step": 1}),
                 "重复惩罚": ("FLOAT", {"default": 1.1, "min": 0.0, "max": 2.0, "step": 0.05}),
                 "最大输出token": ("INT", {"default": 2048, "min": 64, "max": 8192, "step": 64}),
-                "🎲随机种子": ("INT", {"default": 0, "min": 0, "max": 2147483647, "step": 1}),
-                "🔀随机化": ("BOOLEAN", {"default": False}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647, "tooltip": "随机种子，配合右键菜单控制每次是否随机"}),
                 "⚡推理后卸载模型": ("BOOLEAN", {"default": False}),
             },
         }
@@ -53,16 +51,10 @@ class LLMGenerator:
         top_k = kwargs["top_k"]
         重复惩罚 = kwargs["重复惩罚"]
         最大输出token = kwargs["最大输出token"]
-        seed_input = kwargs["🎲随机种子"]
-        randomize = kwargs["🔀随机化"]
+        seed = int(kwargs["seed"])
         auto_unload = kwargs["⚡推理后卸载模型"]
 
         llm = mu.load_model(模型句柄)
-
-        if randomize:
-            seed = random.randint(0, 2_147_483_647)
-        else:
-            seed = int(seed_input)
         seed = mu.set_seed(llm, seed)
 
         system_content = 系统提示词.strip() if 系统提示词 else ""
