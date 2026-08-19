@@ -1,0 +1,8 @@
+# 必须安装 GPU 版 llama-cpp-python
+# Qwen3.8 需要 JamePeng llama-cpp-python 0.3.47+（PyPI 目前停在 0.3.35，会缺 MTP/NextN 张量）
+# GPU 用户请从 https://github.com/JamePeng/llama-cpp-python/releases
+# 下载与 Python / 操作系统 / CUDA 匹配的 0.3.47+ wheel，再：
+#   pip install --upgrade --force-reinstall 下载的wheel文件.whl
+llama-cpp-python
+Pillow
+numpy
