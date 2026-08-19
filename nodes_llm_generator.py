@@ -26,7 +26,7 @@ class LLMGenerator:
         return {
             "required": {
                 "模型句柄": ("H3_MODEL_HANDLE",),
-                "系统提示词": ("STRING", {"multiline": True, "default": "", "forceInput": True}),
+                "系统提示词": ("STRING", {"multiline": True, "default": ""}),
                 "用户消息": ("STRING", {"multiline": True, "default": ""}),
                 "温度": ("FLOAT", {"default": 0.7, "min": 0.0, "max": 2.0, "step": 0.05}),
                 "top_p": ("FLOAT", {"default": 0.9, "min": 0.0, "max": 1.0, "step": 0.01}),

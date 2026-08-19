@@ -1,10 +1,10 @@
-"""H3 LoRA 选择器：从 models/LLM 下拉选 GGUF LoRA（按元信息/命名自动区分），输出可连线的 LoRA 配置。"""
+"""LLM LoRA 选择器：从 models/LLM 下拉选 GGUF LoRA（按元信息/命名自动区分），输出可连线的 LoRA 配置。"""
 
 import os
 from . import models_util as mu
 
 
-class H3LoraSelector:
+class LLMLoraSelector:
     """选一个 GGUF LoRA 适配器（含权重），输出给模型加载器。"""
 
     @classmethod

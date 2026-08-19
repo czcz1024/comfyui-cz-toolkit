@@ -31,7 +31,7 @@ class H3ReferenceMedia:
     RETURN_TYPES = ("H3_MEDIA_BUNDLE",)
     RETURN_NAMES = ("素材包",)
     FUNCTION = "build"
-    CATEGORY = "CZ/LLM"
+    CATEGORY = "CZ/H3"
     DESCRIPTION = "打包官方首尾帧 + Ref2VA 素材；输出给提示词框 / llama / 解包节点。"
 
     def build(self, 图像最大边长, 视频最大帧数, **kwargs):
@@ -62,7 +62,7 @@ class H3MediaUnpack:
     RETURN_TYPES = mdu.PACK_SLOT_TYPES
     RETURN_NAMES = tuple(mdu.PACK_SLOT_NAMES)
     FUNCTION = "unpack"
-    CATEGORY = "CZ/LLM"
+    CATEGORY = "CZ/H3"
     DESCRIPTION = "原样透传打包时的图/视频/音频，接到官方或社区 H3 生视频节点。"
 
     def unpack(self, 素材包):

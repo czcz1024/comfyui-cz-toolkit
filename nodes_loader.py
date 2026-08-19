@@ -1,9 +1,9 @@
-"""H3 模型加载器：进程内 llama_cpp 加载 GGUF + mmproj，接 LoRA，缓存复用。"""
+"""LLM 模型加载器：进程内 llama_cpp 加载 GGUF + mmproj，接 LoRA，缓存复用。"""
 
 from . import models_util as mu
 
 
-class H3ModelLoader:
+class LLMModelLoader:
     """加载本地 GGUF（可带 mmproj 多模态、LoRA 适配器），输出模型句柄供生成节点复用。"""
 
     @classmethod

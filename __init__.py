@@ -1,5 +1,5 @@
-from .nodes_lora import H3LoraSelector
-from .nodes_loader import H3ModelLoader
+from .nodes_lora import LLMLoraSelector
+from .nodes_loader import LLMModelLoader
 from .nodes_media import H3ReferenceMedia, H3MediaUnpack
 from .nodes_generator import H3PromptBuilder
 from .nodes_llm_generator import LLMGenerator
@@ -18,8 +18,8 @@ async def _list_prompts(request):
     return web.json_response({"options": options})
 
 NODE_CLASS_MAPPINGS = {
-    "H3LoraSelector": H3LoraSelector,
-    "H3ModelLoader": H3ModelLoader,
+    "LLMLoraSelector": LLMLoraSelector,
+    "LLMModelLoader": LLMModelLoader,
     "H3ReferenceMedia": H3ReferenceMedia,
     "H3MediaUnpack": H3MediaUnpack,
     "H3PromptBox": H3PromptBox,
@@ -31,8 +31,8 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "H3LoraSelector": "H3 LoRA 选择器",
-    "H3ModelLoader": "H3 模型加载器",
+    "LLMLoraSelector": "LLM LoRA 选择器",
+    "LLMModelLoader": "LLM 模型加载器",
     "H3ReferenceMedia": "H3 参考素材",
     "H3MediaUnpack": "H3 素材解包",
     "H3PromptBox": "H3 提示词框（可@）",
