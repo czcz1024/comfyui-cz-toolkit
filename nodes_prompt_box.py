@@ -40,8 +40,8 @@ class H3PromptBox:
             },
         }
 
-    RETURN_TYPES = ("STRING", "H3_MEDIA_BUNDLE")
-    RETURN_NAMES = ("H3提示词", "素材包")
+    RETURN_TYPES = ("H3_MEDIA_BUNDLE", "STRING")
+    RETURN_NAMES = ("素材包", "H3提示词")
     FUNCTION = "build_prompt"
     CATEGORY = "CZ/H3"
     DESCRIPTION = "为 MiniMax H3 编写带 <Picture/Video/Audio N> 标记的提示词；素材来自参考素材节点，不绑定官方生视频节点。"
@@ -68,4 +68,4 @@ class H3PromptBox:
             kind, number = _TOKEN_PATTERN.fullmatch(token).groups()
             if int(number) > _LIMITS[kind]:
                 raise ValueError(f"{token} 超出官方上限。")
-        return (text, bundle)
+        return (bundle, text)

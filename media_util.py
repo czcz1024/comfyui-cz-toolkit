@@ -1,7 +1,7 @@
 """多模态素材编码与 H3 标签打包。
 
 素材包同时保存：
-- 原始槽位（解包后接到官方/社区 H3 节点，效果等同直接接线）
+- 紧凑槽位（与官方 Ref2VA 一致：跳过空位，Picture N = 第 N 张有效参考）
 - llama 用的缩略图 / 抽帧 / wav
 - @ 引用清单（<Picture N> / <Video N> / <Audio N>）
 """
@@ -16,14 +16,30 @@ from PIL import Image
 
 
 PACK_SLOTS = (
-    [("首帧图", "IMAGE"), ("尾帧图", "IMAGE")]
-    + [(f"参考图{i}", "IMAGE") for i in range(1, 10)]
-    + [(f"参考视频{i}", "IMAGE") for i in range(1, 4)]
-    + [(f"参考视频音轨{i}", "AUDIO") for i in range(1, 4)]
-    + [(f"参考音频{i}", "AUDIO") for i in range(1, 4)]
+    [("first_frame", "IMAGE"), ("last_frame", "IMAGE")]
+    + [(f"ref_image_{i}", "IMAGE") for i in range(9)]
+    + [(f"ref_video_{i}", "IMAGE") for i in range(3)]
+    + [(f"ref_video_audio_{i}", "AUDIO") for i in range(3)]
+    + [(f"ref_audio_{i}", "AUDIO") for i in range(3)]
 )
 PACK_SLOT_NAMES = [name for name, _ in PACK_SLOTS]
 PACK_SLOT_TYPES = tuple(kind for _, kind in PACK_SLOTS)
+
+# 旧工作流 / 解包兼容别名
+SLOT_ALIASES = {
+    "首帧图": "first_frame",
+    "尾帧图": "last_frame",
+}
+for i in range(1, 10):
+    SLOT_ALIASES[f"参考图{i}"] = f"ref_image_{i - 1}"
+for i in range(1, 4):
+    SLOT_ALIASES[f"参考视频{i}"] = f"ref_video_{i - 1}"
+    SLOT_ALIASES[f"参考视频音轨{i}"] = f"ref_video_audio_{i - 1}"
+    SLOT_ALIASES[f"参考音频{i}"] = f"ref_audio_{i - 1}"
+
+MAX_REF_IMAGES = 9
+MAX_REF_VIDEOS = 3
+MAX_REF_AUDIOS = 3
 
 
 def empty_bundle():
@@ -34,8 +50,90 @@ def empty_bundle():
         "mode_hint": "T2VA",
         "has_visual": False,
         "manifest": {"version": 1, "mode": "T2VA", "items": []},
-        "slots": {name: None for name in PACK_SLOT_NAMES},
+        "slots": {},
+        "active_outputs": [],
     }
+
+
+def collect_sequence(values, max_count):
+    """从 kwargs 列表或 dict 顺序收集，遇 None 即停止（不允许中间空槽）。"""
+    if values is None:
+        return []
+    if isinstance(values, dict):
+        seq = []
+        for i in range(1, max_count + 1):
+            key = None
+            for k in values:
+                if str(k).endswith(f"_{i}") or str(k) == str(i):
+                    key = k
+                    break
+            v = values.get(key) if key else values.get(i) or values.get(str(i))
+            if v is None:
+                break
+            seq.append(v)
+        return seq
+    out = []
+    for item in list(values or [])[:max_count]:
+        if item is None:
+            break
+        out.append(item)
+    return out
+
+
+def collect_named_sequence(kwargs, prefix, max_count):
+    """按 ref_image_0 / 参考图1 顺序收集，遇 None 停止。"""
+    out = []
+    for i in range(max_count):
+        v = kwargs.get(f"{prefix}{i}")
+        if v is None:
+            v = kwargs.get(f"{prefix}{i + 1}")  # 旧 1-based 中文名
+        if v is None:
+            break
+        out.append(v)
+    return out
+
+
+def sorted_autogrow_items(values):
+    """与 T8 core.sorted_autogrow_items 相同：跳过 None，按槽位 key 排序。"""
+    if not values:
+        return []
+    if isinstance(values, (list, tuple)):
+        return [(i, v) for i, v in enumerate(values) if v is not None]
+
+    def sort_key(item):
+        key = str(item[0])
+        try:
+            return int(key.rsplit("_", 1)[-1])
+        except ValueError:
+            return 10_000
+
+    output = []
+    for key, value in sorted(values.items(), key=sort_key):
+        if value is None:
+            continue
+        try:
+            ordinal = int(str(key).rsplit("_", 1)[-1])
+        except ValueError:
+            ordinal = len(output)
+        output.append((ordinal, value))
+    return output
+
+
+def sorted_autogrow_values(values):
+    return [value for _, value in sorted_autogrow_items(values)]
+
+
+def slots_to_autogrow(slots, prefix, max_count):
+    data = {}
+    for i in range(max_count):
+        key = f"{prefix}{i}"
+        if slots.get(key) is not None:
+            data[key] = slots[key]
+    return data or None
+
+
+def normalize_slot_key(name):
+    return SLOT_ALIASES.get(name, name)
 
 
 def tensor_to_pil(tensor):
@@ -142,65 +240,60 @@ def _present(values):
 
 
 def build_manifest_and_mode(first_frame, last_frame, ref_images, videos, video_audios, audios):
-    """编号规则与提示词框 @ 菜单一致：两套口不混编。"""
+    """Picture/Video/Audio N = 有效参考的紧凑顺序号（与官方 Ref2VA / T8 一致）。"""
     items = []
-    has_ref = bool(_present(ref_images) or _present(videos) or _present(video_audios) or _present(audios))
+    has_ref = bool(
+        _present(ref_images) or _present(videos) or _present(video_audios) or _present(audios)
+    )
     if has_ref:
-        pic_n = 0
-        for slot, image in enumerate(ref_images, start=1):
-            if image is None:
-                continue
-            pic_n += 1
+        for index, image in enumerate(_present(ref_images), start=1):
+            slot = index - 1
             items.append({
                 "kind": "Picture",
-                "index": pic_n,
-                "token": f"<Picture {pic_n}>",
-                "label": f"参考图{slot}",
-                "source_input": f"参考图{slot}",
+                "index": index,
+                "token": f"<Picture {index}>",
+                "label": f"参考图{index}",
+                "source_input": f"ref_image_{slot}",
             })
-        audio_n = 0
-        vid_n = 0
-        for slot, video in enumerate(videos, start=1):
-            soundtrack = video_audios[slot - 1] if slot - 1 < len(video_audios) else None
+        for index, video in enumerate(_present(videos), start=1):
+            slot = index - 1
+            soundtrack = None
+            if index - 1 < len(video_audios):
+                soundtrack = video_audios[index - 1]
             if video is None and soundtrack is None:
                 continue
             if video is not None:
-                vid_n += 1
                 if soundtrack is not None:
-                    audio_n += 1
                     items.append({
                         "kind": "Audio",
-                        "index": audio_n,
-                        "token": f"<Audio {audio_n}>",
-                        "label": f"参考视频{slot}音轨",
-                        "source_input": f"参考视频音轨{slot}",
+                        "index": index,
+                        "token": f"<Audio {index}>",
+                        "label": f"参考视频{index}音轨",
+                        "source_input": f"ref_video_audio_{slot}",
                     })
                 items.append({
                     "kind": "Video",
-                    "index": vid_n,
-                    "token": f"<Video {vid_n}>",
-                    "label": f"参考视频{slot}",
-                    "source_input": f"参考视频{slot}",
+                    "index": index,
+                    "token": f"<Video {index}>",
+                    "label": f"参考视频{index}",
+                    "source_input": f"ref_video_{slot}",
                 })
             elif soundtrack is not None:
-                audio_n += 1
                 items.append({
                     "kind": "Audio",
-                    "index": audio_n,
-                    "token": f"<Audio {audio_n}>",
-                    "label": f"参考视频{slot}音轨",
-                    "source_input": f"参考视频音轨{slot}",
+                    "index": index,
+                    "token": f"<Audio {index}>",
+                    "label": f"参考视频{index}音轨",
+                    "source_input": f"ref_video_audio_{slot}",
                 })
-        for slot, audio in enumerate(audios, start=1):
-            if audio is None:
-                continue
-            audio_n += 1
+        for index, audio in enumerate(_present(audios), start=1):
+            slot = index - 1
             items.append({
                 "kind": "Audio",
-                "index": audio_n,
-                "token": f"<Audio {audio_n}>",
-                "label": f"参考音频{slot}",
-                "source_input": f"参考音频{slot}",
+                "index": index,
+                "token": f"<Audio {index}>",
+                "label": f"参考音频{index}",
+                "source_input": f"ref_audio_{slot}",
             })
         mode = "Ref2VA" if (_present(ref_images) or _present(videos)) else "T2VA"
         return {"version": 1, "mode": mode, "items": items}, mode
@@ -211,7 +304,7 @@ def build_manifest_and_mode(first_frame, last_frame, ref_images, videos, video_a
             "index": 1,
             "token": "<Picture 1>",
             "label": "首帧",
-            "source_input": "首帧图",
+            "source_input": "first_frame",
         })
     if last_frame is not None:
         index = 2 if first_frame is not None else 1
@@ -220,7 +313,7 @@ def build_manifest_and_mode(first_frame, last_frame, ref_images, videos, video_a
             "index": index,
             "token": f"<Picture {index}>",
             "label": "尾帧",
-            "source_input": "尾帧图",
+            "source_input": "last_frame",
         })
     if first_frame is not None and last_frame is not None:
         mode = "FL2VA"
@@ -233,26 +326,55 @@ def build_manifest_and_mode(first_frame, last_frame, ref_images, videos, video_a
     return {"version": 1, "mode": mode, "items": items}, mode
 
 
+def active_output_names(slots, manifest=None):
+    """解包节点应暴露的输出口；首尾帧固定，其余按实际槽位紧凑列出。"""
+    slots = slots or {}
+    names = ["first_frame", "last_frame"]
+    for i in range(MAX_REF_IMAGES):
+        key = f"ref_image_{i}"
+        if slots.get(key) is not None:
+            names.append(key)
+        else:
+            break
+    for i in range(MAX_REF_VIDEOS):
+        vkey = f"ref_video_{i}"
+        akey = f"ref_video_audio_{i}"
+        if slots.get(vkey) is not None or slots.get(akey) is not None:
+            if slots.get(vkey) is not None:
+                names.append(vkey)
+            if slots.get(akey) is not None:
+                names.append(akey)
+        else:
+            break
+    for i in range(MAX_REF_AUDIOS):
+        key = f"ref_audio_{i}"
+        if slots.get(key) is not None:
+            names.append(key)
+        else:
+            break
+    return names
+
+
 def build_bundle(first_frame=None, last_frame=None, ref_images=None, videos=None,
                  video_audios=None, audios=None, max_side=1024, max_frames=4):
-    ref_images = list(ref_images or [])[:9]
-    videos = list(videos or [])[:3]
-    video_audios = list(video_audios or [])[:3]
-    audios = list(audios or [])[:3]
-    ref_images += [None] * (9 - len(ref_images))
-    videos += [None] * (3 - len(videos))
-    video_audios += [None] * (3 - len(video_audios))
-    audios += [None] * (3 - len(audios))
+    ref_images = collect_sequence(ref_images, MAX_REF_IMAGES)
+    videos = collect_sequence(videos, MAX_REF_VIDEOS)
+    video_audios = collect_sequence(video_audios, MAX_REF_VIDEOS)
+    audios = collect_sequence(audios, MAX_REF_AUDIOS)
 
-    slots = {name: None for name in PACK_SLOT_NAMES}
-    slots["首帧图"] = first_frame
-    slots["尾帧图"] = last_frame
-    for i in range(9):
-        slots[f"参考图{i + 1}"] = ref_images[i]
-    for i in range(3):
-        slots[f"参考视频{i + 1}"] = videos[i]
-        slots[f"参考视频音轨{i + 1}"] = video_audios[i]
-        slots[f"参考音频{i + 1}"] = audios[i]
+    slots = {}
+    if first_frame is not None:
+        slots["first_frame"] = first_frame
+    if last_frame is not None:
+        slots["last_frame"] = last_frame
+    for i, image in enumerate(ref_images):
+        slots[f"ref_image_{i}"] = image
+    for i, video in enumerate(videos):
+        slots[f"ref_video_{i}"] = video
+    for i, audio in enumerate(video_audios):
+        slots[f"ref_video_audio_{i}"] = audio
+    for i, audio in enumerate(audios):
+        slots[f"ref_audio_{i}"] = audio
 
     manifest, mode_hint = build_manifest_and_mode(
         first_frame, last_frame, ref_images, videos, video_audios, audios
@@ -272,48 +394,33 @@ def build_bundle(first_frame=None, last_frame=None, ref_images=None, videos=None
             _append_image_part(image_parts, tensor_to_pil(last_frame), max_side)
             label_lines.append(f"- {token}：{token_to_label.get(token, '尾帧')}")
     else:
-        pic_n = 0
-        for slot, image in enumerate(ref_images, start=1):
-            if image is None:
-                continue
-            pic_n += 1
+        for index, image in enumerate(ref_images, start=1):
             _append_image_part(image_parts, tensor_to_pil(image), max_side)
-            label_lines.append(f"- <Picture {pic_n}>：参考图{slot}")
+            label_lines.append(f"- <Picture {index}>：参考图{index}")
 
-        vid_n = 0
-        audio_n = 0
-        for slot, video in enumerate(videos, start=1):
-            soundtrack = video_audios[slot - 1]
+        for index, video in enumerate(videos, start=1):
+            soundtrack = video_audios[index - 1] if index - 1 < len(video_audios) else None
             if video is None and soundtrack is None:
                 continue
             if video is not None:
-                vid_n += 1
                 frames = sample_video_frames(video, max_frames)
                 for pil in frames:
                     _append_image_part(image_parts, pil, max_side)
                 extra = "（已附抽帧图像，自上而下按时间顺序）" if frames else "（未能抽帧，仅保留原始视频供解包）"
                 if soundtrack is not None:
-                    audio_n += 1
                     if _append_audio_part(audio_parts, soundtrack):
-                        label_lines.append(f"- <Audio {audio_n}>：参考视频{slot}音轨")
-                    else:
-                        audio_n -= 1
-                label_lines.append(f"- <Video {vid_n}>：参考视频{slot}{extra}")
+                        label_lines.append(f"- <Audio {index}>：参考视频{index}音轨")
+                label_lines.append(f"- <Video {index}>：参考视频{index}{extra}")
             elif soundtrack is not None:
-                audio_n += 1
                 if _append_audio_part(audio_parts, soundtrack):
-                    label_lines.append(f"- <Audio {audio_n}>：参考视频{slot}音轨")
-                else:
-                    audio_n -= 1
+                    label_lines.append(f"- <Audio {index}>：参考视频{index}音轨")
 
-        for slot, audio in enumerate(audios, start=1):
-            if audio is None:
-                continue
+        for index, audio in enumerate(audios, start=1):
             if _append_audio_part(audio_parts, audio):
-                audio_n += 1
-                label_lines.append(f"- <Audio {audio_n}>：参考音频{slot}")
+                label_lines.append(f"- <Audio {index}>：参考音频{index}")
 
     has_visual = bool(image_parts)
+    active_outputs = active_output_names(slots, manifest)
     return {
         "image_parts": image_parts,
         "audio_parts": audio_parts,
@@ -322,10 +429,39 @@ def build_bundle(first_frame=None, last_frame=None, ref_images=None, videos=None
         "has_visual": has_visual,
         "manifest": manifest,
         "slots": slots,
+        "active_outputs": active_outputs,
     }
 
 
 def unpack_bundle(bundle):
     data = bundle if isinstance(bundle, dict) else empty_bundle()
     slots = data.get("slots") or {}
-    return tuple(slots.get(name) for name in PACK_SLOT_NAMES)
+    out = []
+    for name, _ in PACK_SLOTS:
+        value = slots.get(name)
+        if value is None:
+            alias = normalize_slot_key(name)
+            value = slots.get(alias)
+        out.append(value)
+    return tuple(out)
+
+
+def bundle_media_counts(bundle):
+    """返回 (图像 part 数, 音频 part 数)，供上下文预算估算。"""
+    if not bundle or not isinstance(bundle, dict):
+        return 0, 0
+    return len(bundle.get("image_parts") or []), len(bundle.get("audio_parts") or [])
+
+
+def build_llm_user_content(bundle, text):
+    """组装 llama.cpp 多模态 user message：图/音在前，文本在后。"""
+    parts = []
+    if bundle and isinstance(bundle, dict):
+        parts.extend(bundle.get("image_parts") or [])
+        parts.extend(bundle.get("audio_parts") or [])
+    text = (text or "").strip()
+    if text:
+        parts.append({"type": "text", "text": text})
+    elif not parts:
+        parts.append({"type": "text", "text": ""})
+    return parts

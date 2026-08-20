@@ -1,10 +1,11 @@
-"""通用 LLM 生成节点：接收系统提示词 + 用户消息，调用本地 GGUF 模型推理。
+"""通用 LLM 生成节点：系统提示词 + 用户消息，可选多模态素材包（图/音）。
 
-不包含任何 H3 / 视频专用逻辑，纯文本对话。
+接 H3 参考素材时，将 image_parts / audio_parts 送入带 mmproj 的本地模型。
 """
 
 import re
 
+from . import media_util as mdu
 from . import models_util as mu
 
 
@@ -17,8 +18,14 @@ def _strip_thinking(text):
     return text.strip()
 
 
+def _is_h3_lora_user_message(text):
+    """H3PromptBuilder 官方 LoRA 模板格式的用户消息（仅文本，不吃图）。"""
+    t = (text or "").strip()
+    return t.startswith("resolution:") and "original_prompt:" in t
+
+
 class LLMGenerator:
-    """通用本地 LLM 文本生成。"""
+    """通用本地 LLM 生成；可选接入 H3 素材包让 Qwen+mmproj 看见参考图/视频抽帧。"""
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -34,6 +41,14 @@ class LLMGenerator:
                 "最大输出token": ("INT", {"default": 2048, "min": 64, "max": 8192, "step": 64}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647, "tooltip": "随机种子，配合右键菜单控制每次是否随机"}),
                 "⚡推理后卸载模型": ("BOOLEAN", {"default": False}),
+            },
+            "optional": {
+                "多模态素材": (
+                    "H3_MEDIA_BUNDLE",
+                    {
+                        "tooltip": "来自 H3 参考素材；与 H3PromptBuilder 的用户消息一起使用时，模型可看见参考图/视频抽帧。",
+                    },
+                ),
             },
         }
 
@@ -53,19 +68,49 @@ class LLMGenerator:
         最大输出token = kwargs["最大输出token"]
         seed = int(kwargs["seed"])
         auto_unload = kwargs["⚡推理后卸载模型"]
+        多模态素材 = kwargs.get("多模态素材")
 
         llm = mu.load_model(模型句柄)
         seed = mu.set_seed(llm, seed)
 
         system_content = 系统提示词.strip() if 系统提示词 else ""
-        user_content = [{"type": "text", "text": 用户消息.strip()}]
+        bundle = 多模态素材 if isinstance(多模态素材, dict) else None
+
+        if bundle and _is_h3_lora_user_message(用户消息):
+            print(
+                "[CZ-Toolkit] LLMGenerator：检测到官方 LoRA 模板用户消息，已忽略多模态素材（该 LoRA 仅吃文本）。"
+            )
+            bundle = None
+
+        n_images, n_audio = mdu.bundle_media_counts(bundle)
+        has_media = n_images > 0 or n_audio > 0
+        mmproj_file = 模型句柄.get("mmproj_file", "None")
+        if has_media and (not mmproj_file or mmproj_file == "None"):
+            raise RuntimeError(
+                "已接入多模态素材，但模型加载器未选择 mmproj。"
+                "请在 LLM 模型加载器中选择与基座配套的 mmproj，并将对话处理器设为 Qwen3.8 / Qwen3-VL 等视觉处理器。"
+            )
+
+        user_content = mdu.build_llm_user_content(bundle, 用户消息)
+        if has_media:
+            print(
+                f"[CZ-Toolkit] LLMGenerator：送入 {n_images} 张图像"
+                + (f"、{n_audio} 段音频" if n_audio else "")
+            )
 
         n_ctx = int(模型句柄.get("n_ctx", 8192))
-        est_total = len(system_content) // 3 + len(用户消息) // 3 + int(最大输出token)
+        img_max = int(模型句柄.get("image_max_tokens", 1024))
+        est_total = (
+            len(system_content) // 3
+            + len(用户消息) // 3
+            + n_images * img_max
+            + n_audio * 256
+            + int(最大输出token)
+        )
         if est_total > n_ctx:
             raise ValueError(
                 f"上下文预算不足：估算约 {est_total} token > 上下文长度 {n_ctx}。"
-                f"请减少输入文本长度，或在加载器把「上下文长度」调到 ≥ {est_total}。"
+                f"请减少输入文本/参考图数量，或在加载器把「上下文长度」调到 ≥ {est_total}。"
             )
 
         messages = [
@@ -91,7 +136,7 @@ class LLMGenerator:
             msg = str(e).lower()
             if "context" in msg and ("exceed" in msg or "overflow" in msg or "too large" in msg):
                 raise RuntimeError(
-                    f"推理时上下文溢出（{e}）。请在加载器增大「上下文长度」，或减少输入文本。"
+                    f"推理时上下文溢出（{e}）。请在加载器增大「上下文长度」，或减少输入文本/参考图。"
                 ) from e
             raise RuntimeError(f"本地模型推理失败：{e}") from e
 

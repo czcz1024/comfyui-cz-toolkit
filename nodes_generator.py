@@ -7,6 +7,8 @@
 import os
 import re
 
+from . import media_util as mdu
+
 _HERE = os.path.dirname(__file__)
 _PROMPTS_DIR = os.path.join(_HERE, "prompts")
 
@@ -95,8 +97,8 @@ class H3PromptBuilder:
             },
         }
 
-    RETURN_TYPES = ("STRING", "STRING", "STRING")
-    RETURN_NAMES = ("系统提示词", "用户消息", "识别模式")
+    RETURN_TYPES = ("H3_MEDIA_BUNDLE", "STRING", "STRING", "STRING")
+    RETURN_NAMES = ("素材包", "系统提示词", "用户消息", "识别模式")
     FUNCTION = "build"
     CATEGORY = "CZ/H3"
 
@@ -144,4 +146,5 @@ class H3PromptBuilder:
             if 参考素材 and 参考素材.get("reference_text"):
                 user_text += "\n【参考素材】\n" + 参考素材["reference_text"] + "\n"
 
-        return (system_content, user_text, mode)
+        bundle = 参考素材 if isinstance(参考素材, dict) else mdu.empty_bundle()
+        return (bundle, system_content, user_text, mode)

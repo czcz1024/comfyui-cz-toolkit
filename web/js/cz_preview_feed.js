@@ -374,9 +374,20 @@ const lightbox = (() => {
 const KIND_ICON = { image: "🖼️", video: "🎞️", audio: "🎵", text: "📝", unknown: "❓" };
 const KIND_COLOR = { image: "#1a1a2e", video: "#1a2010", audio: "#1e1a2e", text: "#1a1e2e", unknown: "#1a1a1a" };
 
+function mediaFillStyle() {
+    return {
+        position: "absolute", inset: "0",
+        width: "100%", height: "100%",
+        objectFit: "cover", display: "block",
+    };
+}
+
 function buildThumb(item, idx) {
+    // 宽由列数决定，高用 1:1 跟宽走；绝对定位媒体，避免 grid 把格子压扁
     const wrap = el("div", {
-        position: "relative", aspectRatio: "1", overflow: "hidden",
+        position: "relative", width: "100%", height: "auto",
+        aspectRatio: "1", overflow: "hidden",
+        alignSelf: "start",
         borderRadius: "6px", cursor: "pointer",
         background: KIND_COLOR[item.kind] ?? "#1a1a1a",
         border: "1px solid #333", transition: "border-color .15s",
@@ -387,13 +398,13 @@ function buildThumb(item, idx) {
         const img = document.createElement("img");
         img.src = item.url;
         img.loading = "lazy";
-        Object.assign(img.style, { width: "100%", height: "100%", objectFit: "cover", display: "block" });
+        Object.assign(img.style, mediaFillStyle());
         img.addEventListener("error", () => showIconFallback(wrap, item));
         wrap.appendChild(img);
     } else if (item.kind === "video") {
         // 视频用第一帧截图，加 #t=0.001 让浏览器解码
         const video = document.createElement("video");
-        Object.assign(video.style, { width: "100%", height: "100%", objectFit: "cover", display: "block" });
+        Object.assign(video.style, mediaFillStyle());
         video.src = item.url + "#t=0.001";
         video.preload = "metadata";
         video.muted = true;
@@ -565,9 +576,14 @@ function buildSidebarUI(container) {
     }
 
     // ── 缩略图网格 ──────────────────────────────────────────────────────────
+    // minHeight:0 让 flex 子项形成滚动视口；行高按内容（正方形），多了滚动而不是均分压扁
     gridEl = el("div", {
-        flex: "1", overflowY: "auto", padding: "8px",
-        display: "grid", gap: "6px", alignContent: "start",
+        flex: "1 1 0%", minHeight: "0",
+        overflowY: "auto", overflowX: "hidden", padding: "8px",
+        display: "grid", gap: "6px",
+        alignContent: "start", alignItems: "start",
+        gridAutoRows: "max-content",
+        justifyItems: "stretch",
     });
 
     function updateGrid() {
@@ -596,7 +612,10 @@ function buildSidebarUI(container) {
     renderSidebar = updateGrid;
     updateGrid();
 
-    sidebarEl = el("div", { display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }, header, filterRow, gridEl);
+    sidebarEl = el("div", {
+        display: "flex", flexDirection: "column",
+        height: "100%", minHeight: "0", overflow: "hidden",
+    }, header, filterRow, gridEl);
     container.appendChild(sidebarEl);
 }
 

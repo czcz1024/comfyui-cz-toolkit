@@ -1,6 +1,5 @@
 from .nodes_lora import LLMLoraSelector
 from .nodes_loader import LLMModelLoader
-from .nodes_media import H3ReferenceMedia, H3MediaUnpack
 from .nodes_generator import H3PromptBuilder
 from .nodes_llm_generator import LLMGenerator
 from .nodes_prompt_box import H3PromptBox
@@ -11,17 +10,36 @@ from .nodes_prompt_selector import PromptSelector, _scan_prompts, _NONE
 from aiohttp import web
 import server
 
+try:
+    from comfy_api.latest import ComfyExtension, io
+
+    COMFY_API_AVAILABLE = True
+except ImportError:
+    ComfyExtension = None  # type: ignore
+    io = None  # type: ignore
+    COMFY_API_AVAILABLE = False
+
+try:
+    from .nodes_media_v3 import H3ReferenceMedia as H3ReferenceMediaV3
+    from .nodes_media_v3 import H3MediaUnpack as H3MediaUnpackV3
+    from .nodes_media_v3 import V3_AVAILABLE
+except ImportError:
+    H3ReferenceMediaV3 = None  # type: ignore
+    H3MediaUnpackV3 = None  # type: ignore
+    V3_AVAILABLE = False
+
+from .nodes_media import H3ReferenceMedia, H3MediaUnpack
+
 @server.PromptServer.instance.routes.get("/cz-toolkit/list-prompts")
 async def _list_prompts(request):
     prompts = _scan_prompts()
     options = [_NONE] + prompts
     return web.json_response({"options": options})
 
-NODE_CLASS_MAPPINGS = {
+
+_LEGACY_NODE_CLASS_MAPPINGS = {
     "LLMLoraSelector": LLMLoraSelector,
     "LLMModelLoader": LLMModelLoader,
-    "H3ReferenceMedia": H3ReferenceMedia,
-    "H3MediaUnpack": H3MediaUnpack,
     "H3PromptBox": H3PromptBox,
     "H3PromptBuilder": H3PromptBuilder,
     "LLMGenerator": LLMGenerator,
@@ -30,7 +48,7 @@ NODE_CLASS_MAPPINGS = {
     "PromptSelector": PromptSelector,
 }
 
-NODE_DISPLAY_NAME_MAPPINGS = {
+_LEGACY_DISPLAY_NAME_MAPPINGS = {
     "LLMLoraSelector": "LLM LoRA 选择器",
     "LLMModelLoader": "LLM 模型加载器",
     "H3ReferenceMedia": "H3 参考素材",
@@ -45,4 +63,51 @@ NODE_DISPLAY_NAME_MAPPINGS = {
 
 WEB_DIRECTORY = "./web"
 
-__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]
+
+def _register_legacy_nodes():
+    import nodes as comfy_nodes
+
+    rel = __name__
+    nodes_to_register = dict(_LEGACY_NODE_CLASS_MAPPINGS)
+    if not V3_AVAILABLE:
+        nodes_to_register["H3ReferenceMedia"] = H3ReferenceMedia
+        nodes_to_register["H3MediaUnpack"] = H3MediaUnpack
+
+    for node_id, node_cls in nodes_to_register.items():
+        if node_id in comfy_nodes.NODE_CLASS_MAPPINGS:
+            continue
+        comfy_nodes.NODE_CLASS_MAPPINGS[node_id] = node_cls
+        node_cls.RELATIVE_PYTHON_MODULE = rel
+        display = _LEGACY_DISPLAY_NAME_MAPPINGS.get(node_id)
+        if display is not None:
+            comfy_nodes.NODE_DISPLAY_NAME_MAPPINGS[node_id] = display
+
+
+if COMFY_API_AVAILABLE:
+
+    class CZToolkitExtension(ComfyExtension):
+        async def on_load(self):
+            _register_legacy_nodes()
+
+        async def get_node_list(self) -> list[type[io.ComfyNode]]:
+            if V3_AVAILABLE and H3ReferenceMediaV3 is not None and H3MediaUnpackV3 is not None:
+                return [H3ReferenceMediaV3, H3MediaUnpackV3]
+            return []
+
+    async def comfy_entrypoint() -> CZToolkitExtension:
+        return CZToolkitExtension()
+
+    NODE_CLASS_MAPPINGS = None
+    NODE_DISPLAY_NAME_MAPPINGS = None
+
+    __all__ = ["WEB_DIRECTORY", "comfy_entrypoint"]
+
+else:
+    NODE_CLASS_MAPPINGS = dict(_LEGACY_NODE_CLASS_MAPPINGS)
+    NODE_CLASS_MAPPINGS["H3ReferenceMedia"] = H3ReferenceMedia
+    NODE_CLASS_MAPPINGS["H3MediaUnpack"] = H3MediaUnpack
+    NODE_DISPLAY_NAME_MAPPINGS = dict(_LEGACY_DISPLAY_NAME_MAPPINGS)
+
+    comfy_entrypoint = None
+
+    __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]

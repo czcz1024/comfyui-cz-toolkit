@@ -147,6 +147,15 @@ function connectedByExactPrefix(node, prefix) {
         .sort((a, b) => a.slot - b.slot);
 }
 
+function connectedRefImages(node) {
+    const autogrow = connectedByExactPrefix(node, "ref_image_");
+    if (autogrow.length) return autogrow;
+    return connectedByExactPrefix(node, "参考图").map((entry) => ({
+        ...entry,
+        slot: entry.slot - 1,
+    }));
+}
+
 function walkUpstream(node, visited = new Set()) {
     if (!node || visited.has(String(node.id))) return node;
     visited.add(String(node.id));
@@ -180,20 +189,46 @@ function viewUrl(path) {
     return path;
 }
 
-function firstPreview(node) {
-    const source = upstreamPreviewNode(node);
+function isLoadImageNode(node) {
+    return nodeClass(node) === "LoadImage" || String(node?.comfyClass || "") === "LoadImage";
+}
+
+function previewSourceKey(origin) {
+    const source = upstreamPreviewNode(origin);
+    if (!source) return "";
+    const output = app.nodeOutputs?.[String(source.id)]?.images;
+    const file = Array.isArray(output) && output.length ? output[0] : null;
+    if (file?.filename) {
+        return `exec:${source.id}:${file.type || "output"}:${file.subfolder || ""}:${file.filename}`;
+    }
+    if (isLoadImageNode(source)) {
+        const imageWidget = source.widgets?.find((item) => item?.name === "image") || source.widgets?.[0];
+        const filename = String(imageWidget?.value || source.widgets_values?.[0] || "").trim();
+        return filename ? `load:${filename}` : "";
+    }
+    const image = source.imgs?.[0] || source.images?.[0];
+    if (typeof image === "string") return `img:${image.slice(0, 120)}`;
+    if (image?.src) return `img:${image.src.slice(0, 120)}`;
+    return `node:${source.id}`;
+}
+
+function previewUrlFromKey(keyPart, filename, type, subfolder) {
+    const params = new URLSearchParams({ filename, type: type || "output", rand: String(Date.now()) });
+    if (subfolder) params.set("subfolder", subfolder);
+    return `${viewUrl("/view")}?${params.toString()}`;
+}
+
+function firstPreview(origin) {
+    const source = upstreamPreviewNode(origin);
     const output = app.nodeOutputs?.[String(source?.id)]?.images;
     const file = Array.isArray(output) && output.length ? output[0] : null;
     if (file?.filename) {
-        const params = new URLSearchParams({ filename: file.filename, type: file.type || "output", rand: String(Date.now()) });
-        if (file.subfolder) params.set("subfolder", file.subfolder);
-        return `${viewUrl("/view")}?${params.toString()}`;
+        return previewUrlFromKey("", file.filename, file.type || "output", file.subfolder);
     }
     const imageWidget = source?.widgets?.find((item) => item?.name === "image") || source?.widgets?.[0];
     const filename = String(imageWidget?.value || source?.widgets_values?.[0] || "").trim();
-    if (filename && (source?.type === "LoadImage" || source?.comfyClass === "LoadImage")) {
-        const params = new URLSearchParams({ filename, type: "input", rand: String(Date.now()) });
-        return `${viewUrl("/view")}?${params.toString()}`;
+    if (filename && isLoadImageNode(source)) {
+        return previewUrlFromKey("", filename, "input", "");
     }
     const image = source?.imgs?.[0] || source?.images?.[0];
     if (typeof image === "string") return image;
@@ -203,63 +238,77 @@ function firstPreview(node) {
 function packManifest(pack) {
     if (!pack || !isPackNode(pack)) return { version: 1, target: "", mode: "T2VA", items: [] };
     const type = nodeClass(pack);
-    const images = connectedByExactPrefix(pack, "参考图");
-    const videos = connectedByExactPrefix(pack, "参考视频");
-    const soundtracks = connectedByExactPrefix(pack, "参考视频音轨");
-    const audios = connectedByExactPrefix(pack, "参考音频");
-    const soundtrackBySlot = new Map(soundtracks.map((entry) => [entry.slot, entry]));
+    const images = connectedRefImages(pack);
+    const videos = connectedByExactPrefix(pack, "ref_video_").length
+        ? connectedByExactPrefix(pack, "ref_video_")
+        : connectedByExactPrefix(pack, "参考视频");
+    const soundtracks = connectedByExactPrefix(pack, "ref_video_audio_").length
+        ? connectedByExactPrefix(pack, "ref_video_audio_")
+        : connectedByExactPrefix(pack, "参考视频音轨");
+    const audios = connectedByExactPrefix(pack, "ref_audio_").length
+        ? connectedByExactPrefix(pack, "ref_audio_")
+        : connectedByExactPrefix(pack, "参考音频");
     const hasRef = images.length || videos.length || soundtracks.length || audios.length;
     const items = [];
 
     if (hasRef) {
-        images.forEach((entry, offset) => {
-            const index = offset + 1;
+        images.forEach((entry, idx) => {
+            const index = idx + 1;
             items.push({
                 kind: "Picture", index, token: `<Picture ${index}>`,
-                label: `参考图${entry.slot}`, source_input: entry.input.name, src: firstPreview(entry.origin),
+                label: `参考图${index}`, source_input: entry.input.name,
+                src: firstPreview(entry.origin), previewKey: previewSourceKey(entry.origin),
             });
         });
-        let audioIndex = 0;
-        videos.forEach((entry, offset) => {
-            const videoIndex = offset + 1;
+        const soundtrackBySlot = new Map(soundtracks.map((entry) => [entry.slot, entry]));
+        videos.forEach((entry, idx) => {
+            const index = idx + 1;
             const soundtrack = soundtrackBySlot.get(entry.slot);
             if (soundtrack) {
-                audioIndex += 1;
                 items.push({
-                    kind: "Audio", index: audioIndex, token: `<Audio ${audioIndex}>`,
-                    label: `参考视频${entry.slot}音轨`, source_input: soundtrack.input.name, src: "",
+                    kind: "Audio", index, token: `<Audio ${index}>`,
+                    label: `参考视频${index}音轨`, source_input: soundtrack.input.name, src: "", previewKey: "",
                 });
                 soundtrackBySlot.delete(entry.slot);
             }
             items.push({
-                kind: "Video", index: videoIndex, token: `<Video ${videoIndex}>`,
-                label: `参考视频${entry.slot}`, source_input: entry.input.name, src: firstPreview(entry.origin),
+                kind: "Video", index, token: `<Video ${index}>`,
+                label: `参考视频${index}`, source_input: entry.input.name,
+                src: firstPreview(entry.origin), previewKey: previewSourceKey(entry.origin),
             });
         });
-        [...soundtrackBySlot.values()].sort((a, b) => a.slot - b.slot).forEach((entry) => {
-            audioIndex += 1;
+        [...soundtrackBySlot.values()].sort((a, b) => a.slot - b.slot).forEach((entry, idx) => {
+            const index = videos.length + idx + 1;
             items.push({
-                kind: "Audio", index: audioIndex, token: `<Audio ${audioIndex}>`,
-                label: `参考视频${entry.slot}音轨`, source_input: entry.input.name, src: "",
+                kind: "Audio", index, token: `<Audio ${index}>`,
+                label: `参考视频${index}音轨`, source_input: entry.input.name, src: "", previewKey: "",
             });
         });
-        audios.forEach((entry) => {
-            audioIndex += 1;
+        audios.forEach((entry, idx) => {
+            const index = idx + 1;
             items.push({
-                kind: "Audio", index: audioIndex, token: `<Audio ${audioIndex}>`,
-                label: `参考音频${entry.slot}`, source_input: entry.input.name, src: "",
+                kind: "Audio", index, token: `<Audio ${index}>`,
+                label: `参考音频${index}`, source_input: entry.input.name, src: "", previewKey: "",
             });
         });
         const mode = images.length || videos.length ? "Ref2VA" : "T2VA";
         return { version: 1, target: type, mode, items };
     }
 
-    const first = originNode(pack, "首帧图");
-    const last = originNode(pack, "尾帧图");
-    if (first) items.push({ kind: "Picture", index: 1, token: "<Picture 1>", label: "首帧", source_input: "首帧图", src: firstPreview(first) });
+    const first = originNode(pack, "first_frame") || originNode(pack, "首帧图");
+    const last = originNode(pack, "last_frame") || originNode(pack, "尾帧图");
+    if (first) {
+        items.push({
+            kind: "Picture", index: 1, token: "<Picture 1>", label: "首帧", source_input: "first_frame",
+            src: firstPreview(first), previewKey: previewSourceKey(first),
+        });
+    }
     if (last) {
         const index = first ? 2 : 1;
-        items.push({ kind: "Picture", index, token: `<Picture ${index}>`, label: "尾帧", source_input: "尾帧图", src: firstPreview(last) });
+        items.push({
+            kind: "Picture", index, token: `<Picture ${index}>`, label: "尾帧", source_input: "last_frame",
+            src: firstPreview(last), previewKey: previewSourceKey(last),
+        });
     }
     const mode = first && last ? "FL2VA" : first ? "I2VA" : last ? "L2VA" : "T2VA";
     return { version: 1, target: type, mode, items };
@@ -270,8 +319,30 @@ function serializableManifest(manifest) {
         version: 1,
         target: manifest.target,
         mode: manifest.mode,
-        items: manifest.items.map(({ src, ...item }) => item),
+        items: manifest.items.map(({ src, previewKey, ...item }) => item),
     };
+}
+
+function previewFingerprint(manifest) {
+    return manifest.items.map((item) => `${item.token}:${item.previewKey || item.src || ""}`).join("|");
+}
+
+function remapPromptTokens(text, prevItems, nextItems) {
+    const stableKey = (item) => item.previewKey || item.src || item.source_input || "";
+    const nextByKey = new Map((nextItems || []).map((item) => [stableKey(item), item.token]));
+    let result = String(text || "");
+    const pairs = [];
+    for (const prev of prevItems || []) {
+        const key = stableKey(prev);
+        if (!key) continue;
+        const nextToken = nextByKey.get(key);
+        if (nextToken && nextToken !== prev.token) pairs.push([prev.token, nextToken]);
+    }
+    pairs.sort((a, b) => b[0].length - a[0].length);
+    for (const [oldToken, newToken] of pairs) {
+        result = result.split(oldToken).join(newToken);
+    }
+    return result;
 }
 
 function setWidgetValue(node, target, value) {
@@ -324,6 +395,7 @@ function createChip(item) {
     const chip = document.createElement("span");
     chip.className = CHIP_CLASS;
     chip.dataset.token = item.token;
+    chip.dataset.previewKey = item.previewKey || item.src || "";
     chip.contentEditable = "false";
     Object.assign(chip.style, {
         display: "inline-flex", alignItems: "center", gap: "6px", margin: "1px 4px", padding: "3px 9px 3px 5px",
@@ -369,6 +441,19 @@ function renderEditor(node, value) {
     }
     if (offset < text.length) editor.appendChild(document.createTextNode(text.slice(offset)));
     if (!editor.childNodes.length) editor.appendChild(document.createElement("br"));
+}
+
+function editorNeedsChipPreviewUpdate(state) {
+    const byToken = new Map(state.manifest.items.map((item) => [item.token, item]));
+    for (const chip of state.editor.querySelectorAll(`.${CHIP_CLASS}`)) {
+        const item = byToken.get(chip.dataset.token || "");
+        if (!item?.src) continue;
+        const img = chip.querySelector("img");
+        if (!img) return true;
+        const key = item.previewKey || item.src;
+        if ((chip.dataset.previewKey || "") !== key) return true;
+    }
+    return false;
 }
 
 function editorNeedsChipHydration(state, text) {
@@ -495,23 +580,84 @@ function showMenu(node) {
     selectMenuRow(0);
 }
 
+function collectPreviewOrigins(pack) {
+    if (!pack || !isPackNode(pack)) return [];
+    const origins = [];
+    const seen = new Set();
+    const add = (node) => {
+        const source = upstreamPreviewNode(node);
+        if (!source || seen.has(String(source.id))) return;
+        seen.add(String(source.id));
+        origins.push(source);
+    };
+    for (const input of pack.inputs || []) {
+        const name = inputLeafName(input);
+        if (!name || name === "素材包") continue;
+        if (/^ref_image_\d+$/.test(name) || /^参考图\d+$/.test(name)
+            || name === "first_frame" || name === "首帧图"
+            || name === "last_frame" || name === "尾帧图"
+            || /^ref_video_\d+$/.test(name) || /^参考视频\d+$/.test(name)) {
+            add(originNode(pack, input.name));
+        }
+    }
+    return origins;
+}
+
+function hookPreviewOrigins(promptNode) {
+    const pack = findPackNode(promptNode);
+    for (const origin of collectPreviewOrigins(pack)) {
+        if (origin.__h3CzPreviewHooked) continue;
+        origin.__h3CzPreviewHooked = true;
+        if (isLoadImageNode(origin)) {
+            const imageWidget = origin.widgets?.find((item) => item?.name === "image") || origin.widgets?.[0];
+            if (imageWidget && !imageWidget.__h3CzPreviewHook) {
+                const original = imageWidget.callback;
+                imageWidget.callback = function (...args) {
+                    const result = original?.apply(this, args);
+                    setTimeout(refreshAll, 0);
+                    return result;
+                };
+                imageWidget.__h3CzPreviewHook = true;
+            }
+        }
+    }
+}
+
 function refreshNode(node) {
     const state = node.__h3FusionPromptState;
     if (!state) return;
+    hookPreviewOrigins(node);
     const pack = findPackNode(node);
+    const prevItems = state.manifest?.items || [];
     const manifest = packManifest(isPackNode(pack) ? pack : null);
     const serialized = JSON.stringify(serializableManifest(manifest));
+    const previewKey = previewFingerprint(manifest);
     let currentText = textFromEditor(state.editor);
-    const storedText = String(state.promptWidget.value || "");
-    const sourceText = storedText !== currentText ? storedText : currentText;
+    let storedText = String(state.promptWidget.value || "");
+    let sourceText = storedText !== currentText ? storedText : currentText;
+    const manifestChanged = serialized !== String(state.renderedManifestKey || "");
+    const previewChanged = previewKey !== String(state.renderedPreviewKey || "");
+    if (manifestChanged) {
+        const remapped = remapPromptTokens(sourceText, prevItems, manifest.items);
+        if (remapped !== sourceText) {
+            sourceText = remapped;
+            setWidgetValue(node, state.promptWidget, remapped);
+        }
+    }
     state.manifest = manifest;
     setWidgetValue(node, state.manifestWidget, serialized);
-    const manifestChanged = serialized !== String(state.renderedManifestKey || "");
-    if (manifestChanged || sourceText !== currentText || editorNeedsChipHydration(state, sourceText)) {
+    if (
+        manifestChanged
+        || previewChanged
+        || sourceText !== currentText
+        || editorNeedsChipHydration(state, sourceText)
+        || editorNeedsChipPreviewUpdate(state)
+    ) {
         renderEditor(node, sourceText);
         currentText = textFromEditor(state.editor);
     }
     state.renderedManifestKey = serialized;
+    state.renderedPreviewKey = previewKey;
 
     const counts = { Picture: 0, Video: 0, Audio: 0 };
     manifest.items.forEach((item) => { counts[item.kind] += 1; });
@@ -568,6 +714,7 @@ function setupPromptNode(node) {
         promptWidget, manifestWidget, container, editor, status, warning, domWidget,
         manifest: { version: 1, target: "", mode: "T2VA", items: [] },
         renderedManifestKey: "",
+        renderedPreviewKey: "",
     };
     renderEditor(node, promptWidget.value || "");
     editor.addEventListener("input", () => { syncPrompt(node); showMenu(node); });
@@ -596,6 +743,7 @@ function refreshAll() {
         setupPromptNode(node);
         refreshNode(node);
     });
+    app.__h3CzSyncUnpackOutputs?.();
 }
 
 function wrapRefresh(proto, method, delay = 0) {
@@ -629,7 +777,7 @@ app.registerExtension({
     },
     async beforeRegisterNodeDef(nodeTypeClass, nodeData) {
         const type = String(nodeData?.name || "");
-        if (![NODE_TYPE, PACK_NODE, "H3MediaUnpack", "H3PromptGenerator"].includes(type)) return;
+        if (![NODE_TYPE, "H3MediaUnpack", "H3PromptBuilder", "LoadImage"].includes(type)) return;
         wrapRefresh(nodeTypeClass.prototype, "onConnectionsChange", 0);
         wrapRefresh(nodeTypeClass.prototype, "onConfigure", 50);
         if (type === NODE_TYPE) {
