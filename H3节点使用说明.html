@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ComfyUI-H3-Local-Fusion 节点使用说明</title>
+<title>ComfyUI-CZ-Toolkit 节点使用说明</title>
 <style>
 :root {
   --bg: #F7F6F2;
@@ -106,9 +106,9 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
 
 <header class="main">
   <div class="inner">
-    <h1>ComfyUI-H3-Local-Fusion · 节点使用说明</h1>
+    <h1>ComfyUI-CZ-Toolkit · 节点使用说明</h1>
     <span class="tag">本地 GGUF 推理 · 无云端</span>
-    <span class="meta">更新：2026-08-19 · 适用版本：Qwen3.8 + 可@提示词框 + 素材解包</span>
+    <span class="meta">更新：2026-08-20 · Autogrow 素材槽 · 参数包装 + LLM 生成拆分</span>
   </div>
 </header>
 
@@ -121,9 +121,12 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
   <a href="#n1" class="n2">① LoRA 选择器</a>
   <a href="#n2" class="n2">② 模型加载器</a>
   <a href="#n3" class="n2">③ 参考素材</a>
+  <a href="#n4" class="n2">④ H3 参数包装</a>
+  <a href="#n4b" class="n2">④b LLM 通用生成</a>
   <a href="#n5" class="n2">⑤ 提示词框（可@）</a>
-  <a href="#n4" class="n2">④ 提示词生成（核心）</a>
   <a href="#n6" class="n2">⑥ 素材解包</a>
+  <a href="#n7" class="n2">⑦ 系统提示词选择器</a>
+  <a href="#n8" class="n2">⑧ 多路文本选择器</a>
   <a href="#quickref">4. 任务接线速查</a>
   <a href="#faq">5. 常见问题与坑</a>
 </nav>
@@ -132,24 +135,24 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
 
 <section class="card" id="overview">
   <h2>1. 节点全景图</h2>
-  <p class="lead">共 6 个节点。核心逻辑：<b>素材只进一次「参考素材」</b>，同一份素材包分给提示词框（@引用）、llama 生成、解包（接到官方/社区生视频节点）。模型主干仍是「LoRA 选择器 → 模型加载器 → 提示词生成」。</p>
+  <p class="lead">H3 相关共 6 个节点，另加 LLM 推理 3 个、文本工具 3 个。核心逻辑：<b>素材只进一次「参考素材」</b>，同一份素材包分给提示词框（@引用）、LLM 生成（多模态）、解包（接到官方/T8 Ref2VA）。模型主干：<b>LoRA 选择器 → 模型加载器 → H3 参数包装 → LLM 通用生成</b>。</p>
   <div class="figure">
     <svg viewBox="0 0 680 370" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
-      <title>H3 四个节点的参数与连线关系</title>
+      <title>H3 节点参数与连线关系</title>
       <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
           <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </marker>
       </defs>
       <rect x="40" y="60" width="150" height="118" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
-      <text x="115" y="78" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#0C447C">H3 LoRA 选择器</text>
+      <text x="115" y="78" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#0C447C">LLM LoRA 选择器</text>
       <text x="115" y="98" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#185FA5">LoRA模型（下拉）</text>
       <text x="115" y="112" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#185FA5">权重scale 0~2</text>
       <text x="115" y="126" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#185FA5">默认 1.0</text>
       <line x1="52" y1="142" x2="178" y2="142" stroke="#B5D4F4" stroke-width="0.5"/>
       <text x="115" y="158" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#185FA5">输出：LoRA配置</text>
       <rect x="230" y="60" width="170" height="158" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
-      <text x="315" y="78" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#0C447C">H3 模型加载器</text>
+      <text x="315" y="78" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#0C447C">LLM 模型加载器</text>
       <text x="315" y="98" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#185FA5">基座GGUF（下拉）</text>
       <text x="315" y="112" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#185FA5">mmproj（None=纯文本）</text>
       <text x="315" y="126" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#185FA5">对话处理器（Qwen3.8/3.6…）</text>
@@ -159,26 +162,20 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
       <line x1="242" y1="184" x2="388" y2="184" stroke="#B5D4F4" stroke-width="0.5"/>
       <text x="315" y="200" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#185FA5">输出：模型句柄</text>
       <rect x="440" y="40" width="200" height="276" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-      <text x="540" y="58" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#085041">H3 提示词生成（核心）</text>
-      <text x="540" y="78" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">提示词版本：精简/完整/LoRA</text>
-      <text x="540" y="92" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">系统提示词（空=自动组合）</text>
-      <text x="540" y="106" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">原始视频需求（你的想法）</text>
-      <text x="540" y="120" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">H3模式：自动识别/T2VA/…</text>
-      <text x="540" y="134" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">风格预设（10+ 种）</text>
-      <text x="540" y="148" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">目标时长 / 视频比例</text>
-      <text x="540" y="162" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">温度·top_p·top_k·重复惩罚</text>
-      <text x="540" y="176" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">最大输出token 64~8192</text>
-      <text x="540" y="190" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">种子 / 随机化 / 卸载</text>
-      <line x1="452" y1="210" x2="628" y2="210" stroke="#9FE1CB" stroke-width="0.5"/>
-      <text x="540" y="226" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">输出：H3提示词（剥think）</text>
-      <text x="540" y="240" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">输出：识别模式</text>
-      <text x="540" y="254" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">输出：原始响应（含think）</text>
+      <text x="540" y="58" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#085041">H3 参数包装 → LLM 生成</text>
+      <text x="540" y="78" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">Builder：版本/模式/时长/比例</text>
+      <text x="540" y="92" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">→ 系统提示词 + 用户消息</text>
+      <text x="540" y="106" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">Generator：温度·top_p·种子</text>
+      <text x="540" y="120" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">可选多模态素材（mmproj）</text>
+      <line x1="452" y1="140" x2="628" y2="140" stroke="#9FE1CB" stroke-width="0.5"/>
+      <text x="540" y="156" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">输出：生成文本（剥think）</text>
+      <text x="540" y="170" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">输出：原始响应</text>
       <rect x="40" y="230" width="150" height="120" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
       <text x="115" y="248" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#444441">H3 参考素材</text>
       <text x="115" y="268" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#5F5E5A">图像最大边长 1024</text>
       <text x="115" y="282" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#5F5E5A">视频最大帧数 4</text>
       <text x="115" y="296" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#5F5E5A">首帧/尾帧 图</text>
-      <text x="115" y="310" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#5F5E5A">参考图1-7 / 视频1-3</text>
+      <text x="115" y="310" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#5F5E5A">ref_image_0… Autogrow</text>
       <line x1="52" y1="326" x2="178" y2="326" stroke="#D3D1C7" stroke-width="0.5"/>
       <text x="115" y="338" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#5F5E5A">输出：素材包</text>
       <path d="M190 105 L222 105" fill="none" stroke="#185FA5" stroke-width="1.5" marker-end="url(#arrow)"/>
@@ -188,7 +185,7 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
       <path d="M190 295 L432 295" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
       <text x="315" y="283" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#888780">素材包（可选）</text>
     </svg>
-    <div class="figcap">图 1 · 四个节点及连线关系（蓝色=模型侧，绿色=生成侧，灰色=素材侧）</div>
+    <div class="figcap">图 1 · 主干节点及连线关系（蓝色=模型侧，绿色=生成侧，灰色=素材侧）</div>
   </div>
 </section>
 
@@ -216,16 +213,16 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
       <text x="132" y="222" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#185FA5">思考模式=关</text>
       <path d="M132 244 L132 260" fill="none" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arrow2)"/>
       <rect x="40" y="264" width="185" height="92" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-      <text x="132" y="282" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#085041">提示词生成</text>
+      <text x="132" y="282" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#085041">H3 参数包装</text>
       <text x="132" y="302" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">官方LoRA模板(T2VA)</text>
-      <text x="132" y="318" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">16:9 · 5s · 温度0.7</text>
-      <text x="132" y="334" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">不接参考素材</text>
-      <text x="132" y="376" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#5F5E5A">→ H3提示词（纯文本改写）</text>
+      <text x="132" y="318" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">16:9 · 5s</text>
+      <text x="132" y="334" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">→ LLM 生成 · 不接素材</text>
+      <text x="132" y="376" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#5F5E5A">→ H3 提示词（纯文本改写）</text>
       <text x="339" y="44" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#2C2C2A">场景② 图生视频 I2VA/FL2VA/Ref2VA</text>
       <rect x="247" y="56" width="185" height="76" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
       <text x="339" y="74" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#444441">参考素材</text>
       <text x="339" y="94" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#5F5E5A">首帧图（必须）</text>
-      <text x="339" y="110" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#5F5E5A">尾帧 / 参考图1-7</text>
+      <text x="339" y="110" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#5F5E5A">尾帧 / ref_image_0…</text>
       <path d="M339 132 L339 148" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow2)"/>
       <rect x="247" y="152" width="185" height="76" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
       <text x="339" y="170" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#0C447C">模型加载器</text>
@@ -233,10 +230,10 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
       <text x="339" y="206" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#185FA5">处理器选同系列</text>
       <path d="M339 228 L339 244" fill="none" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arrow2)"/>
       <rect x="247" y="248" width="185" height="92" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-      <text x="339" y="266" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#085041">提示词生成</text>
+      <text x="339" y="266" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#085041">参数包装 + LLM 生成</text>
       <text x="339" y="286" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">H3模式=自动识别</text>
-      <text x="339" y="302" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">素材包自动判定模式</text>
-      <text x="339" y="318" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">帧图/参考图/音频进包</text>
+      <text x="339" y="302" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">素材包→Builder+Generator</text>
+      <text x="339" y="318" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">@ Picture 紧凑编号</text>
       <text x="339" y="376" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#5F5E5A">→ H3提示词 + 识别模式</text>
       <text x="546" y="44" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#2C2C2A">场景③ T2VA · 普通文本（无LoRA）</text>
       <rect x="454" y="56" width="185" height="76" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
@@ -245,9 +242,9 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
       <text x="546" y="110" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#185FA5">mmproj=None</text>
       <path d="M546 132 L546 148" fill="none" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arrow2)"/>
       <rect x="454" y="152" width="185" height="92" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-      <text x="546" y="170" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#085041">提示词生成</text>
+      <text x="546" y="170" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#085041">参数包装 + LLM 生成</text>
       <text x="546" y="190" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">精简（小模型推荐）</text>
-      <text x="546" y="206" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">风格预设可自选</text>
+      <text x="546" y="206" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">可选 PromptSelector</text>
       <text x="546" y="222" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">可接参考音频</text>
       <path d="M546 244 L546 260" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow2)"/>
       <rect x="454" y="264" width="185" height="56" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
@@ -265,8 +262,8 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
 
   <div class="node-head" id="n1">
     <span class="dot blue"></span>
-    <h3>① H3 LoRA 选择器 —— 选适配器、调强度</h3>
-    <span class="num">H3LoraSelector</span>
+    <h3>① LLM LoRA 选择器 —— 选适配器、调强度</h3>
+    <span class="num">LLMLoraSelector</span>
   </div>
   <table class="param">
     <thead><tr><th>参数</th><th>默认</th><th>范围/选项</th><th>控制什么 · 效果</th></tr></thead>
@@ -279,8 +276,8 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
 
   <div class="node-head" id="n2">
     <span class="dot blue"></span>
-    <h3>② H3 模型加载器 —— 决定用什么模型跑</h3>
-    <span class="num">H3ModelLoader</span>
+    <h3>② LLM 模型加载器 —— 决定用什么模型跑</h3>
+    <span class="num">LLMModelLoader</span>
   </div>
   <table class="param">
     <thead><tr><th>参数</th><th>默认</th><th>范围/选项</th><th>控制什么 · 效果</th></tr></thead>
@@ -301,19 +298,20 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
 
   <div class="node-head" id="n3">
     <span class="dot gray"></span>
-    <h3>③ H3 参考素材 —— 打包首尾帧 / 参考图 / 视频 / 音频</h3>
-    <span class="num">H3ReferenceMedia</span>
+    <h3>③ H3 参考素材 —— Autogrow 打包首尾帧 / Ref2VA 素材</h3>
+    <span class="num">H3ReferenceMedia · V3</span>
   </div>
+  <div class="alert info"><b>槽位命名与官方 Ref2VA / T8 一致</b>：首尾帧固定为 <code>first_frame</code> / <code>last_frame</code>；参考类使用 Autogrow 渐进槽位（接满 <code>ref_image_0</code> 后出现 <code>ref_image_1</code> …，最多 9 路）。<code>&lt;Picture N&gt;</code> 为<b>紧凑顺序号</b>，与 T8 相同。</div>
   <table class="param">
     <thead><tr><th>参数</th><th>默认</th><th>范围/选项</th><th>控制什么 · 效果</th></tr></thead>
     <tbody>
       <tr><td><code>图像最大边长</code></td><td>1024</td><td>256 ~ 2048</td><td>输入图统一缩放边长：越小越省 token。</td></tr>
       <tr><td><code>视频最大帧数</code></td><td>4</td><td>1 ~ 16</td><td>参考视频<b>抽帧数</b>（本地视觉模型基本不吃视频流，用抽帧近似）。</td></tr>
       <tr><td><code>首帧图 / 尾帧图</code></td><td>不接</td><td>IMAGE</td><td>对应官方 Image to Video 的 first_frame / last_frame。</td></tr>
-      <tr><td><code>参考图1 ~ 9</code></td><td>不接</td><td>IMAGE</td><td>对应官方 Ref2VA 的 ref_image_1…9。</td></tr>
-      <tr><td><code>参考视频1 ~ 3</code></td><td>不接</td><td>VIDEO</td><td>对应官方 ref_video_1…3；llama 侧抽帧分析，解包仍是原始 VIDEO。</td></tr>
-      <tr><td><code>参考视频音轨1 ~ 3</code></td><td>不接</td><td>AUDIO</td><td>对应官方 ref_video_audio_1…3。</td></tr>
-      <tr><td><code>参考音频1 ~ 3</code></td><td>不接</td><td>AUDIO</td><td>对应官方 ref_audio_1…3。</td></tr>
+      <tr><td><code>ref_image_0 … ref_image_8</code></td><td>Autogrow</td><td>IMAGE，0~9 路</td><td>与官方 Ref2VA 的 <code>ref_image_0</code>… 一一对应（从 0 起编号）。</td></tr>
+      <tr><td><code>ref_video_0 … ref_video_2</code></td><td>Autogrow</td><td>VIDEO，0~3 路</td><td>对应官方 ref_video；llama 侧抽帧分析，解包仍是原始 VIDEO。</td></tr>
+      <tr><td><code>ref_video_audio_0 … 2</code></td><td>Autogrow</td><td>AUDIO，0~3 路</td><td>对应官方 ref_video_audio。</td></tr>
+      <tr><td><code>ref_audio_0 … ref_audio_2</code></td><td>Autogrow</td><td>AUDIO，0~3 路</td><td>对应官方 ref_audio。</td></tr>
     </tbody>
   </table>
   <div class="out"><b>输出：</b><code>素材包</code>。自动识别：<b>有参考图/参考视频 → Ref2VA；否则 首+尾帧 → FL2VA；仅首帧 → I2VA；仅尾帧 → L2VA；啥都没有 → T2VA</b>。接了 Ref 素材时，@ 菜单不把首尾帧编进 Picture 号。</div>
@@ -323,44 +321,75 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
     <h3>⑤ H3 提示词框（可@）—— 写想法并引用素材</h3>
     <span class="num">H3PromptBox</span>
   </div>
-  <p>把「参考素材」的素材包接到本节点。在文本框输入 <code>@</code> 弹出已接线的图/视频/音频，插入官方标签。输出的提示词接到生成节点的「原始视频需求」（右键转输入）；素材包可透传给生成节点或解包节点。</p>
+  <p>把「参考素材」的素材包接到本节点。在文本框输入 <code>@</code> 弹出已接线的图/视频/音频，插入官方标签（<code>&lt;Picture N&gt;</code> 等为紧凑顺序号）。输出的提示词接到「H3 参数包装」的「原始视频需求」（右键转输入）；素材包可透传给 Builder / Generator / 解包。</p>
   <div class="out"><b>输出：</b><code>H3提示词</code> / <code>素材包</code>（透传）</div>
 
   <div class="node-head" id="n4">
     <span class="dot teal"></span>
-    <h3>④ H3 提示词生成（核心）—— 产出 H3 提示词</h3>
-    <span class="num">H3PromptGenerator</span>
+    <h3>④ H3 参数包装 —— 组装系统提示词与用户消息</h3>
+    <span class="num">H3PromptBuilder</span>
+  </div>
+  <p>不做推理。按 H3 模式、时长、比例、提示词版本，把「原始视频需求」和可选素材包组装成 <code>系统提示词</code> + <code>用户消息</code>，连到「LLM 通用生成」。</p>
+  <table class="param">
+    <thead><tr><th>参数</th><th>默认</th><th>范围/选项</th><th>控制什么 · 效果</th></tr></thead>
+    <tbody>
+      <tr><td><code>原始视频需求</code></td><td>占位文本</td><td>多行文本（可转输入）</td><td>你的视频想法。可接「提示词框」的 H3提示词输出。</td></tr>
+      <tr><td><code>提示词版本</code></td><td>精简（小模型推荐）</td><td>精简 / 完整（云端契约）/ <b>官方LoRA模板(T2VA)</b></td><td>系统提示词来源；挂 H3 Rewriter LoRA 时选第三个。</td></tr>
+      <tr><td><code>H3模式</code></td><td>自动识别</td><td>自动识别 / T2VA / I2VA / FL2VA / L2VA / Ref2VA</td><td>写哪种任务的提示词；自动识别=按素材包判定；官方LoRA模板下锁定 T2VA。</td></tr>
+      <tr><td><code>目标时长</code></td><td>5</td><td>1 ~ 120 秒</td><td>视频目标长度。</td></tr>
+      <tr><td><code>视频比例</code></td><td>16:9</td><td>16:9 / 9:16 / 1:1 / 4:3 / 3:4</td><td>画幅。</td></tr>
+      <tr><td><code>额外系统提示词</code>（可选）</td><td>不接</td><td>STRING</td><td>可接「系统提示词选择器」或手写，追加到自动组装的系统提示词。</td></tr>
+      <tr><td><code>参考素材</code>（可选）</td><td>不接</td><td>来自「参考素材」</td><td>用于模式识别与用户消息中的参考描述；透传素材包给下游。</td></tr>
+    </tbody>
+  </table>
+  <div class="out"><b>输出：</b><code>素材包</code>（透传）/ <code>系统提示词</code> / <code>用户消息</code> / <code>识别模式</code></div>
+
+  <div class="node-head" id="n4b">
+    <span class="dot teal"></span>
+    <h3>④b LLM 通用生成 —— 本地推理产出文本</h3>
+    <span class="num">LLMGenerator</span>
   </div>
   <table class="param">
     <thead><tr><th>参数</th><th>默认</th><th>范围/选项</th><th>控制什么 · 效果</th></tr></thead>
     <tbody>
       <tr><td><code>模型句柄</code></td><td>必接</td><td>来自「模型加载器」</td><td>用哪个模型做改写。</td></tr>
-      <tr><td><code>提示词版本</code></td><td>精简（小模型推荐）</td><td>精简 / 完整（云端契约）/ <b>官方LoRA模板(T2VA)</b></td><td>系统提示词来源：精简=本地小模型用；完整=云端契约全文；<b>挂 H3 Rewriter LoRA 时选第三个</b>（固定官方措辞，改动会降级）。</td></tr>
-      <tr><td><code>系统提示词</code></td><td>空</td><td>多行文本（可右键转输入接 T8 模板节点）</td><td>留空=按「版本 + 当前模式 Task 段 + 风格预设」自动组合；填了=覆盖核心规则（仍追加 Task 段保证输出格式）。</td></tr>
-      <tr><td><code>原始视频需求</code></td><td>占位文本</td><td>多行文本（可转输入）</td><td>你的视频想法。接「提示词框」时：右键 Convert Widget to Input，接到框的 H3提示词。</td></tr>
-      <tr><td><code>H3模式</code></td><td>自动识别</td><td>自动识别 / T2VA / I2VA / FL2VA / L2VA / Ref2VA</td><td>写哪种任务的提示词；自动识别=按素材包判定；官方LoRA模板下锁定 T2VA。</td></tr>
-      <tr><td><code>风格预设</code></td><td>无（仅核心规则）</td><td>10+ 种（AUTO/极简产品广告/3D动画短片/品牌宣传/音乐MV字幕/双人合作游戏开场/纸拼贴/立体纸艺/手绘实拍融合…）</td><td>给提示词注入创作风格约束。</td></tr>
-      <tr><td><code>目标时长</code></td><td>5</td><td>1 ~ 120 秒</td><td>视频目标长度。</td></tr>
-      <tr><td><code>视频比例</code></td><td>16:9</td><td>16:9 / 9:16 / 1:1 / 4:3 / 3:4</td><td>画幅。</td></tr>
+      <tr><td><code>系统提示词</code></td><td>空</td><td>多行文本</td><td>接「H3 参数包装」的 <code>系统提示词</code>，或任意自定义系统提示。</td></tr>
+      <tr><td><code>用户消息</code></td><td>空</td><td>多行文本</td><td>接 Builder 的 <code>用户消息</code>，或任意用户输入。</td></tr>
       <tr><td><code>温度</code></td><td>0.7</td><td>0 ~ 2</td><td>随机性/创造性（越低越稳定）。</td></tr>
       <tr><td><code>top_p</code></td><td>0.9</td><td>0 ~ 1</td><td>采样核裁剪。</td></tr>
       <tr><td><code>top_k</code></td><td>40</td><td>0 ~ 100</td><td>每步候选词数。</td></tr>
       <tr><td><code>重复惩罚</code></td><td>1.1</td><td>0 ~ 2</td><td>抑制重复输出。</td></tr>
       <tr><td><code>最大输出token</code></td><td>2048</td><td>64 ~ 8192</td><td>输出长度上限。</td></tr>
-      <tr><td><code>🎲随机种子</code></td><td>0</td><td>0 ~ 2³¹</td><td>配合「随机化=关」可逐字复现。</td></tr>
-      <tr><td><code>🔀随机化</code></td><td>关</td><td>开 / 关</td><td>开=每次随机种子；关=固定种子可复现。</td></tr>
-      <tr><td><code>⚡推理后卸载模型</code></td><td>关</td><td>开 / 关</td><td>生成完立即释放显存（soft_empty_cache）。</td></tr>
-      <tr><td><code>参考素材</code>（可选输入）</td><td>不接</td><td>来自「参考素材」</td><td>图/视频/音频参考；<b>官方LoRA模板模式下被忽略</b>（该 LoRA 只吃文本）。</td></tr>
+      <tr><td><code>seed</code></td><td>0</td><td>0 ~ 2³¹</td><td>随机种子；ComfyUI 右键菜单可控制是否每次随机。</td></tr>
+      <tr><td><code>⚡推理后卸载模型</code></td><td>关</td><td>布尔</td><td>生成完立即释放显存。</td></tr>
+      <tr><td><code>多模态素材</code>（可选）</td><td>不接</td><td>来自「参考素材」</td><td>图/视频抽帧/音频送入 mmproj 模型；<b>官方LoRA 模板用户消息下会被忽略</b>。</td></tr>
     </tbody>
   </table>
-  <div class="out"><b>输出：</b><code>H3提示词</code>（剥掉 think 的干净版）/ <code>识别模式</code>（实际用的任务类型）/ <code>原始响应</code>（模型原文，含 think）</div>
+  <div class="out"><b>输出：</b><code>生成文本</code>（剥掉 think 的干净版，即 H3 提示词）/ <code>原始响应</code>（模型原文，含 think）</div>
 
   <div class="node-head" id="n6">
     <span class="dot gray"></span>
-    <h3>⑥ H3 素材解包 —— 拆回官方对应口</h3>
-    <span class="num">H3MediaUnpack</span>
+    <h3>⑥ H3 素材解包 —— 拆回官方 / T8 对应口</h3>
+    <span class="num">H3MediaUnpack · V3</span>
   </div>
-  <p>输入素材包，按打包时的槽位原样输出首帧/尾帧/参考图/参考视频/视频音轨/参考音频。接到官方 MiniMax H3 或社区生视频节点，和当初直接接图效果相同。未接线的口保持空。</p>
+  <p>输入素材包，按打包时的槽位原样输出首帧/尾帧/参考图/参考视频/视频音轨/参考音频。接到官方 MiniMax H3 或 T8 Ref2VA 节点，和当初直接接图效果相同。</p>
+  <div class="alert info"><b>输出口显示规则</b>：<code>first_frame</code>、<code>last_frame</code> <b>始终显示</b>；<code>ref_image_*</code>、<code>ref_video_*</code>、<code>ref_video_audio_*</code>、<code>ref_audio_*</code> 按上游打包实际接入<b>动态显示</b>（前端 JS 裁剪，与 Autogrow 行为一致）。未接入的 ref 口不会占位显示。</div>
+
+  <div class="node-head" id="n7">
+    <span class="dot gray"></span>
+    <h3>⑦ 系统提示词选择器 —— 从 prompts/ 选 txt</h3>
+    <span class="num">PromptSelector</span>
+  </div>
+  <p>递归扫描插件内 <code>prompts/**/*.txt</code>，下拉选择后输出文件全文。可接到「H3 参数包装」的 <code>额外系统提示词</code>，或任意需要系统提示词的节点。</p>
+  <div class="out"><b>输出：</b><code>system_prompt</code></div>
+
+  <div class="node-head" id="n8">
+    <span class="dot gray"></span>
+    <h3>⑧ 多路文本选择器 —— 多路文本各选一行</h3>
+    <span class="num">TextSelector</span>
+  </div>
+  <p>最多 10 路 <code>text_N</code> 输入（前端渐进显示），每路从多行文本中选一行或随机，另有 <code>merged</code> 合并输出。适合台词库、风格变体等场景。</p>
+  <div class="out"><b>输出：</b><code>merged</code> / <code>out_1</code> … <code>out_10</code></div>
 </section>
 
 <section class="card" id="quickref">
@@ -368,33 +397,35 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
   <div class="quick">
     <div class="q">
       <h4>用官方 LoRA 优化文本改写</h4>
-      <span class="route">LoRA选择器 → 模型加载器 → 提示词生成</span>
+      <span class="route">LoRA选择器 → 模型加载器 → 参数包装 → LLM 生成</span>
       <ul>
         <li>LoRA 选 <code>…Rewriter-F16.gguf</code>，scale 1.0</li>
         <li>加载器：Qwen3.6-27B + mmproj=None + 处理器 Qwen3.6 + <b>思考模式=关</b></li>
-        <li>生成器：提示词版本=<b>官方LoRA模板(T2VA)</b>，<b>不接素材</b></li>
+        <li>Builder：提示词版本=<b>官方LoRA模板(T2VA)</b>，<b>不接素材</b></li>
+        <li>Generator：接 Builder 的 系统提示词 + 用户消息，<b>不接多模态素材</b></li>
       </ul>
     </div>
     <div class="q">
       <h4>图生视频（I2VA / FL2VA / Ref2VA）</h4>
-      <span class="route">参考素材 → 提示词框 → 提示词生成；参考素材 → 解包 → 官方/社区 H3</span>
+      <span class="route">参考素材 → 提示词框 → 参数包装 → LLM 生成；参考素材 → 解包 → 官方/T8 H3</span>
       <ul>
         <li>加载器用<b>视觉 GGUF + mmproj</b>（如 Qwen3.8 / Qwen3-VL 系）</li>
-        <li>在提示词框用 @ 引用素材，生成节点的「原始视频需求」转输入接过来</li>
-        <li>解包接到官方 Ref 或首尾帧节点，提示词接到同一节点</li>
+        <li>在提示词框用 @ 引用素材；Builder「原始视频需求」转输入接框输出</li>
+        <li>参考素材同时接 Generator「多模态素材」，模型才能看见图</li>
+        <li>解包 <code>ref_image_0</code> 等与官方 Ref2VA 一一对接</li>
       </ul>
     </div>
     <div class="q">
       <h4>纯文本改写、无 LoRA</h4>
-      <span class="route">模型加载器 → 提示词生成</span>
+      <span class="route">模型加载器 → 参数包装 → LLM 生成</span>
       <ul>
         <li>任意 instruct GGUF，mmproj=None</li>
-        <li>生成器用精简版 + 自选风格预设</li>
+        <li>Builder 用精简版；可选 PromptSelector 追加额外系统提示词</li>
       </ul>
     </div>
     <div class="q">
       <h4>音频驱动 / 加参考音频</h4>
-      <span class="route">参考素材（接音频）→ 提示词生成</span>
+      <span class="route">参考素材（接 ref_audio_0）→ 参数包装 + LLM 生成</span>
       <ul>
         <li>处理器需支持 input_audio（如 Qwen3-VL 系）</li>
         <li>纯音频时模式自动落 T2VA</li>
@@ -404,31 +435,34 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
 
   <h3>最小用法（标准主干）</h3>
   <ol class="steps">
-    <li>把 GGUF 基座 / mmproj / LoRA 适配器放进 <code>ComfyUI/models/LLM/</code>（目录名大小写不敏感，llm / LLM / Llm 均可）</li>
+    <li>把 GGUF 基座 / mmproj / LoRA 适配器放进 <code>ComfyUI/models/LLM/</code>（目录名大小写不敏感）</li>
     <li>「LoRA 选择器」选适配器（不需要就留 None）→ 连「模型加载器」</li>
-    <li>「模型加载器」选基座 + mmproj + 对话处理器 → 输出「模型句柄」连「提示词生成」</li>
-    <li>有图/视频/音频参考就接「参考素材」→ 素材包连「提示词生成」</li>
-    <li>「提示词生成」填「原始视频需求」，选版本/模式/风格，跑出 H3 提示词</li>
+    <li>「模型加载器」选基座 + mmproj + 对话处理器 → 输出「模型句柄」连「LLM 通用生成」</li>
+    <li>有图/视频/音频参考就接「参考素材」→ 素材包连「H3 参数包装」；图生时同时连 Generator「多模态素材」</li>
+    <li>「H3 参数包装」填「原始视频需求」，选版本/模式 → 系统提示词 + 用户消息连「LLM 通用生成」→ 得到 H3 提示词</li>
+    <li>需要接官方生视频节点时：参考素材 →「素材解包」→ 官方/T8 Ref2VA</li>
   </ol>
 </section>
 
 <section class="card" id="faq">
   <h2>5. 常见问题与坑</h2>
-  <div class="alert warn"><b>官方LoRA模板模式下别接参考素材</b>——会被静默忽略（该 LoRA 仅 T2VA 文本改写，官方明确不吃图/视频/音频）。</div>
-  <div class="alert warn"><b>官方 LoRA 要求思考模式=关</b>——开启时节点会打印警告，模型会先输出大段推理再写结果。Qwen3.8 请同时把「Qwen3.8推理强度」设为关闭。</div>
+  <div class="alert warn"><b>官方LoRA模板模式下别接多模态素材</b>——LLMGenerator 检测到 LoRA 模板用户消息时会忽略素材包（该 LoRA 仅 T2VA 文本改写）。</div>
+  <div class="alert warn"><b>图生必须接 Generator「多模态素材」</b>——仅把素材包连到 Builder 不够，模型要通过 Generator 的多模态口才能看见参考图。</div>
+  <div class="alert warn"><b>打包/解包节点消失或槽位仍是「参考图1」</b>——需 ComfyUI V3 API；完全重启 ComfyUI 并 Ctrl+F5 硬刷新；删除旧版 <code>h3_media_slots_ui.js</code>（若仍存在）。</div>
+  <div class="alert warn"><b>官方 LoRA 要求思考模式=关</b>——开启时模型会先输出大段推理再写结果。Qwen3.8 请同时把「Qwen3.8推理强度」设为关闭。</div>
   <div class="alert warn"><b>Qwen3.8 要 llama-cpp-python 0.3.47+</b>——旧版会报 <code>missing tensor 'blk.64.ssm_conv1d.weight'</code>。请从 JamePeng Releases 装匹配的 GPU wheel。思考必须「思考模式=开」且「推理强度≠关闭」。</div>
   <div class="alert info"><b>报「上下文预算不足」</b>——优先加大加载器的「上下文长度」；其次调低「图像最大token」（当前用于估算每张图），或减少素材数量/参考视频帧数。若推理时才溢出，同样是这几招。</div>
   <div class="alert info"><b>换 LoRA 或改 scale 不生效？</b>——modern API 下 scale 已移出缓存 key、缓存命中时自动刷新；若用 legacy API 且 llama-cpp-python 不支持 <code>lora_scale</code>，权重会被忽略（有警告）。</div>
-  <div class="alert good"><b>复现结果</b>——「随机化」=关 + 固定「随机种子」，每次生成前会显式复位 RNG。</div>
+  <div class="alert good"><b>复现结果</b>——Generator 的 <code>seed</code> 固定 + ComfyUI 右键关闭随机化，每次生成前会显式复位 RNG。</div>
   <div class="alert info"><b>参考视频精度</b>——本地视觉模型基本不读视频流，参考视频走「抽帧为图像」近似；要稳就用图片/首末帧。</div>
-  <div class="alert info"><b>覆盖系统提示词</b>——<code>prompts/h3_system.txt</code>（完整）/ <code>h3_system_lite.txt</code>（精简）/ <code>h3_lora_template.txt</code>（官方LoRA固定模板）/ <code>styles.json</code>（风格预设）覆盖后重启 ComfyUI 生效；缺文件不会导致节点加载失败（有兜底并打印警告）。</div>
+  <div class="alert info"><b>覆盖系统提示词</b>——<code>prompts/h3/official/h3_system.txt</code>（完整）/ <code>h3_system_lite.txt</code>（精简）/ <code>h3_lora_template.txt</code>（官方LoRA固定模板）覆盖后重启 ComfyUI 生效；也可用 PromptSelector 从 <code>prompts/</code> 子目录选文件。</div>
   <div class="alert info"><b>小模型能力边界</b>——本地小模型对 H3 复杂结构化提示词的理解力弱于云端 Gemini/Seedance，已提供精简版缓解；音频输入仅部分 chat handler 支持。</div>
 </section>
 
 </main>
 </div>
 
-<footer>ComfyUI-H3-Local-Fusion · 节点使用说明 · 2026-08-19</footer>
+<footer>ComfyUI-CZ-Toolkit · 节点使用说明 · 2026-08-20</footer>
 
 </body>
 </html>

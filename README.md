@@ -1,6 +1,8 @@
 # ComfyUI-CZ-Toolkit
 
-个人对 ComfyUI 的自定义改造，包含本地 LLM 推理、MiniMax H3 提示词编排、通用工具节点以及一个预览历史侧边栏。
+个人对 ComfyUI 的自定义改造：本地 LLM 推理、MiniMax H3 提示词编排、文本工具节点，以及预览历史侧边栏。
+
+详细节点说明见 **[H3节点使用说明.html](./H3节点使用说明.html)**（浏览器打开）。
 
 ---
 
@@ -24,59 +26,85 @@ PyPI 版本滞后，Qwen3 等新模型需要 JamePeng 的构建版：
 1. 从 [JamePeng/llama-cpp-python Releases](https://github.com/JamePeng/llama-cpp-python/releases) 下载与你的 Python / CUDA 版本匹配的 `.whl`
 2. `pip install --upgrade --force-reinstall 下载的文件.whl`
 
+**ComfyUI 版本**
+
+- **H3 参考素材 / 素材解包** 使用 ComfyUI V3 API（`comfy_api.latest`）+ 原生 **Autogrow**，槽位命名与官方 Ref2VA / T8 一致（`ref_image_0` …）。
+- 若 ComfyUI 过旧、无 V3 API，会自动回退 Legacy 媒体节点（仅首个槽位，无 Autogrow）。
+- 升级插件后请 **完全重启 ComfyUI**，并 **Ctrl+F5** 硬刷新浏览器。
+
 ---
 
 ## 节点一览
 
 ### CZ/LLM — 本地 LLM 推理
 
-| 节点 | 说明 |
-|---|---|
-| **H3 模型加载器** | 加载本地 GGUF 模型（可带 mmproj 多模态、LoRA 适配器），缓存复用避免重复加载 |
-| **H3 LoRA 选择器** | 从 `models/LLM` 下选 GGUF LoRA 文件，输出给模型加载器 |
-| **H3 提示词生成（核心）** | 调用本地 llama_cpp 推理，生成 MiniMax H3 格式的英文提示词；支持思考模式、Qwen3 推理强度、风格预设 |
-| **H3 参考素材** | 把图像/视频/音频打包成素材包（支持首尾帧 I2VA/FL2VA、Ref2VA 多参考） |
-| **H3 素材解包** | 把素材包拆回各类型独立输出，连接官方或社区生视频节点 |
-| **H3 提示词框（可@）** | 写 H3 提示词时用 `@` 插入 `<Picture N>` / `<Video N>` / `<Audio N>` 标记，实时显示素材缩略图 |
-| **接收并编辑** | 接收上游文本后可手动修改再输出；开关控制是否用上游值覆盖 |
+| 节点 | 类名 | 说明 |
+|---|---|---|
+| **LLM 模型加载器** | `LLMModelLoader` | 加载本地 GGUF（可带 mmproj、LoRA），缓存复用 |
+| **LLM LoRA 选择器** | `LLMLoraSelector` | 从 `models/LLM` 选择 GGUF LoRA，输出给加载器 |
+| **LLM 通用生成** | `LLMGenerator` | 系统提示词 + 用户消息 → 本地推理；可选 **多模态素材** 送入 mmproj 模型 |
 
-### 侧边栏扩展
+### CZ/H3 — MiniMax H3 提示词与素材
 
-**预览历史（CZ PreviewFeed）**
+| 节点 | 类名 | 说明 |
+|---|---|---|
+| **H3 参数包装** | `H3PromptBuilder` | 组装 H3 系统提示词 + 用户消息（模式/时长/比例/版本），不碰模型 |
+| **H3 参考素材** | `H3ReferenceMedia` | Autogrow 打包首尾帧 + Ref2VA 素材（`ref_image_0` …） |
+| **H3 素材解包** | `H3MediaUnpack` | 拆回官方/T8 对应口；首尾帧固定，参考类口按实际接入动态显示 |
+| **H3 提示词框（可@）** | `H3PromptBox` | `@` 插入 `<Picture N>` 等标签，带素材缩略图 |
 
-- 监听 `executed` 事件，自动收集所有节点的输出结果，包括：
-  - 图片（Preview Image / Save Image）
-  - 视频（AnimateDiff / VHS / WanVideo 等）
-  - 音频
-  - 纯文本（Show Text / Preview Text 等）
-- 缩略图网格，点击打开全屏查看器
-- **跟随最新**：大图打开时，队列里每完成一张自动切换；可一键切换为停留当前
-- **Ctrl+Enter** 不被拦截，可直接在查看大图时按快捷键 queue 下一次生成
-- 方向键 ← → 翻页，不影响后台 Canvas 节点跳转
-- 支持复制文本输出
+### CZ/Text — 文本工具
+
+| 节点 | 类名 | 说明 |
+|---|---|---|
+| **系统提示词选择器** | `PromptSelector` | 从 `prompts/**/*.txt` 下拉选文件，输出系统提示词 |
+| **多路文本选择器** | `TextSelector` | 多路 STRING 输入，每路下拉选一行，支持合并 |
+| **接收并编辑** | `ReciveAndEdit` | 接收上游文本，可手动改再输出 |
+
+### 侧边栏 — 预览历史（CZ PreviewFeed）
+
+- 监听 `executed`，收集图片 / 视频 / 音频 / 文本输出
+- 缩略图网格 + 全屏查看；**跟随最新**可开关
+- **Ctrl+Enter** 不被拦截；方向键翻页不影响 Canvas
+
+---
+
+## 推荐接线（H3 写提示词）
+
+```
+LLM LoRA 选择器 ──→ LLM 模型加载器 ──→ LLM 通用生成
+                                              ↑ 系统提示词、用户消息
+H3 参考素材 ──→ H3 参数包装 ──────────────────┘
+         │              ↑ 可选：PromptSelector → 额外系统提示词
+         ├──→ H3 提示词框（可@）── 原始视频需求
+         ├──→ LLM 通用生成（多模态素材，视觉模型必接）
+         └──→ H3 素材解包 ──→ 官方 / T8 Ref2VA 节点
+```
+
+**图生 / Ref2VA 要点**
+
+- 加载器选 **视觉 GGUF + mmproj**
+- `LLMGenerator` 的 **多模态素材** 与 **用户消息** 都要接，模型才能看见图
+- 解包 `ref_image_0` 等与官方 `ref_image_0` **1:1 对齐**
+- `@` 菜单里 `<Picture N>` 为**紧凑顺序号**（与官方 Ref2VA / T8 一致）
 
 ---
 
 ## 依赖
 
-- ComfyUI（新版前端，支持 `extensionManager.registerSidebarTab`）
+- ComfyUI（新版前端，支持侧边栏扩展；媒体节点需 V3 API）
 - llama-cpp-python（GPU 版，见安装说明）
-- Pillow
-- numpy
+- Pillow、numpy
 
 ---
 
 ## 参考与致谢
 
-本项目的 H3 提示词相关节点参考、借鉴了以下优秀的 ComfyUI 社区项目：
-
 | 项目 | 作者 | 说明 |
 |---|---|---|
-| [ComfyUI-llama_Dapao](https://github.com/paolaoshi/ComfyUI-llama_Dapao) | paolaoshi (大炮) | 基于 llama-cpp-python 的本地多模态推理节点，本项目的模型加载、推理架构源自此项目 |
-| [comfyui-minimax-h3-prompt-enhancer-T8](https://github.com/T8mars/comfyui-minimax-h3-prompt-enhancer-T8) | T8mars (贞贞/T8) | MiniMax H3 / Seedance 2.0 / Music 3 提示词增强节点，本项目的 H3 提示词模板和风格预设体系参考自此项目 |
-| [MiniMax-H3-Prompt-Rewriter-ComfyUI](https://github.com/pytraveler/MiniMax-H3-Prompt-Rewriter-ComfyUI) | pytraveler | 基于 H3 LoRA 的本地提示词重写节点，Prompt Writer 系列节点的设计思路来源 |
-
-感谢以上作者的开源贡献。
+| [ComfyUI-llama_Dapao](https://github.com/paolaoshi/ComfyUI-llama_Dapao) | paolaoshi (大炮) | 本地多模态 llama 推理架构来源 |
+| [comfyui-minimax-h3-prompt-enhancer-T8](https://github.com/T8mars/comfyui-minimax-h3-prompt-enhancer-T8) | T8mars (贞贞/T8) | H3 提示词模板与风格预设参考 |
+| [MiniMax-H3-Prompt-Rewriter-ComfyUI](https://github.com/pytraveler/MiniMax-H3-Prompt-Rewriter-ComfyUI) | pytraveler | H3 LoRA 重写节点设计参考 |
 
 ---
 
