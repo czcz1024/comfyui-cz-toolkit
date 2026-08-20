@@ -6,6 +6,8 @@ from .nodes_prompt_box import H3PromptBox
 from .nodes_recive_and_edit import ReciveAndEdit
 from .nodes_text_selector import TextSelector
 from .nodes_prompt_selector import PromptSelector, _scan_prompts, _NONE
+from .nodes_music3_prompt_builder import Music3PromptBuilder
+from .nodes_music3_output_parser import Music3OutputParser
 
 from aiohttp import web
 import server
@@ -46,6 +48,8 @@ _LEGACY_NODE_CLASS_MAPPINGS = {
     "ReciveAndEdit": ReciveAndEdit,
     "TextSelector": TextSelector,
     "PromptSelector": PromptSelector,
+    "Music3PromptBuilder": Music3PromptBuilder,
+    "Music3OutputParser": Music3OutputParser,
 }
 
 _LEGACY_DISPLAY_NAME_MAPPINGS = {
@@ -59,6 +63,8 @@ _LEGACY_DISPLAY_NAME_MAPPINGS = {
     "ReciveAndEdit": "接收并编辑",
     "TextSelector": "多路文本选择器",
     "PromptSelector": "系统提示词选择器",
+    "Music3PromptBuilder": "Music3 提示词包装（选择题节奏向导）",
+    "Music3OutputParser": "Music3 输出解析（Caption+Lyrics）",
 }
 
 WEB_DIRECTORY = "./web"
