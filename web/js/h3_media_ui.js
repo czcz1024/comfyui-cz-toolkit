@@ -8,7 +8,7 @@ const MANIFEST_WIDGET = "素材清单";
 const LEGACY_REF_PATTERN = /^(参考图\d+|参考视频\d+|参考视频音轨\d+|参考音频\d+)$/;
 const FIXED_UNPACK_OUTPUTS = ["first_frame", "last_frame"];
 
-/** 必须与 media_util.PACK_SLOTS / nodes_media_v3._unpack_outputs 顺序完全一致，否则执行时下标错位会吐 None */
+/** 与 media_util.PACK_SLOTS / Python 解包返回顺序一致；执行时按名称映射到此下标 */
 const PACK_SLOT_OUTPUTS = [
     ["first_frame", "IMAGE"],
     ["last_frame", "IMAGE"],
@@ -66,16 +66,20 @@ function graphNode(graph, id) {
         || null;
 }
 
+function graphNodes(graph) {
+    const g = graph || app.canvas?.graph || app.graph;
+    if (!g) return [];
+    if (Array.isArray(g._nodes)) return g._nodes;
+    if (Array.isArray(g.nodes)) return g.nodes;
+    return [];
+}
+
 function originId(link) {
     return link?.origin_id ?? link?.originId ?? link?.[1] ?? null;
 }
 
 function targetId(link) {
     return link?.target_id ?? link?.targetId ?? link?.[3] ?? null;
-}
-
-function targetSlot(link) {
-    return Number(link?.target_slot ?? link?.targetSlot ?? link?.[4] ?? -1);
 }
 
 function inputLeafName(name) {
@@ -88,10 +92,8 @@ function findInput(node, name) {
 
 function inputLinkId(input) {
     if (!input) return null;
-    // LiteGraph 断开后常把 link 设成 -1
     if (input.link != null && input.link !== -1) return input.link;
     const links = input.links;
-    if (links == null) return null;
     if (Array.isArray(links)) {
         const first = links.find((id) => id != null && id !== -1);
         return first ?? null;
@@ -99,57 +101,55 @@ function inputLinkId(input) {
     return null;
 }
 
-/** 只认 input 上真实有效的 link，不做 slot 回退（Autogrow 增删口时回退会误判） */
+/** 只读判断：input 上挂着仍存在于图中、且指向本节点的 link。绝不改线、不删口。 */
 function isInputWired(node, input) {
     if (!input || !node) return false;
-    const graph = graphOf(node);
     const linkId = inputLinkId(input);
     if (linkId == null) return false;
-    const link = graphLink(graph, linkId);
+    const link = graphLink(graphOf(node), linkId);
     if (!link) return false;
-    if (String(targetId(link)) !== String(node.id)) return false;
-    const inputIndex = node.inputs?.indexOf(input);
-    if (inputIndex < 0) return false;
-    return targetSlot(link) === inputIndex;
+    return String(targetId(link)) === String(node.id);
 }
 
 function originNode(node, inputName) {
-    const graph = graphOf(node);
-    const input = findInput(node, inputName);
+    const input = typeof inputName === "string" ? findInput(node, inputName) : inputName;
     if (!isInputWired(node, input)) return null;
-    const link = graphLink(graph, inputLinkId(input));
-    return link ? graphNode(graph, originId(link)) : null;
-}
-
-function graphNodes(graph) {
-    const g = graph || app.canvas?.graph || app.graph;
-    if (!g) return [];
-    if (Array.isArray(g._nodes)) return g._nodes;
-    if (Array.isArray(g.nodes)) return g.nodes;
-    return [];
+    const link = graphLink(graphOf(node), inputLinkId(input));
+    return link ? graphNode(graphOf(node), originId(link)) : null;
 }
 
 function isSetNode(node) {
     const cls = nodeClass(node);
-    return cls === "SetNode" || cls.endsWith("SetNode") || /^Set[_ ]/.test(String(node?.title || ""));
+    const title = String(node?.title || "");
+    return cls === "SetNode" || cls.endsWith("SetNode") || /^Set[_ ]/i.test(title);
 }
 
 function isGetNode(node) {
     const cls = nodeClass(node);
-    return cls === "GetNode" || cls.endsWith("GetNode") || /^Get[_ ]/.test(String(node?.title || ""));
+    const title = String(node?.title || "");
+    return cls === "GetNode" || cls.endsWith("GetNode") || /^Get[_ ]/i.test(title);
 }
 
 function tunnelName(node) {
-    const widget = (node?.widgets || []).find((item) => /^(Constant|constant)$/i.test(item.name));
-    return String(widget?.value ?? "").trim();
+    if (!node) return "";
+    const widgets = node.widgets || [];
+    const named = widgets.find((item) => /^(Constant|constant|value|name)$/i.test(String(item?.name || "")));
+    if (named != null && String(named.value ?? "").trim()) return String(named.value).trim();
+    const titleMatch = String(node.title || "").match(/^(?:Set|Get)[_\s]+(.+)$/i);
+    if (titleMatch?.[1]) return titleMatch[1].trim();
+    for (const widget of widgets) {
+        if (typeof widget?.value === "string" && widget.value.trim()) return widget.value.trim();
+    }
+    return "";
 }
 
 function findSetterForGet(getNode) {
-    if (typeof getNode?.findSetter === "function") {
+    if (!getNode) return null;
+    if (typeof getNode.findSetter === "function") {
         try {
             const setter = getNode.findSetter(graphOf(getNode));
             if (setter) return setter;
-        } catch (_) { /* KJNodes 偶发 graph 未就绪 */ }
+        } catch (_) { /* ignore */ }
     }
     const name = tunnelName(getNode);
     if (!name) return null;
@@ -158,10 +158,29 @@ function findSetterForGet(getNode) {
 
 function firstUpstream(node) {
     for (const input of node?.inputs || []) {
-        const origin = originNode(node, input.name);
+        const origin = originNode(node, input);
         if (origin) return origin;
     }
     return null;
+}
+
+function hookTunnelWidgets(node) {
+    if (!node || node.__h3CzTunnelHooked) return;
+    if (!isSetNode(node) && !isGetNode(node)) return;
+    node.__h3CzTunnelHooked = true;
+    const targets = (node.widgets || []).filter((widget) =>
+        /^(Constant|constant|value|name)$/i.test(String(widget?.name || ""))
+    );
+    for (const widget of targets) {
+        if (widget.__h3CzTunnelCb) continue;
+        widget.__h3CzTunnelCb = true;
+        const previous = widget.callback;
+        widget.callback = function (...args) {
+            const result = typeof previous === "function" ? previous.apply(this, args) : undefined;
+            queueRefresh();
+            return result;
+        };
+    }
 }
 
 function escapeRegExp(value) {
@@ -189,9 +208,9 @@ function isLegacyRefInput(name) {
     return LEGACY_REF_PATTERN.test(inputLeafName(name));
 }
 
+/** 仅加载/创建时清旧中文口；连线过程中绝不对打包节点 removeInput */
 function stripLegacyPackInputs(node) {
     if (!isPackNode(node) || !isV3PackNode(node)) return false;
-
     let changed = false;
     for (let i = (node.inputs?.length ?? 0) - 1; i >= 0; i--) {
         const input = node.inputs[i];
@@ -209,19 +228,19 @@ function walkUpstream(node, visited = new Set()) {
     visited.add(String(node.id));
     if (isPackNode(node)) return node;
     if (/reroute/i.test(nodeClass(node)) && node.inputs?.[0]) {
-        return walkUpstream(originNode(node, node.inputs[0].name), visited);
+        return walkUpstream(originNode(node, node.inputs[0]), visited);
     }
     if (isGetNode(node)) return walkUpstream(findSetterForGet(node), visited);
     if (isSetNode(node)) return walkUpstream(firstUpstream(node), visited);
     const bundle = findInput(node, "bundle") || findInput(node, "素材包");
-    if (bundle) return walkUpstream(originNode(node, bundle.name), visited);
+    if (bundle) return walkUpstream(originNode(node, bundle), visited);
     return null;
 }
 
 function findUpstreamPack(unpackNode) {
     const bundleInput = findInput(unpackNode, "bundle") || findInput(unpackNode, "素材包");
     if (!bundleInput) return null;
-    return walkUpstream(originNode(unpackNode, bundleInput.name), new Set());
+    return walkUpstream(originNode(unpackNode, bundleInput), new Set());
 }
 
 function parseManifest(node) {
@@ -261,19 +280,16 @@ function connectedRefAudioSlots(node) {
 
 function dynamicOutputsFromPack(packNode) {
     if (!packNode) return [];
-
     const names = [];
-    const refImages = connectedRefImageSlots(packNode);
-    const refVideos = connectedRefVideoSlots(packNode);
-    const refVideoAudios = connectedRefVideoAudioSlots(packNode);
-    const refAudios = connectedRefAudioSlots(packNode);
-
-    refImages.forEach((slot) => names.push(`ref_image_${slot}`));
-    for (const slot of [...new Set([...refVideos, ...refVideoAudios])].sort((a, b) => a - b)) {
-        if (refVideos.includes(slot)) names.push(`ref_video_${slot}`);
-        if (refVideoAudios.includes(slot)) names.push(`ref_video_audio_${slot}`);
+    // 打包侧接了哪个口，解包就显示哪个（只读，不改打包 Autogrow）
+    connectedRefImageSlots(packNode).forEach((slot) => names.push(`ref_image_${slot}`));
+    const videos = connectedRefVideoSlots(packNode);
+    const videoAudios = connectedRefVideoAudioSlots(packNode);
+    for (const slot of [...new Set([...videos, ...videoAudios])].sort((a, b) => a - b)) {
+        if (videos.includes(slot)) names.push(`ref_video_${slot}`);
+        if (videoAudios.includes(slot)) names.push(`ref_video_audio_${slot}`);
     }
-    refAudios.forEach((slot) => names.push(`ref_audio_${slot}`));
+    connectedRefAudioSlots(packNode).forEach((slot) => names.push(`ref_audio_${slot}`));
     return names;
 }
 
@@ -295,10 +311,10 @@ function desiredUnpackOutputs(unpackNode) {
     if (pack) {
         desired.push(...dynamicOutputsFromPack(pack));
     } else {
-        const graph = graphOf(unpackNode);
-        const bundleInput = findInput(unpackNode, "bundle") || findInput(unpackNode, "素材包");
-        const link = graphLink(graph, inputLinkId(bundleInput));
-        const origin = link ? graphNode(graph, originId(link)) : null;
+        const origin = originNode(
+            unpackNode,
+            findInput(unpackNode, "bundle") || findInput(unpackNode, "素材包")
+        );
         if (origin && isNodeClass(origin, PROMPT_NODE)) {
             desired.push(...outputsFromManifest(parseManifest(origin)));
         }
@@ -314,57 +330,105 @@ function outputHasLinks(output) {
     return Boolean(links);
 }
 
-function ensureUnpackSlotOutputs(node) {
-    // 缺的补上；多余的（非 schema）才删。顺序必须与 Python 一致。
-    const have = new Map((node.outputs || []).map((output, index) => [output.name, { output, index }]));
+function sortNamesByPackSlots(names) {
+    const order = new Map(PACK_SLOT_NAMES.map((name, index) => [name, index]));
+    return [...new Set(names)].sort((a, b) => (order.get(a) ?? 999) - (order.get(b) ?? 999));
+}
 
-    for (let i = 0; i < PACK_SLOT_OUTPUTS.length; i++) {
-        const [name, type] = PACK_SLOT_OUTPUTS[i];
-        const existing = have.get(name);
-        if (!existing) {
-            node.addOutput(name, type);
-            continue;
-        }
-        existing.output.type = type;
-        existing.output.name = name;
-    }
+function retargetUnpackOutputLinks(node, oldOutputs, newOutputs) {
+    const graph = graphOf(node);
+    if (!graph) return;
+    const newIndex = new Map(newOutputs.map((output, index) => [output.name, index]));
+    const links = graph.links instanceof Map
+        ? [...graph.links.values()]
+        : Array.isArray(graph.links)
+            ? graph.links
+            : Object.values(graph.links || {});
 
-    for (let i = (node.outputs?.length ?? 0) - 1; i >= 0; i--) {
-        const name = node.outputs[i]?.name;
-        if (PACK_SLOT_NAMES.includes(name)) continue;
-        if (!outputHasLinks(node.outputs[i])) node.removeOutput(i);
+    for (const link of links) {
+        if (!link || String(link.origin_id ?? link.originId ?? link[1]) !== String(node.id)) continue;
+        const oldSlot = Number(link.origin_slot ?? link.originSlot ?? link[2] ?? -1);
+        const name = oldOutputs[oldSlot]?.name;
+        if (!name || !newIndex.has(name)) continue;
+        const next = newIndex.get(name);
+        if (link.origin_slot != null) link.origin_slot = next;
+        if (link.originSlot != null) link.originSlot = next;
+        if (Array.isArray(link)) link[2] = next;
     }
-
-    // 按 PACK_SLOTS 稳态重排（连同 links 一起挪，避免下标错位）
-    const byName = new Map((node.outputs || []).map((output) => [output.name, output]));
-    const ordered = [];
-    for (const [name] of PACK_SLOT_OUTPUTS) {
-        const output = byName.get(name);
-        if (output) ordered.push(output);
-    }
-    for (const output of node.outputs || []) {
-        if (!PACK_SLOT_NAMES.includes(output.name)) ordered.push(output);
-    }
-    node.outputs = ordered;
 }
 
 function syncUnpackNodeOutputs(node) {
     if (!isUnpackNode(node)) return;
 
-    ensureUnpackSlotOutputs(node);
-    const desired = new Set(desiredUnpackOutputs(node));
+    const desired = sortNamesByPackSlots(desiredUnpackOutputs(node));
+    const desiredSet = new Set(desired);
+    const oldOutputs = [...(node.outputs || [])];
 
+    for (let i = (node.outputs?.length ?? 0) - 1; i >= 0; i--) {
+        const output = node.outputs[i];
+        if (desiredSet.has(output.name)) continue;
+        try {
+            if (outputHasLinks(output) && typeof node.disconnectOutput === "function") {
+                node.disconnectOutput(i);
+            }
+        } catch (_) { /* ignore */ }
+        node.removeOutput(i);
+    }
+
+    for (const name of desired) {
+        if (!node.outputs?.some((output) => output.name === name)) {
+            node.addOutput(name, outputType(name));
+        }
+    }
+
+    const byName = new Map((node.outputs || []).map((output) => [output.name, output]));
+    const ordered = desired.map((name) => byName.get(name)).filter(Boolean);
     for (const output of node.outputs || []) {
-        const name = output.name;
-        const keepVisible = FIXED_UNPACK_OUTPUTS.includes(name)
-            || desired.has(name)
-            || outputHasLinks(output);
-        // 隐藏未使用口，但不删除——删除会打乱与 Python 返回值的下标对齐
-        output.hidden = !keepVisible;
+        if (!desiredSet.has(output.name)) ordered.push(output);
+    }
+
+    retargetUnpackOutputLinks(node, oldOutputs, ordered);
+    node.outputs = ordered;
+    for (const output of node.outputs || []) {
+        output.type = outputType(output.name);
+        output.hidden = false;
     }
 
     node.setDirtyCanvas?.(true, true);
-    node.setSize?.(node.computeSize?.() || node.size);
+    try {
+        node.setSize?.(node.computeSize?.());
+    } catch (_) { /* ignore */ }
+}
+
+function remapUnpackSlotsInPrompt(promptResult) {
+    const output = promptResult?.output;
+    if (!output) return promptResult;
+    const graph = app.canvas?.getCurrentGraph?.() || app.canvas?.graph || app.graph;
+
+    for (const nodePrompt of Object.values(output)) {
+        if (!nodePrompt?.inputs) continue;
+        for (const value of Object.values(nodePrompt.inputs)) {
+            if (!Array.isArray(value) || value.length < 2) continue;
+            const srcNode = graphNode(graph, value[0]);
+            if (!isUnpackNode(srcNode)) continue;
+            const name = srcNode.outputs?.[Number(value[1])]?.name;
+            if (!name) continue;
+            const pyIndex = PACK_SLOT_NAMES.indexOf(name);
+            if (pyIndex >= 0 && pyIndex !== Number(value[1])) value[1] = pyIndex;
+        }
+    }
+    return promptResult;
+}
+
+function hookGraphToPrompt() {
+    if (app.__h3CzGraphToPromptHooked) return;
+    const original = app.graphToPrompt;
+    if (typeof original !== "function") return;
+    app.graphToPrompt = async function (...args) {
+        const result = await original.apply(this, args);
+        return remapUnpackSlotsInPrompt(result);
+    };
+    app.__h3CzGraphToPromptHooked = true;
 }
 
 function isCanvasBusy() {
@@ -375,23 +439,21 @@ function isCanvasBusy() {
         || canvas.connecting_output
         || canvas.connecting_input
         || canvas.dragging_canvas
-        || canvas.graph_mouse_mode
         || canvas.pointer_is_down
     );
 }
 
-function refreshMediaNodes({ allowStripLegacy = false } = {}) {
+function refreshMediaNodes({ stripLegacy = false } = {}) {
     if (isCanvasBusy()) return;
     const graph = app.canvas?.getCurrentGraph?.() || app.canvas?.graph || app.graph;
     for (const node of graph?._nodes || graph?.nodes || []) {
-        // 连线拖拽时不要动打包口，否则 Autogrow（尤其 video）会把线吸回去
-        if (allowStripLegacy && isPackNode(node)) stripLegacyPackInputs(node);
+        if (stripLegacy && isPackNode(node)) stripLegacyPackInputs(node);
         if (isUnpackNode(node)) syncUnpackNodeOutputs(node);
     }
 }
 
 let refreshTimer = null;
-function queueRefresh(options) {
+function queueRefresh(options = {}) {
     if (refreshTimer != null) clearTimeout(refreshTimer);
     refreshTimer = setTimeout(() => {
         refreshTimer = null;
@@ -400,10 +462,11 @@ function queueRefresh(options) {
             return;
         }
         refreshMediaNodes(options);
-        requestAnimationFrame(() => {
-            if (!isCanvasBusy()) refreshMediaNodes(options);
-        });
-    }, 40);
+        // Autogrow 写完 link 后再认一次，只刷新解包显示
+        setTimeout(() => {
+            if (!isCanvasBusy()) refreshMediaNodes();
+        }, 120);
+    }, 30);
 }
 
 function wrapNodeMethod(nodeTypeClass, method, after) {
@@ -422,15 +485,15 @@ function wrapNodeMethod(nodeTypeClass, method, after) {
 function wrapPackHooks(nodeTypeClass) {
     wrapNodeMethod(nodeTypeClass, "onNodeCreated", function () {
         stripLegacyPackInputs(this);
-        queueRefresh({ allowStripLegacy: true });
+        queueRefresh({ stripLegacy: true });
     });
     wrapNodeMethod(nodeTypeClass, "onConfigure", function () {
         stripLegacyPackInputs(this);
-        queueRefresh({ allowStripLegacy: true });
+        queueRefresh({ stripLegacy: true });
     });
     wrapNodeMethod(nodeTypeClass, "onConnectionsChange", function () {
-        // 只刷新解包可见性，绝不在连线过程中 removeInput
-        queueRefresh({ allowStripLegacy: false });
+        // 只驱动解包刷新，绝不改打包口上的线
+        queueRefresh();
     });
 }
 
@@ -440,38 +503,74 @@ function hookGraphConnections() {
     const original = LGraph.prototype.connectionChange;
     LGraph.prototype.connectionChange = function (...args) {
         const result = typeof original === "function" ? original.apply(this, args) : undefined;
-        queueRefresh({ allowStripLegacy: false });
+        queueRefresh();
         return result;
     };
     LGraph.prototype.__h3CzMediaConnHooked = true;
 }
 
-app.__h3CzStripLegacyPackInputs = () => refreshMediaNodes({ allowStripLegacy: true });
-app.__h3CzSyncUnpackOutputs = () => refreshMediaNodes({ allowStripLegacy: false });
+app.__h3CzSyncUnpackOutputs = () => refreshMediaNodes();
 
 app.registerExtension({
     name: "CZToolkit.H3Media.UI",
 
     async setup() {
         hookGraphConnections();
-        app.api?.addEventListener?.("graphLoaded", () => queueRefresh({ allowStripLegacy: true }));
-        queueRefresh({ allowStripLegacy: true });
+        hookGraphToPrompt();
+        app.api?.addEventListener?.("graphLoaded", () => queueRefresh({ stripLegacy: true }));
+        queueRefresh({ stripLegacy: true });
     },
 
     nodeCreated(node) {
-        if (isPackNode(node) || isUnpackNode(node)) queueRefresh({ allowStripLegacy: true });
+        if (isSetNode(node) || isGetNode(node)) {
+            hookTunnelWidgets(node);
+            queueRefresh();
+            return;
+        }
+        if (isPackNode(node) || isUnpackNode(node)) queueRefresh({ stripLegacy: true });
     },
 
     loadedGraphNode(node) {
-        if (isPackNode(node) || isUnpackNode(node)) queueRefresh({ allowStripLegacy: true });
+        if (isSetNode(node) || isGetNode(node)) {
+            hookTunnelWidgets(node);
+            queueRefresh();
+            return;
+        }
+        if (isPackNode(node) || isUnpackNode(node)) queueRefresh({ stripLegacy: true });
     },
 
     async beforeRegisterNodeDef(nodeTypeClass, nodeData) {
         const type = String(nodeData?.name || "");
         if (type === PACK_NODE) wrapPackHooks(nodeTypeClass);
-        if (type === UNPACK_NODE || type === "SetNode" || type === "GetNode") {
-            wrapNodeMethod(nodeTypeClass, "onConnectionsChange", () => queueRefresh({ allowStripLegacy: false }));
-            wrapNodeMethod(nodeTypeClass, "onConfigure", () => queueRefresh({ allowStripLegacy: true }));
+        if (type === UNPACK_NODE) {
+            wrapNodeMethod(nodeTypeClass, "onNodeCreated", function () {
+                const keep = new Set(FIXED_UNPACK_OUTPUTS);
+                for (let i = (this.outputs?.length ?? 0) - 1; i >= 0; i--) {
+                    if (!keep.has(this.outputs[i]?.name)) this.removeOutput(i);
+                }
+                for (const name of FIXED_UNPACK_OUTPUTS) {
+                    if (!this.outputs?.some((output) => output.name === name)) {
+                        this.addOutput(name, outputType(name));
+                    }
+                }
+                queueRefresh();
+            });
+            wrapNodeMethod(nodeTypeClass, "onConnectionsChange", () => queueRefresh());
+            wrapNodeMethod(nodeTypeClass, "onConfigure", () => queueRefresh({ stripLegacy: true }));
+        }
+        if (/SetNode$/i.test(type) || /GetNode$/i.test(type)) {
+            wrapNodeMethod(nodeTypeClass, "onNodeCreated", function () {
+                hookTunnelWidgets(this);
+                queueRefresh();
+            });
+            wrapNodeMethod(nodeTypeClass, "onConnectionsChange", function () {
+                hookTunnelWidgets(this);
+                queueRefresh();
+            });
+            wrapNodeMethod(nodeTypeClass, "onConfigure", function () {
+                hookTunnelWidgets(this);
+                queueRefresh();
+            });
         }
     },
 });
