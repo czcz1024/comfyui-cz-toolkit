@@ -47,12 +47,12 @@ function isNodeClass(node, expected) {
 
 function isPackNode(node) {
     if (!node) return false;
+    // Get/Set 透传 H3_MEDIA_BUNDLE 时，绝不能当成打包节点
+    if (isGetNode(node) || isSetNode(node)) return false;
     if (isNodeClass(node, PACK_NODE)) return true;
     const title = String(node.title || "");
-    if (title === "H3 参考素材" || title.includes("参考素材")) return true;
-    // 输出是素材包类型
-    const out0 = node.outputs?.[0];
-    if (out0 && /H3_MEDIA_BUNDLE|素材包/.test(String(out0.type || out0.name || ""))) return true;
+    if (title === "H3 参考素材") return true;
+    if (title.includes("参考素材") && !title.includes("解包")) return true;
     return false;
 }
 
@@ -333,50 +333,57 @@ function escapeRegExp(value) {
 function walkUpstream(node, visited = new Set()) {
     if (!node || visited.has(String(node.id))) return null;
     visited.add(String(node.id));
-    if (isPackNode(node)) return node;
+    // 先穿透 Get/Set/Reroute，再认打包（避免 Get 口类型是 H3_MEDIA_BUNDLE 被误判）
     if (/reroute/i.test(nodeClass(node)) && node.inputs?.[0]) {
         return walkUpstream(originNode(node, node.inputs[0]), visited);
     }
     if (isGetNode(node)) return walkUpstream(findSetterForGet(node), visited);
     if (isSetNode(node)) return walkUpstream(firstUpstream(node), visited);
+    if (isPackNode(node)) return node;
     const bundle = findBundleInput(node);
     if (bundle) return walkUpstream(originNode(node, bundle), visited);
     return null;
 }
 
+/**
+ * 只沿「解包.bundle / 素材包」真实连线往上找打包节点。
+ * 支持：直连、Reroute、Get→同名 Set。
+ * 禁止：图里随便抓一个打包节点（多打包时会串台）。
+ */
 function findUpstreamPack(unpackNode) {
     if (!unpackNode) return null;
 
-    // 1) 素材包 / bundle 口（中英文都试）
+    const tryFrom = (origin) => (origin ? walkUpstream(origin, new Set()) : null);
+
     for (const key of ["素材包", "bundle"]) {
-        const origin = originNode(unpackNode, key);
-        const pack = walkUpstream(origin, new Set());
+        const pack = tryFrom(originNode(unpackNode, key));
         if (pack) return pack;
     }
 
     const bundleInput = findBundleInput(unpackNode);
-    if (bundleInput) {
-        const pack = walkUpstream(originNode(unpackNode, bundleInput), new Set());
-        if (pack) return pack;
-    }
+    if (!bundleInput) return null;
 
-    // 2) 任意已接入口往上爬
-    for (const input of unpackNode.inputs || []) {
-        const pack = walkUpstream(originNode(unpackNode, input), new Set());
-        if (pack) return pack;
-    }
+    const packDirect = tryFrom(originNode(unpackNode, bundleInput));
+    if (packDirect) return packDirect;
 
-    // 3) 纯扫 graph：谁连进解包
+    // Autogrow/口名不同步时：只认连到 bundle 这一口的 link
     const graph = graphOf(unpackNode);
+    const idx = unpackNode.inputs?.indexOf(bundleInput);
+    const leaf = inputLeafName(bundleInput);
+    const bundleLinkId = inputLinkId(bundleInput);
+
     for (const link of graphLinks(graph)) {
         if (String(targetId(link)) !== String(unpackNode.id)) continue;
-        const pack = walkUpstream(graphNode(graph, originId(link)), new Set());
+        const raw = targetSlotValue(link);
+        const slot = Number(raw);
+        const match = (Number.isFinite(slot) && slot === idx)
+            || String(raw) === String(bundleInput.name)
+            || String(raw) === String(leaf)
+            || (bundleLinkId != null && String(link?.id) === String(bundleLinkId));
+        if (!match) continue;
+        const pack = tryFrom(graphNode(graph, originId(link)));
         if (pack) return pack;
     }
-
-    // 4) 图里只有一个打包节点时兜底用它（调试期也有用）
-    const packs = graphNodes(graph).filter(isPackNode);
-    if (packs.length === 1) return packs[0];
 
     return null;
 }
