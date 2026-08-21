@@ -203,19 +203,33 @@ function isInputWired(node, input) {
 }
 
 function isSetNode(node) {
+    if (!node) return false;
     const cls = nodeClass(node);
     const title = String(node?.title || "");
-    return cls === "SetNode" || cls.endsWith("SetNode") || /^Set[_ ]/i.test(title);
+    // KJNodes: SetNode；Easy-Use: easy setNode
+    if (/setnode/i.test(cls)) return true;
+    if (/^set([_\s]|$)/i.test(cls)) return true;
+    if (/^Set([_\s]|$)/i.test(title)) return true;
+    return false;
 }
 
 function isGetNode(node) {
+    if (!node) return false;
     const cls = nodeClass(node);
     const title = String(node?.title || "");
-    return cls === "GetNode" || cls.endsWith("GetNode") || /^Get[_ ]/i.test(title);
+    // KJNodes: GetNode；Easy-Use: easy getNode
+    if (/getnode/i.test(cls)) return true;
+    if (/^get([_\s]|$)/i.test(cls)) return true;
+    if (/^Get([_\s]|$)/i.test(title)) return true;
+    if (typeof node.findSetter === "function" && node.widgets?.length) return true;
+    return false;
 }
 
+/** KJNodes / Easy-Use 都把隧道名放在 widgets[0]（通常叫 Constant） */
 function tunnelName(node) {
     if (!node) return "";
+    const w0 = node.widgets?.[0];
+    if (w0 != null && String(w0.value ?? "").trim()) return String(w0.value).trim();
     const widgets = node.widgets || [];
     const named = widgets.find((item) => /^(Constant|constant|value|name)$/i.test(String(item?.name || "")));
     if (named != null && String(named.value ?? "").trim()) return String(named.value).trim();
@@ -229,20 +243,55 @@ function tunnelName(node) {
 
 function findSetterForGet(getNode) {
     if (!getNode) return null;
+
+    // KJNodes / Easy-Use 自带 findSetter
     if (typeof getNode.findSetter === "function") {
         try {
-            const setter = getNode.findSetter(graphOf(getNode));
+            const setter = getNode.findSetter(graphOf(getNode) || getNode.graph);
             if (setter) return setter;
         } catch (_) { /* ignore */ }
     }
+
     const name = tunnelName(getNode);
     if (!name) return null;
-    return graphNodes(graphOf(getNode)).find((node) => isSetNode(node) && tunnelName(node) === name) || null;
+
+    const graphs = [];
+    const pushGraph = (g) => {
+        if (g && !graphs.includes(g)) graphs.push(g);
+    };
+    pushGraph(graphOf(getNode));
+    pushGraph(getNode.graph);
+    pushGraph(app.canvas?.getCurrentGraph?.());
+    pushGraph(app.canvas?.graph);
+    pushGraph(app.graph);
+    // 子图时往上找（KJNodes 支持跨层 Set）
+    let parent = getNode.graph;
+    for (let i = 0; i < 6 && parent; i++) {
+        pushGraph(parent);
+        parent = parent.rootGraph && parent.rootGraph !== parent
+            ? parent.rootGraph
+            : (parent.parent || null);
+    }
+
+    for (const g of graphs) {
+        for (const node of graphNodes(g)) {
+            if (!isSetNode(node)) continue;
+            if (tunnelName(node) === name) return node;
+        }
+    }
+    return null;
 }
 
 function firstUpstream(node) {
     for (const input of node?.inputs || []) {
         const origin = originNode(node, input);
+        if (origin) return origin;
+    }
+    // Set 节点有时 input.link 空，但 graph 里有指向它的线
+    const graph = graphOf(node);
+    for (const link of graphLinks(graph)) {
+        if (String(targetId(link)) !== String(node.id)) continue;
+        const origin = graphNode(graph, originId(link));
         if (origin) return origin;
     }
     return null;
@@ -252,9 +301,19 @@ function hookTunnelWidgets(node) {
     if (!node || node.__h3CzTunnelHooked) return;
     if (!isSetNode(node) && !isGetNode(node)) return;
     node.__h3CzTunnelHooked = true;
-    const targets = (node.widgets || []).filter((widget) =>
-        /^(Constant|constant|value|name)$/i.test(String(widget?.name || ""))
-    );
+
+    const targets = [];
+    const seen = new Set();
+    const add = (widget) => {
+        if (!widget || seen.has(widget)) return;
+        seen.add(widget);
+        targets.push(widget);
+    };
+    add(node.widgets?.[0]);
+    for (const widget of node.widgets || []) {
+        if (/^(Constant|constant|value|name)$/i.test(String(widget?.name || ""))) add(widget);
+    }
+
     for (const widget of targets) {
         if (widget.__h3CzTunnelCb) continue;
         widget.__h3CzTunnelCb = true;
@@ -657,9 +716,25 @@ app.__h3CzDebugMedia = window.__h3CzDebugMedia = function __h3CzDebugMedia() {
     const report = unpacks.map((u) => {
         const pack = findUpstreamPack(u);
         const active = pack ? [...activeSlotNamesFromPack(pack)] : [];
+        const via = (() => {
+            const origin = originNode(u, findBundleInput(u))
+                || originNode(u, "素材包")
+                || originNode(u, "bundle")
+                || firstUpstream(u);
+            return {
+                originId: origin?.id ?? null,
+                originType: nodeClass(origin),
+                originTitle: origin?.title ?? null,
+                isGet: isGetNode(origin),
+                isSet: isSetNode(origin),
+                tunnel: isGetNode(origin) || isSetNode(origin) ? tunnelName(origin) : "",
+                setterId: isGetNode(origin) ? findSetterForGet(origin)?.id ?? null : null,
+            };
+        })();
         return {
             unpackId: u.id,
             unpackTitle: u.title,
+            via,
             packId: pack?.id ?? null,
             packTitle: pack?.title ?? null,
             packInputs: (pack?.inputs || []).map((input) => ({
@@ -731,7 +806,9 @@ app.registerExtension({
             wrapNodeMethod(nodeTypeClass, "onConnectionsChange", () => queueRefresh());
             wrapNodeMethod(nodeTypeClass, "onConfigure", () => queueRefresh());
         }
-        if (/SetNode$/i.test(type) || /GetNode$/i.test(type)) {
+        if (/SetNode$/i.test(type) || /GetNode$/i.test(type)
+            || /setNode/i.test(type) || /getNode/i.test(type)
+            || type === "SetNode" || type === "GetNode") {
             wrapNodeMethod(nodeTypeClass, "onNodeCreated", function () {
                 hookTunnelWidgets(this);
                 queueRefresh();
