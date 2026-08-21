@@ -3,10 +3,10 @@
  * ─────────────────────────────────────────────────────────────────────────────
  * 监听 executed 事件，收集所有节点输出：
  *   images  → 图片（type: temp = Preview Image, type: output = Save Image）
- *   videos  → 视频（AnimateDiff / VHS / WanVideo 等）
+ *   videos  → 视频（AnimateDiff / VHS / WanVideo / MiniMax 等）
  *   audio   → 音频
  *   text    → 纯文本（Show Text / Preview Text / 任意 STRING 输出）
- *   gifs    → GIF 图序列
+ *   gifs    → GIF / WEBP 动画，或被各家节点塞进来的 mp4/webm
  *
  * 每个条目进缩略图列表，点击打开 lightbox：
  *   - 图片：全屏展示
@@ -52,6 +52,69 @@ function mediaUrl(file) {
     return `${apiBase("/view")}?${p}`;
 }
 
+const VIDEO_EXT = /\.(mp4|webm|mov|mkv|avi|m4v|ogv)$/i;
+const AUDIO_EXT = /\.(mp3|wav|ogg|flac|m4a|aac|wma|opus)$/i;
+
+function fileExt(file) {
+    const name = String(file?.filename || file?.name || "");
+    const i = name.lastIndexOf(".");
+    return i >= 0 ? name.slice(i).toLowerCase() : "";
+}
+
+function fileMime(file) {
+    return String(file?.format || file?.mime || file?.content_type || "").toLowerCase();
+}
+
+/** VHS / MiniMax / Save Video 常把 mp4 塞进 gifs，不能按桶名当图片。 */
+function detectKind(file) {
+    const mime = fileMime(file);
+    const ext = fileExt(file);
+    if (
+        mime.startsWith("video/")
+        || mime.includes("h264")
+        || ["mp4", "webm", "mov", "mkv"].includes(mime)
+        || VIDEO_EXT.test(ext)
+    ) return "video";
+    if (mime.startsWith("audio/") || AUDIO_EXT.test(ext)) return "audio";
+    return "image";
+}
+
+function videoMime(file) {
+    const mime = fileMime(file);
+    if (mime.startsWith("video/")) return mime === "video/h264" ? "video/mp4" : mime;
+    const ext = fileExt(file);
+    if (ext === ".webm") return "video/webm";
+    if (ext === ".mov") return "video/quicktime";
+    if (ext === ".mkv") return "video/x-matroska";
+    if (ext === ".ogv") return "video/ogg";
+    return "video/mp4";
+}
+
+function asFileList(value) {
+    if (Array.isArray(value)) return value;
+    if (value && typeof value === "object" && value.filename) return [value];
+    return [];
+}
+
+function collectMediaFiles(output) {
+    const seen = new Set();
+    const files = [];
+    for (const bucket of [
+        output.images, output.gifs,
+        output.videos, output.video, output.VIDEO,
+        output.audio, output.audios, output.AUDIO,
+    ]) {
+        for (const file of asFileList(bucket)) {
+            if (!file?.filename) continue;
+            const key = `${file.type || "output"}|${file.subfolder || ""}|${file.filename}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+            files.push(file);
+        }
+    }
+    return files;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 条目类型
 // kind: "image" | "video" | "audio" | "text" | "unknown"
@@ -64,44 +127,27 @@ let _id = 0;
 function extractItems(output, nodeId, promptId) {
     const ts = Date.now();
     const items = [];
+    const show = {
+        image: gs("ShowImage"),
+        video: gs("ShowVideo"),
+        audio: gs("ShowAudio"),
+        text: gs("ShowText"),
+    };
 
-    // ── 图片（images / gifs）──
-    if (gs("ShowImage")) {
-        for (const key of ["images", "gifs"]) {
-            const arr = output[key];
-            if (!Array.isArray(arr)) continue;
-            for (const file of arr) {
-                if (!file?.filename) continue;
-                const url = mediaUrl(file);
-                items.push({ id: ++_id, kind: "image", url, file, label: file.filename, ts, nodeId, promptId });
-            }
-        }
-    }
-
-    // ── 视频 ──
-    if (gs("ShowVideo")) {
-        const vids = output.videos ?? output.video ?? output.VIDEO;
-        if (Array.isArray(vids)) {
-            for (const file of vids) {
-                if (!file?.filename) continue;
-                items.push({ id: ++_id, kind: "video", url: mediaUrl(file), file, label: file.filename, ts, nodeId, promptId });
-            }
-        } else if (vids && typeof vids === "object" && vids.filename) {
-            items.push({ id: ++_id, kind: "video", url: mediaUrl(vids), file: vids, label: vids.filename, ts, nodeId, promptId });
-        }
-    }
-
-    // ── 音频 ──
-    if (gs("ShowAudio")) {
-        const auds = output.audio ?? output.audios ?? output.AUDIO;
-        if (Array.isArray(auds)) {
-            for (const file of auds) {
-                if (!file?.filename) continue;
-                items.push({ id: ++_id, kind: "audio", url: mediaUrl(file), file, label: file.filename, ts, nodeId, promptId });
-            }
-        } else if (auds && typeof auds === "object" && auds.filename) {
-            items.push({ id: ++_id, kind: "audio", url: mediaUrl(auds), file: auds, label: auds.filename, ts, nodeId, promptId });
-        }
+    for (const file of collectMediaFiles(output)) {
+        const kind = detectKind(file);
+        if (!show[kind]) continue;
+        items.push({
+            id: ++_id,
+            kind,
+            url: mediaUrl(file),
+            file,
+            mime: kind === "video" ? videoMime(file) : "",
+            label: file.filename,
+            ts,
+            nodeId,
+            promptId,
+        });
     }
 
     // ── 文本 ──
@@ -196,10 +242,29 @@ const lightbox = (() => {
                 maxWidth: "calc(100vw - 80px)", maxHeight: "calc(100vh - 120px)",
                 borderRadius: "6px", background: "#000",
             });
-            video.src = item.url;
             video.controls = true;
             video.autoplay = true;
             video.loop = true;
+            video.playsInline = true;
+            video.preload = "auto";
+            video.setAttribute("playsinline", "");
+            video.src = item.url;
+            video.addEventListener("error", () => {
+                body.innerHTML = "";
+                const wrap = el("div", {
+                    display: "flex", flexDirection: "column", alignItems: "center",
+                    gap: "12px", padding: "24px", color: "#ccc",
+                });
+                const msg = el("div", { fontSize: "14px" });
+                msg.textContent = "浏览器无法内嵌播放该视频，可下载后用本地播放器打开";
+                const link = document.createElement("a");
+                link.href = item.url;
+                link.download = item.label || "video.mp4";
+                link.textContent = "下载视频";
+                Object.assign(link.style, { color: "#8cb4ff", fontSize: "13px" });
+                wrap.append(msg, link);
+                body.appendChild(wrap);
+            }, { once: true });
             body.appendChild(video);
             return;
         }
@@ -374,12 +439,157 @@ const lightbox = (() => {
 const KIND_ICON = { image: "🖼️", video: "🎞️", audio: "🎵", text: "📝", unknown: "❓" };
 const KIND_COLOR = { image: "#1a1a2e", video: "#1a2010", audio: "#1e1a2e", text: "#1a1e2e", unknown: "#1a1a1a" };
 
+const thumbCache = new Map();
+const thumbPending = new Map();
+const THUMB_CACHE_MAX = 80;
+
+function cacheThumb(url, dataUrl) {
+    if (thumbCache.has(url)) thumbCache.delete(url);
+    thumbCache.set(url, dataUrl);
+    while (thumbCache.size > THUMB_CACHE_MAX) {
+        const oldest = thumbCache.keys().next().value;
+        thumbCache.delete(oldest);
+    }
+}
+
+/** 从视频里截一帧做成缩略图；失败则回退到图标。 */
+function captureVideoFrame(url, _mime, onFrame, onFail) {
+    if (thumbCache.has(url)) {
+        onFrame(thumbCache.get(url));
+        return;
+    }
+    if (thumbPending.has(url)) {
+        thumbPending.get(url).push({ onFrame, onFail });
+        return;
+    }
+    thumbPending.set(url, [{ onFrame, onFail }]);
+
+    const video = document.createElement("video");
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    video.setAttribute("playsinline", "");
+    video.setAttribute("muted", "");
+    Object.assign(video.style, {
+        position: "fixed", left: "-9999px", top: "0",
+        width: "160px", height: "90px", opacity: "0", pointerEvents: "none",
+    });
+
+    let done = false;
+    const finish = (dataUrl) => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        video.removeAttribute("src");
+        video.load();
+        video.remove();
+        const waiters = thumbPending.get(url) || [{ onFrame, onFail }];
+        thumbPending.delete(url);
+        if (dataUrl) cacheThumb(url, dataUrl);
+        for (const w of waiters) {
+            if (dataUrl) w.onFrame(dataUrl);
+            else w.onFail?.();
+        }
+    };
+
+    const grab = () => {
+        const w = video.videoWidth;
+        const h = video.videoHeight;
+        if (!w || !h) return false;
+        const canvas = document.createElement("canvas");
+        const max = 480;
+        const scale = Math.min(1, max / Math.max(w, h));
+        canvas.width = Math.max(1, Math.round(w * scale));
+        canvas.height = Math.max(1, Math.round(h * scale));
+        try {
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+            if (!dataUrl || dataUrl.length < 100) return false;
+            finish(dataUrl);
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
+    const seekToFrame = () => {
+        if (done) return;
+        const dur = Number.isFinite(video.duration) ? video.duration : 0;
+        const t = dur > 0.4 ? Math.min(0.5, dur * 0.08) : 0.001;
+        if (Math.abs((video.currentTime || 0) - t) < 0.0005) {
+            if (!grab()) finish(null);
+            return;
+        }
+        try { video.currentTime = t; }
+        catch { if (!grab()) finish(null); }
+    };
+    video.addEventListener("seeked", () => {
+        if (done) return;
+        if (!grab()) requestAnimationFrame(() => { if (!grab()) finish(null); });
+    });
+    video.addEventListener("loadeddata", seekToFrame);
+    video.addEventListener("loadedmetadata", seekToFrame);
+    video.addEventListener("error", () => finish(null));
+    const timer = setTimeout(() => { if (!grab()) finish(null); }, 8000);
+
+    document.body.appendChild(video);
+    video.src = url;
+    video.load();
+}
+
 function mediaFillStyle() {
     return {
         position: "absolute", inset: "0",
         width: "100%", height: "100%",
         objectFit: "cover", display: "block",
     };
+}
+
+function fillVideoThumb(slot, item) {
+    const applyFrame = (dataUrl) => {
+        slot.innerHTML = "";
+        const img = document.createElement("img");
+        img.src = dataUrl;
+        Object.assign(img.style, mediaFillStyle());
+        slot.appendChild(img);
+    };
+
+    if (thumbCache.has(item.url)) {
+        applyFrame(thumbCache.get(item.url));
+        return;
+    }
+
+    const placeholder = el("div", {
+        position: "absolute", inset: "0",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        color: "#888", fontSize: "28px",
+    });
+    placeholder.textContent = "🎞️";
+    slot.appendChild(placeholder);
+
+    captureVideoFrame(
+        item.url,
+        item.mime || videoMime(item.file),
+        applyFrame,
+        () => {
+            const video = document.createElement("video");
+            Object.assign(video.style, mediaFillStyle());
+            video.muted = true;
+            video.playsInline = true;
+            video.preload = "auto";
+            video.src = item.url;
+            video.addEventListener("loadeddata", () => {
+                const dur = Number.isFinite(video.duration) ? video.duration : 0;
+                const t = dur > 0.4 ? Math.min(0.5, dur * 0.08) : 0.001;
+                try { video.currentTime = t; } catch { /* keep first decoded frame */ }
+            });
+            video.addEventListener("error", () => showIconFallback(slot, item));
+            slot.innerHTML = "";
+            slot.appendChild(video);
+        },
+    );
 }
 
 function buildThumb(item, idx) {
@@ -394,26 +604,21 @@ function buildThumb(item, idx) {
     });
     wrap.title = `#${idx + 1} · ${item.kind} · ${item.nodeId ? "节点" + item.nodeId : ""}\n${item.label}`;
 
+    const slot = el("div", { position: "absolute", inset: "0" });
+    wrap.appendChild(slot);
+
     if (item.kind === "image") {
         const img = document.createElement("img");
         img.src = item.url;
         img.loading = "lazy";
         Object.assign(img.style, mediaFillStyle());
-        img.addEventListener("error", () => showIconFallback(wrap, item));
-        wrap.appendChild(img);
+        img.addEventListener("error", () => showIconFallback(slot, item));
+        slot.appendChild(img);
     } else if (item.kind === "video") {
-        // 视频用第一帧截图，加 #t=0.001 让浏览器解码
-        const video = document.createElement("video");
-        Object.assign(video.style, mediaFillStyle());
-        video.src = item.url + "#t=0.001";
-        video.preload = "metadata";
-        video.muted = true;
-        video.playsInline = true;
-        video.addEventListener("error", () => showIconFallback(wrap, item));
-        wrap.appendChild(video);
-        showIconOverlay(wrap, "🎞️");
+        fillVideoThumb(slot, item);
+        showPlayOverlay(wrap);
     } else {
-        showIconFallback(wrap, item);
+        showIconFallback(slot, item);
     }
 
     // 类型角标
@@ -433,8 +638,8 @@ function buildThumb(item, idx) {
     return wrap;
 }
 
-function showIconFallback(wrap, item) {
-    wrap.innerHTML = "";
+function showIconFallback(container, item) {
+    container.innerHTML = "";
     const icon = el("div", {
         position: "absolute", inset: "0", display: "flex",
         flexDirection: "column", alignItems: "center", justifyContent: "center",
@@ -445,15 +650,25 @@ function showIconFallback(wrap, item) {
     const lbl = el("span", { fontSize: "9px", color: "#888", textAlign: "center", wordBreak: "break-all", lineHeight: "1.3" });
     lbl.textContent = item.label.slice(0, 40);
     icon.append(emoji, lbl);
-    wrap.appendChild(icon);
+    container.appendChild(icon);
 }
 
-function showIconOverlay(wrap, emoji) {
+function showPlayOverlay(wrap) {
     const overlay = el("div", {
-        position: "absolute", bottom: "3px", left: "4px",
-        fontSize: "14px", pointerEvents: "none",
+        position: "absolute", inset: "0",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        pointerEvents: "none",
+        background: "rgba(0,0,0,.18)",
     });
-    overlay.textContent = emoji;
+    const disc = el("div", {
+        width: "34px", height: "34px", borderRadius: "50%",
+        background: "rgba(0,0,0,.55)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        color: "#fff", fontSize: "15px", paddingLeft: "3px",
+        lineHeight: "1",
+    });
+    disc.textContent = "▶";
+    overlay.appendChild(disc);
     wrap.appendChild(overlay);
 }
 
