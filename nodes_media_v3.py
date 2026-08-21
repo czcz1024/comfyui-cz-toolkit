@@ -122,14 +122,15 @@ if V3_AVAILABLE:
             ref_videos=None,
             ref_video_audios=None,
             ref_audios=None,
+            **kwargs,
         ):
             bundle = mdu.build_bundle(
                 first_frame=first_frame,
                 last_frame=last_frame,
-                ref_images=mdu.sorted_autogrow_values(ref_images),
-                videos=mdu.sorted_autogrow_values(ref_videos),
-                video_audios=mdu.sorted_autogrow_values(ref_video_audios),
-                audios=mdu.sorted_autogrow_values(ref_audios),
+                ref_images=mdu.collect_autogrow(ref_images, kwargs, "ref_image_"),
+                videos=mdu.collect_autogrow(ref_videos, kwargs, "ref_video_"),
+                video_audios=mdu.collect_autogrow(ref_video_audios, kwargs, "ref_video_audio_"),
+                audios=mdu.collect_autogrow(ref_audios, kwargs, "ref_audio_"),
                 max_side=int(image_max_side),
                 max_frames=int(video_max_frames),
             )

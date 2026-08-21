@@ -56,22 +56,11 @@ def empty_bundle():
 
 
 def collect_sequence(values, max_count):
-    """从 kwargs 列表或 dict 顺序收集，遇 None 即停止（不允许中间空槽）。"""
+    """从 list / dict / Autogrow 映射顺序收集，遇空即停。兼容 ref_video_0（0-based）。"""
     if values is None:
         return []
     if isinstance(values, dict):
-        seq = []
-        for i in range(1, max_count + 1):
-            key = None
-            for k in values:
-                if str(k).endswith(f"_{i}") or str(k) == str(i):
-                    key = k
-                    break
-            v = values.get(key) if key else values.get(i) or values.get(str(i))
-            if v is None:
-                break
-            seq.append(v)
-        return seq
+        values = sorted_autogrow_values(values)
     out = []
     for item in list(values or [])[:max_count]:
         if item is None:
@@ -93,12 +82,38 @@ def collect_named_sequence(kwargs, prefix, max_count):
     return out
 
 
+def unwrap_media(value):
+    """ComfyUI 有时把单路输入包成 [value]。"""
+    while isinstance(value, (list, tuple)) and len(value) == 1:
+        value = value[0]
+    return value
+
+
+def _as_autogrow_mapping(values):
+    """把 Autogrow 入参规范成 {slot_key: value}；IMAGE 张量不当可迭代拆开。"""
+    if values is None:
+        return {}
+    if isinstance(values, dict):
+        return values
+    # torch.Tensor / IMAGE batch：有 shape，不能 enumerate 成帧列表当多路输入
+    if hasattr(values, "shape") and not isinstance(values, (list, tuple)):
+        return {"0": values}
+    if isinstance(values, (list, tuple)):
+        return {str(i): v for i, v in enumerate(values)}
+    items = getattr(values, "items", None)
+    if callable(items):
+        try:
+            return dict(items())
+        except Exception:
+            pass
+    return {"0": values}
+
+
 def sorted_autogrow_items(values):
     """与 T8 core.sorted_autogrow_items 相同：跳过 None，按槽位 key 排序。"""
-    if not values:
+    mapping = _as_autogrow_mapping(values)
+    if not mapping:
         return []
-    if isinstance(values, (list, tuple)):
-        return [(i, v) for i, v in enumerate(values) if v is not None]
 
     def sort_key(item):
         key = str(item[0])
@@ -108,7 +123,8 @@ def sorted_autogrow_items(values):
             return 10_000
 
     output = []
-    for key, value in sorted(values.items(), key=sort_key):
+    for key, value in sorted(mapping.items(), key=sort_key):
+        value = unwrap_media(value)
         if value is None:
             continue
         try:
@@ -121,6 +137,20 @@ def sorted_autogrow_items(values):
 
 def sorted_autogrow_values(values):
     return [value for _, value in sorted_autogrow_items(values)]
+
+
+def collect_autogrow(group, extra=None, prefix=""):
+    """合并 Autogrow dict 与可能被展平的 ref_video_0 / ref_videos.ref_video_0。"""
+    merged = dict(_as_autogrow_mapping(group))
+    for key, value in (extra or {}).items():
+        leaf = str(key).split(".")[-1]
+        if not prefix or not leaf.startswith(prefix):
+            continue
+        suffix = leaf[len(prefix):]
+        if not suffix.isdigit() or value is None:
+            continue
+        merged[leaf] = value
+    return sorted_autogrow_values(merged)
 
 
 def slots_to_autogrow(slots, prefix, max_count):

@@ -134,6 +134,49 @@ function connectedInput(node, name) {
     return Boolean(originNode(node, name));
 }
 
+function graphNodes(graph) {
+    const g = graph || app.canvas?.graph || app.graph;
+    if (!g) return [];
+    if (Array.isArray(g._nodes)) return g._nodes;
+    if (Array.isArray(g.nodes)) return g.nodes;
+    return [];
+}
+
+function isSetNode(node) {
+    const cls = nodeClass(node);
+    return cls === "SetNode" || cls.endsWith("SetNode") || /^Set[_ ]/.test(String(node?.title || ""));
+}
+
+function isGetNode(node) {
+    const cls = nodeClass(node);
+    return cls === "GetNode" || cls.endsWith("GetNode") || /^Get[_ ]/.test(String(node?.title || ""));
+}
+
+function tunnelName(node) {
+    const item = (node?.widgets || []).find((widget) => /^(Constant|constant)$/i.test(widget.name));
+    return String(item?.value ?? "").trim();
+}
+
+function findSetterForGet(getNode) {
+    if (typeof getNode?.findSetter === "function") {
+        try {
+            const setter = getNode.findSetter(graphOf(getNode));
+            if (setter) return setter;
+        } catch (_) { /* KJNodes 偶发 graph 未就绪 */ }
+    }
+    const name = tunnelName(getNode);
+    if (!name) return null;
+    return graphNodes(graphOf(getNode)).find((node) => isSetNode(node) && tunnelName(node) === name) || null;
+}
+
+function firstUpstream(node) {
+    for (const input of node?.inputs || []) {
+        const origin = originNode(node, input.name);
+        if (origin) return origin;
+    }
+    return null;
+}
+
 function connectedByExactPrefix(node, prefix) {
     const pattern = new RegExp(`^${escapeRegExp(prefix)}(\\d+)$`);
     return (node?.inputs || [])
@@ -163,6 +206,8 @@ function walkUpstream(node, visited = new Set()) {
     if (/reroute/i.test(nodeClass(node)) && node.inputs?.[0]) {
         return walkUpstream(originNode(node, node.inputs[0].name), visited);
     }
+    if (isGetNode(node)) return walkUpstream(findSetterForGet(node), visited);
+    if (isSetNode(node)) return walkUpstream(firstUpstream(node), visited);
     const bundle = findInput(node, "素材包");
     if (bundle) return walkUpstream(originNode(node, "素材包"), visited);
     return node;
@@ -777,7 +822,7 @@ app.registerExtension({
     },
     async beforeRegisterNodeDef(nodeTypeClass, nodeData) {
         const type = String(nodeData?.name || "");
-        if (![NODE_TYPE, "H3MediaUnpack", "H3PromptBuilder", "LoadImage"].includes(type)) return;
+        if (![NODE_TYPE, "H3MediaUnpack", "H3PromptBuilder", "LoadImage", "SetNode", "GetNode"].includes(type)) return;
         wrapRefresh(nodeTypeClass.prototype, "onConnectionsChange", 0);
         wrapRefresh(nodeTypeClass.prototype, "onConfigure", 50);
         if (type === NODE_TYPE) {
