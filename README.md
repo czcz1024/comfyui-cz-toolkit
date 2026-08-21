@@ -48,7 +48,7 @@ PyPI 版本滞后，Qwen3 等新模型需要 JamePeng 的构建版：
 
 | 节点 | 类名 | 说明 |
 |---|---|---|
-| **H3 参数包装** | `H3PromptBuilder` | 组装 H3 系统提示词 + 用户消息（模式/时长/比例/版本），不碰模型 |
+| **H3 参数包装** | `H3PromptBuilder` | 组装 H3 系统提示词 + 用户消息（模式/时长/宽高/版本），不碰模型 |
 | **H3 参考素材** | `H3ReferenceMedia` | Autogrow 打包首尾帧 + Ref2VA 素材（`ref_image_0` …） |
 | **H3 素材解包** | `H3MediaUnpack` | 拆回官方/T8 对应口；首尾帧固定，参考类口按实际接入动态显示 |
 | **H3 提示词框（可@）** | `H3PromptBox` | `@` 插入 `<Picture N>` 等标签，带素材缩略图 |

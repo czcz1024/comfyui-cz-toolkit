@@ -1,4 +1,4 @@
-"""H3 参数包装节点：把 H3 专用参数（模式、时长、比例、提示词版本等）
+"""H3 参数包装节点：把 H3 专用参数（模式、时长、宽高、提示词版本等）
 组装成系统提示词 + 用户消息两个 STRING，连接到通用 LLMGenerator。
 
 不做推理，不接触模型。
@@ -53,14 +53,13 @@ _CORE_LITE, _TASKS_LITE = _split_system_prompt(SYSTEM_LITE)
 
 H3_LORA_TEMPLATE = _read_prompt_file(os.path.join("h3", "official", "h3_lora_template.txt")).strip()
 
-ASPECT_OPTIONS = ["16:9", "9:16", "1:1", "4:3", "3:4"]
 MODE_OPTIONS = ["自动识别", "T2VA", "I2VA", "FL2VA", "L2VA", "Ref2VA"]
 VERSION_OPTIONS = ["精简（小模型推荐）", "完整（云端契约）", "官方LoRA模板(T2VA)"]
 LORA_VERSION = "官方LoRA模板(T2VA)"
 
 
-def _build_system(version, mode, extra_system=""):
-    """组合系统提示词：core（按版本）+ 当前模式 Task 段 + 外部传入的额外提示词。"""
+def _default_system(version, mode):
+    """按版本 + 模式生成默认系统提示词（不含额外提示词）。"""
     if version == LORA_VERSION:
         return H3_LORA_TEMPLATE or SYSTEM_LITE or SYSTEM_FULL
 
@@ -73,9 +72,31 @@ def _build_system(version, mode, extra_system=""):
     task = tasks.get(mode, "")
     if task:
         parts.append(task)
-    if extra_system and extra_system.strip():
-        parts.append(extra_system.strip())
-    return "\n\n".join(parts) if parts else SYSTEM_LITE or SYSTEM_FULL
+    return "\n\n".join(parts) if parts else (SYSTEM_LITE or SYSTEM_FULL)
+
+
+def _compose_system(version, mode, extra_system="", override=False):
+    """组合最终系统提示词。
+
+    override=True 且额外提示词非空 → 完全使用额外提示词；
+    否则 → 默认系统提示词，非空额外提示词追加在后。
+    """
+    extra = (extra_system or "").strip()
+    if override and extra:
+        return extra
+    base = _default_system(version, mode)
+    if extra:
+        return f"{base}\n\n{extra}" if base else extra
+    return base
+
+
+def _format_resolution(width, height):
+    """宽或高为 0 表示不指定，返回 None。"""
+    w = int(width or 0)
+    h = int(height or 0)
+    if w <= 0 or h <= 0:
+        return None
+    return f"{w}x{h}"
 
 
 class H3PromptBuilder:
@@ -89,7 +110,9 @@ class H3PromptBuilder:
                 "提示词版本": (VERSION_OPTIONS, {"default": "精简（小模型推荐）"}),
                 "H3模式": (MODE_OPTIONS, {"default": "自动识别"}),
                 "目标时长": ("INT", {"default": 5, "min": 1, "max": 120, "step": 1}),
-                "视频比例": (ASPECT_OPTIONS, {"default": "16:9"}),
+                "宽度": ("INT", {"default": 1280, "min": 0, "max": 8192, "step": 8}),
+                "高度": ("INT", {"default": 720, "min": 0, "max": 8192, "step": 8}),
+                "覆盖系统提示词": ("BOOLEAN", {"default": False}),
             },
             "optional": {
                 "额外系统提示词": ("STRING", {"forceInput": True}),
@@ -107,11 +130,14 @@ class H3PromptBuilder:
         提示词版本 = kwargs["提示词版本"]
         H3模式 = kwargs["H3模式"]
         目标时长 = kwargs["目标时长"]
-        视频比例 = kwargs["视频比例"]
+        width = kwargs.get("宽度", 0)
+        height = kwargs.get("高度", 0)
+        override_system = bool(kwargs.get("覆盖系统提示词", False))
         extra_system = kwargs.get("额外系统提示词", "")
         参考素材 = kwargs.get("参考素材")
 
         is_lora_mode = 提示词版本 == LORA_VERSION
+        resolution = _format_resolution(width, height)
 
         # 模式解析
         mode = H3模式
@@ -123,26 +149,26 @@ class H3PromptBuilder:
             else:
                 mode = "T2VA"
 
-        # 系统提示词组装
-        if is_lora_mode:
-            system_content = H3_LORA_TEMPLATE or SYSTEM_LITE or SYSTEM_FULL
-        else:
-            system_content = _build_system(提示词版本, mode, extra_system)
+        system_content = _compose_system(提示词版本, mode, extra_system, override_system)
 
         # 用户消息组装
         if is_lora_mode:
-            user_text = (
-                f"resolution: {视频比例}\n"
-                f"duration: {目标时长}s\n"
-                f"original_prompt: {原始视频需求.strip()}"
-            )
+            lines = []
+            if resolution:
+                lines.append(f"resolution: {resolution}")
+            lines.append(f"duration: {目标时长}s")
+            lines.append(f"original_prompt: {原始视频需求.strip()}")
+            user_text = "\n".join(lines)
         else:
-            user_text = (
-                f"【任务模式】{mode}\n"
-                f"【目标时长】{目标时长} 秒\n"
-                f"【视频比例】{视频比例}\n\n"
-                f"【视频需求】\n{原始视频需求}\n"
-            )
+            lines = [
+                f"【任务模式】{mode}",
+                f"【目标时长】{目标时长} 秒",
+            ]
+            if resolution:
+                lines.append(f"【分辨率】{resolution}")
+            lines.append("")
+            lines.append(f"【视频需求】\n{原始视频需求}")
+            user_text = "\n".join(lines) + "\n"
             if 参考素材 and 参考素材.get("reference_text"):
                 user_text += "\n【参考素材】\n" + 参考素材["reference_text"] + "\n"
 

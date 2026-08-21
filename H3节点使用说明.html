@@ -163,7 +163,7 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
       <text x="315" y="200" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#185FA5">输出：模型句柄</text>
       <rect x="440" y="40" width="200" height="276" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
       <text x="540" y="58" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="14" font-weight="500" fill="#085041">H3 参数包装 → LLM 生成</text>
-      <text x="540" y="78" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">Builder：版本/模式/时长/比例</text>
+      <text x="540" y="78" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">Builder：版本/模式/时长/宽高</text>
       <text x="540" y="92" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">→ 系统提示词 + 用户消息</text>
       <text x="540" y="106" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">Generator：温度·top_p·种子</text>
       <text x="540" y="120" text-anchor="middle" dominant-baseline="central" font-family="var(--font-sans)" font-size="12" fill="#0F6E56">可选多模态素材（mmproj）</text>
@@ -329,7 +329,7 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
     <h3>④ H3 参数包装 —— 组装系统提示词与用户消息</h3>
     <span class="num">H3PromptBuilder</span>
   </div>
-  <p>不做推理。按 H3 模式、时长、比例、提示词版本，把「原始视频需求」和可选素材包组装成 <code>系统提示词</code> + <code>用户消息</code>，连到「LLM 通用生成」。</p>
+  <p>不做推理。按 H3 模式、时长、宽高、提示词版本，把「原始视频需求」和可选素材包组装成 <code>系统提示词</code> + <code>用户消息</code>，连到「LLM 通用生成」。</p>
   <table class="param">
     <thead><tr><th>参数</th><th>默认</th><th>范围/选项</th><th>控制什么 · 效果</th></tr></thead>
     <tbody>
@@ -337,8 +337,9 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
       <tr><td><code>提示词版本</code></td><td>精简（小模型推荐）</td><td>精简 / 完整（云端契约）/ <b>官方LoRA模板(T2VA)</b></td><td>系统提示词来源；挂 H3 Rewriter LoRA 时选第三个。</td></tr>
       <tr><td><code>H3模式</code></td><td>自动识别</td><td>自动识别 / T2VA / I2VA / FL2VA / L2VA / Ref2VA</td><td>写哪种任务的提示词；自动识别=按素材包判定；官方LoRA模板下锁定 T2VA。</td></tr>
       <tr><td><code>目标时长</code></td><td>5</td><td>1 ~ 120 秒</td><td>视频目标长度。</td></tr>
-      <tr><td><code>视频比例</code></td><td>16:9</td><td>16:9 / 9:16 / 1:1 / 4:3 / 3:4</td><td>画幅。</td></tr>
-      <tr><td><code>额外系统提示词</code>（可选）</td><td>不接</td><td>STRING</td><td>可接「系统提示词选择器」或手写，追加到自动组装的系统提示词。</td></tr>
+      <tr><td><code>宽度</code> / <code>高度</code></td><td>1280 / 720</td><td>0–8192（步进 8）</td><td>写入用户消息的分辨率提示；任一侧为 0 则不写分辨率。与生视频节点宽高保持一致即可。</td></tr>
+      <tr><td><code>覆盖系统提示词</code></td><td>关</td><td>开 / 关</td><td>关=额外提示词<strong>追加</strong>到默认系统提示词；开=用额外提示词<strong>完全覆盖</strong>默认（未接额外时仍用默认）。官方LoRA模板同样适用。</td></tr>
+      <tr><td><code>额外系统提示词</code>（可选）</td><td>不接</td><td>STRING</td><td>可接「系统提示词选择器」或手写；配合「覆盖系统提示词」决定追加或替换。</td></tr>
       <tr><td><code>参考素材</code>（可选）</td><td>不接</td><td>来自「参考素材」</td><td>用于模式识别与用户消息中的参考描述；透传素材包给下游。</td></tr>
     </tbody>
   </table>
@@ -420,7 +421,7 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; padding: 24px
       <span class="route">模型加载器 → 参数包装 → LLM 生成</span>
       <ul>
         <li>任意 instruct GGUF，mmproj=None</li>
-        <li>Builder 用精简版；可选 PromptSelector 追加额外系统提示词</li>
+        <li>Builder 用精简版；可选 PromptSelector 接额外系统提示词（追加或覆盖由开关控制）</li>
       </ul>
     </div>
     <div class="q">
