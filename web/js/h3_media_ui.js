@@ -10,9 +10,9 @@
  */
 import { app } from "../../../scripts/app.js";
 
-const PACK_NODE = "H3ReferenceMedia";
-const UNPACK_NODE = "H3MediaUnpack";
-const PROMPT_NODE = "H3PromptBox";
+const PACK_NODE = "CzH3ReferenceMedia";
+const UNPACK_NODE = "CzH3MediaUnpack";
+const PROMPT_NODE = "CzH3PromptBox";
 const MANIFEST_WIDGET = "素材清单";
 
 const FIXED_UNPACK_OUTPUTS = ["first_frame", "last_frame"];

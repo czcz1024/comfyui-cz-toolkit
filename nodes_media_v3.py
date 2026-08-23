@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from . import media_util as mdu
+from .constants import node_id
 
 try:
     from comfy_api.latest import ComfyExtension, io
@@ -92,7 +93,7 @@ if V3_AVAILABLE:
         @classmethod
         def define_schema(cls):
             return io.Schema(
-                node_id="H3ReferenceMedia",
+                node_id=node_id("H3ReferenceMedia"),
                 display_name="H3 参考素材",
                 description="打包官方首尾帧 + Ref2VA 素材；Autogrow 槽位与 T8/官方 Ref2VA 一致。",
                 category=CATEGORY,
@@ -140,7 +141,7 @@ if V3_AVAILABLE:
         @classmethod
         def define_schema(cls):
             return io.Schema(
-                node_id="H3MediaUnpack",
+                node_id=node_id("H3MediaUnpack"),
                 display_name="H3 素材解包",
                 description="按素材包内容解包；ref_image_N 与 T8/官方 Ref2VA 命名一致。",
                 category=CATEGORY,

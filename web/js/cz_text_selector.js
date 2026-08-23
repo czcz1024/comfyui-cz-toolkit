@@ -6,7 +6,7 @@ app.registerExtension({
   name: "CZToolkit.TextSelector",
 
   async beforeRegisterNodeDef(nodeType, nodeData, _app) {
-    if (nodeData.name !== "TextSelector") return;
+    if (nodeData.name !== "CzTextSelector") return;
 
     const onNodeCreated = nodeType.prototype.onNodeCreated;
     nodeType.prototype.onNodeCreated = function () {

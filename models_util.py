@@ -15,6 +15,7 @@ import inspect
 import struct
 import re
 import sys
+import datetime
 import folder_paths
 import comfy.model_management as mm
 
@@ -169,28 +170,17 @@ _QWEN_KV_CLEAR_HANDLERS = {
 }
 
 
-def _register_llm_folder_paths(extensions):
-    extra_paths = []
-    for key, (paths, exts) in list(folder_paths.folder_names_and_paths.items()):
-        if str(key).lower() != "llm":
-            continue
-        extra_paths.extend(paths)
-        folder_paths.folder_names_and_paths[key] = (paths, set(exts) | set(extensions))
-    if "LLM" not in folder_paths.folder_names_and_paths:
-        folder_paths.folder_names_and_paths["LLM"] = ([], set(extensions))
-    for p in extra_paths:
-        folder_paths.add_model_folder_path("LLM", p, is_default=True)
-    md = folder_paths.models_dir
-    if os.path.isdir(md):
-        for name in os.listdir(md):
-            if name.lower() == "llm":
-                folder_paths.add_model_folder_path("LLM", os.path.join(md, name))
-    llm_dir = os.path.join(md, "LLM")
+def _ensure_cz_llm_folder():
+    """只注册 CZ 默认 LLM 目录，不覆盖或合并其它插件注册的 llm/LLM 路径。"""
+    llm_dir = os.path.join(folder_paths.models_dir, "LLM")
     os.makedirs(llm_dir, exist_ok=True)
-    folder_paths.add_model_folder_path("LLM", llm_dir)
+    folder_paths.add_model_folder_path("LLM", llm_dir, is_default=True)
+    if "LLM" in folder_paths.folder_names_and_paths:
+        paths, exts = folder_paths.folder_names_and_paths["LLM"]
+        folder_paths.folder_names_and_paths["LLM"] = (paths, exts | {".gguf"})
 
 
-_register_llm_folder_paths({".gguf"})
+_ensure_cz_llm_folder()
 
 
 def _llm_full_path(filename):
@@ -427,6 +417,37 @@ def _validate_multimodal_pair(model_path, model_file, handler_name, mmproj_path,
 
 
 # ── Chat handler 构造 ─────────────────────────────────────────────────────────
+def _jinja_raise_exception(message):
+    raise ValueError(message)
+
+
+def _jinja_strftime_now(format_string="%Y-%m-%d %H:%M:%S"):
+    return datetime.datetime.now().strftime(format_string)
+
+
+def _patch_chat_handler_template_globals(chat_handler):
+    if chat_handler is None:
+        return
+    extra = getattr(chat_handler, "extra_template_arguments", None)
+    if not isinstance(extra, dict):
+        return
+    extra.setdefault("raise_exception", _jinja_raise_exception)
+    extra.setdefault("strftime_now", _jinja_strftime_now)
+
+
+def _apply_chat_template_override(chat_handler, chat_template_override):
+    if not chat_template_override or not hasattr(chat_handler, "chat_template"):
+        return
+    try:
+        from jinja2.sandbox import ImmutableSandboxedEnvironment
+    except ImportError:
+        return
+    chat_handler.chat_template = ImmutableSandboxedEnvironment(
+        trim_blocks=True,
+        lstrip_blocks=True,
+    ).from_string(chat_template_override)
+
+
 def _create_multimodal_handler(handler_class, mmproj_path, **kwargs):
     try:
         return handler_class(mmproj_path=mmproj_path, **kwargs)
@@ -466,27 +487,37 @@ def _create_qwen38_mm_handler(
 ):
     if Qwen35ChatHandler is None:
         raise RuntimeError("Qwen3.8 需要 Qwen35ChatHandler，请升级 llama-cpp-python。")
-    shared = {
-        "verbose": False,
-        "extra_template_arguments": {"reasoning_effort": reasoning_effort},
-        "chat_template_override": chat_template_override,
-    }
+    mtmd_kwargs = {"verbose": False}
     if _MTMD:
-        shared.update(
-            image_min_tokens=image_min_tokens,
-            image_max_tokens=image_max_tokens,
-        )
+        mtmd_kwargs["image_min_tokens"] = image_min_tokens
+        mtmd_kwargs["image_max_tokens"] = image_max_tokens
     candidates = [
-        {"enable_thinking": enable_thinking, "preserve_thinking": preserve_thinking,
-         "add_vision_id": True, **shared},
-        {"enable_thinking": enable_thinking, "preserve_thinking": preserve_thinking, **shared},
-        {"enable_thinking": enable_thinking, "add_vision_id": True, **shared},
-        {"enable_thinking": enable_thinking, **shared},
+        {
+            "enable_thinking": enable_thinking,
+            "preserve_thinking": preserve_thinking,
+            "add_vision_id": True,
+            **mtmd_kwargs,
+        },
+        {
+            "enable_thinking": enable_thinking,
+            "preserve_thinking": preserve_thinking,
+            **mtmd_kwargs,
+        },
+        {
+            "enable_thinking": enable_thinking,
+            "add_vision_id": True,
+            **mtmd_kwargs,
+        },
+        {"enable_thinking": enable_thinking, **mtmd_kwargs},
     ]
     last_error = None
     for kwargs in candidates:
         try:
-            return _create_multimodal_handler(Qwen35ChatHandler, mmproj_path, **kwargs)
+            handler = _create_multimodal_handler(Qwen35ChatHandler, mmproj_path, **kwargs)
+            handler.extra_template_arguments["reasoning_effort"] = reasoning_effort
+            _patch_chat_handler_template_globals(handler)
+            _apply_chat_template_override(handler, chat_template_override)
+            return handler
         except TypeError as error:
             last_error = error
     raise last_error or RuntimeError("创建 Qwen3.8 多模态处理器失败。")
@@ -780,6 +811,7 @@ def load_model(handle):
     unload()
 
     chat_handler = build_chat_handler(handler_name, mmproj_path, think_mode, img_min, img_max)
+    _patch_chat_handler_template_globals(chat_handler)
     kwargs = {
         "model_path": model_path,
         "chat_handler": chat_handler,

@@ -5,7 +5,7 @@ app.registerExtension({
   name: "CZToolkit.PromptSelector",
 
   async beforeRegisterNodeDef(nodeType, nodeData, _app) {
-    if (nodeData.name !== "PromptSelector") return;
+    if (nodeData.name !== "CzPromptSelector") return;
 
     const onNodeCreated = nodeType.prototype.onNodeCreated;
     nodeType.prototype.onNodeCreated = function () {

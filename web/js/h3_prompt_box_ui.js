@@ -1,8 +1,8 @@
 import { app } from "../../../scripts/app.js";
 import { api } from "../../../scripts/api.js";
 
-const NODE_TYPE = "H3PromptBox";
-const PACK_NODE = "H3ReferenceMedia";
+const NODE_TYPE = "CzH3PromptBox";
+const PACK_NODE = "CzH3ReferenceMedia";
 const PROMPT_WIDGET = "H3提示词";
 const MANIFEST_WIDGET = "素材清单";
 const TOKEN_PATTERN = /<(?:Picture|Video|Audio)\s+\d+>/g;
@@ -822,7 +822,7 @@ app.registerExtension({
     },
     async beforeRegisterNodeDef(nodeTypeClass, nodeData) {
         const type = String(nodeData?.name || "");
-        if (![NODE_TYPE, "H3MediaUnpack", "H3PromptBuilder", "LoadImage", "SetNode", "GetNode"].includes(type)) return;
+        if (![NODE_TYPE, "CzH3MediaUnpack", "CzH3PromptBuilder", "LoadImage", "SetNode", "GetNode"].includes(type)) return;
         wrapRefresh(nodeTypeClass.prototype, "onConnectionsChange", 0);
         wrapRefresh(nodeTypeClass.prototype, "onConfigure", 50);
         if (type === NODE_TYPE) {

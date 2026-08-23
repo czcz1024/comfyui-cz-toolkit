@@ -3,7 +3,7 @@ import { app } from "../../../scripts/app.js";
 app.registerExtension({
     name: "CZToolkit.ReciveAndEdit",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeType.comfyClass == "ReciveAndEdit") {
+        if (nodeType.comfyClass == "CzReciveAndEdit") {
             const onExecuted = nodeType.prototype.onExecuted;
             nodeType.prototype.onExecuted = function (message) {
                 var txt = message.text.join("");
