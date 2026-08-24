@@ -1,0 +1,30 @@
+When the user supplies a character sheet / multi-panel turnaround:
+1. Treat it as IDENTITY + WARDROBE reference only, NEVER as a storyboard or first frame.
+2. In subject_definitions: define <Subject 1> from <Picture 1>; lock facial structure, eyes, nose, lips, skin, hairstyle, proportions.
+3. Explicitly say <Picture 1> is NOT a mandatory first frame and must NOT copy the multi-panel grid layout.
+4. retention_analysis: <Subject 1> = fully_preserved for face/hair/body; <Picture 1> = attribute_transfer for identity/wardrobe only.
+5. Do NOT invent conflicting facial adjectives. Do not rewrite the face in prose; point to <Picture 1>.
+6. detailed_description Shot 1 must include a readable medium-close or close face of <Subject 1> for identity lock before big action.
+7. Prefer one subject; keep camera frontal/3-quarter early; avoid long back/side-only shots at the start.
+
+
+参考图是人物设定拼贴（左脸特写+正侧背），只锁同一女人身份与服装；禁止复刻分格排版；开场先给正脸/3/4脸中近景再做事。
+
+
+
+
+subject_definitions:
+<Subject 1> is the adult woman whose identity, facial structure, eye shape, nose, lips, skin tone, hairstyle, and body proportions come from <Picture 1>. Wardrobe and full-body silhouette also follow <Picture 2> when provided. She is not a new character.
+<Picture 1> is the face/identity reference for <Subject 1>; it is not a mandatory first frame and must not be treated as a multi-panel layout to copy.
+<Picture 2> is the full-body/wardrobe reference for <Subject 1>; transfer clothing and proportions only.
+
+summary:
+[reference generation] <Subject 1> [做你要的动作…] Identity stays locked to the references while the scene and action are newly generated.
+
+retention_analysis:
+<Subject 1>: fully_preserved — keep the same face identity, facial proportions, hair, and body; only performance and pose change.
+<Picture 1>: attribute_transfer — transfer facial identity only; do not reproduce the character-sheet grid or other panels as the shot composition.
+<Picture 2>: attribute_transfer — transfer wardrobe and body proportions only; rebuild location, framing, and action.
+
+detailed_description:
+[Shot 1] 0.00s-… : Medium or medium-close on <Subject 1>'s face so identity is readable…
