@@ -465,7 +465,8 @@ function retainLineOf(r, refs) {
     (r.kind === "audio"
       ? AUDIO_ROLE_DEFAULT_RETAIN[r.audioRole] || "reference"
       : "fully_preserved");
-  const note = (r.retainEn || r.retainZh || "the defined characteristics are retained").trim();
+  const noteRaw = (r.retainEn || r.retainZh || "the defined characteristics are retained").trim();
+  const note = noteRaw.replace(/\.*$/, "") + ".";
   const appear = (r.appear || "").trim();
   let position = "";
   if (r.kind === "subject") {
@@ -485,7 +486,7 @@ function retainLineOf(r, refs) {
 }
 
 function sourceClauseFromIds(r, refs) {
-  // 来源引用：<Picture N> / <Video N> 多选 → "in <Picture 1> and <Video 1>"
+  // 来源引用（旧版兼容）：<Picture N> / <Video N> 多选 → "in <Picture 1> and <Video 1>"
   const ids = (r.sourceFromIds || []).filter(Boolean);
   const labels = ids
     .map((id) => refs.find((x) => x.id === id))
@@ -494,6 +495,21 @@ function sourceClauseFromIds(r, refs) {
   if (!labels.length) return "";
   if (labels.length === 1) return `in ${labels[0]}`;
   return `in ${labels.slice(0, -1).join(" and ")} and ${labels[labels.length - 1]}`;
+}
+
+function sourceClauseFromParts(r, refs) {
+  // subject 多素材引用（官方 §2.1）："whose appearance comes from <Picture 1> and whose clothes come from <Picture 2>"
+  // desc 留空时退化为 "in <Picture N>"
+  const parts = (r.parts || [])
+    .map((p) => ({ src: refs.find((x) => x.id === p.srcId), desc: String(p.desc || "").trim() }))
+    .filter((p) => p.src);
+  if (!parts.length) return "";
+  const clauses = parts.map((p) => {
+    const label = labelOf(p.src, refs);
+    return p.desc ? `whose ${p.desc} comes from ${label}` : `in ${label}`;
+  });
+  if (clauses.length === 1) return clauses[0];
+  return clauses.slice(0, -1).join(" and ") + " and " + clauses[clauses.length - 1];
 }
 
 function buildRefDefinition(r, refs) {
@@ -505,9 +521,14 @@ function buildRefDefinition(r, refs) {
     const type = SUBJECT_TYPES.find((t) => t.id === r.subjectType) || SUBJECT_TYPES[0];
     const who = pick(r.whoEn, r.whoZh) || `a ${type.en}`;
     const look = pick(r.lookEn, r.lookZh);
-    const source = sourceClauseFromIds(r, all);
     let body = who;
-    if (source) body += ` ${source}`;
+    // parts（多素材引用）优先，旧版 sourceFromIds 回退
+    const partClause = sourceClauseFromParts(r, all);
+    if (partClause) body += ` ${partClause}`;
+    else {
+      const source = sourceClauseFromIds(r, all);
+      if (source) body += ` ${source}`;
+    }
     if (look) body += `, with ${look}`;
     return `${label} is ${body}.`.replace(/\s+/g, " ").replace(/\s+\./, ".");
   }
@@ -602,7 +623,7 @@ function validate(state) {
   if (state.styleZh === STYLE_CUSTOM_ZH) {
     const custom = (state.styleCustomEn || state.styleCustomZh || "").trim();
     if (!custom) errors.push({ field: "styleCustom", msg: "已选「自定义…」风格，请填写自定义风格描述" });
-    if (hasCJK(state.styleCustomEn || "")) warnings.push({ field: "styleCustomEn", msg: "自定义风格仍含中文，H3 官方要求英文" });
+    if (hasCJK(state.styleCustomEn || "")) warnings.push({ field: "styleCustomEn", msg: "「自定义风格」填了中文：最终提示词会含中文，H3 官方要求英文，可自行翻译" });
   }
 
   const shots = state.shots || [];
@@ -623,9 +644,9 @@ function validate(state) {
   });
 
   shots.forEach((s, i) => {
-    if (hasCJK(s.sceneEn || "")) warnings.push({ field: `shot-${i}-sceneEn`, msg: `镜头 ${i + 1}「场景」仍含中文` });
-    if (hasCJK(s.actionEn || "")) warnings.push({ field: `shot-${i}-actionEn`, msg: `镜头 ${i + 1}「动作」仍含中文` });
-    if (hasCJK(s.diegeticSoundEn || "")) warnings.push({ field: `shot-${i}-dsoundEn`, msg: `镜头 ${i + 1}「画内声音」仍含中文` });
+    if (hasCJK(s.sceneEn || "")) warnings.push({ field: `shot-${i}-sceneEn`, msg: `镜头 ${i + 1}「场景」填了中文：最终提示词会含中文，可自行翻译` });
+    if (hasCJK(s.actionEn || "")) warnings.push({ field: `shot-${i}-actionEn`, msg: `镜头 ${i + 1}「动作」填了中文：最终提示词会含中文，可自行翻译` });
+    if (hasCJK(s.diegeticSoundEn || "")) warnings.push({ field: `shot-${i}-dsoundEn`, msg: `镜头 ${i + 1}「画内声音」填了中文：最终提示词会含中文，可自行翻译` });
     (s.dialogs || []).forEach((d, di) => {
       if (String(d.text || "").trim() && !d.lang) {
         errors.push({ field: `shot-${i}-dialog-${di}`, msg: `镜头 ${i + 1} 对白 ${di + 1} 需要选择语言` });
@@ -633,9 +654,9 @@ function validate(state) {
     });
   });
 
-  if (hasCJK(state.openingEn || "")) warnings.push({ field: "openingEn", msg: "「开场构图」仍含中文" });
-  if (hasCJK(state.soundEn || "")) warnings.push({ field: "soundEn", msg: "「环境声补充」仍含中文" });
-  if (hasCJK(state.musicEn || "")) warnings.push({ field: "musicEn", msg: "「配乐补充」仍含中文" });
+  if (hasCJK(state.openingEn || "")) warnings.push({ field: "openingEn", msg: "「开场构图」填了中文：最终提示词会含中文，可自行翻译" });
+  if (hasCJK(state.soundEn || "")) warnings.push({ field: "soundEn", msg: "「环境声补充」填了中文：最终提示词会含中文，可自行翻译" });
+  if (hasCJK(state.musicEn || "")) warnings.push({ field: "musicEn", msg: "「配乐补充」填了中文：最终提示词会含中文，可自行翻译" });
 
   /* ---- Ref2VA 校验（对齐官方硬约束） ---- */
   if (state.mode === "ref2va") {
@@ -655,11 +676,11 @@ function validate(state) {
     if (nAud > 0 && !hasVisual) errors.push({ field: "refs", msg: "音频不能是唯一媒体（至少需要一张图/视频/主体）" });
 
     refs.forEach((r, i) => {
-      if (hasCJK(r.whoEn || "")) warnings.push({ field: `ref-${i}-whoEn`, msg: `素材 ${i + 1}「是谁」仍含中文` });
-      if (hasCJK(r.lookEn || "")) warnings.push({ field: `ref-${i}-lookEn`, msg: `素材 ${i + 1}「外观」仍含中文` });
-      if (hasCJK(r.shownEn || "")) warnings.push({ field: `ref-${i}-shownEn`, msg: `素材 ${i + 1}「画面内容」仍含中文` });
-      if (hasCJK(r.noteEn || "")) warnings.push({ field: `ref-${i}-noteEn`, msg: `素材 ${i + 1}「说明」仍含中文` });
-      if (hasCJK(r.retainEn || "")) warnings.push({ field: `ref-${i}-retainEn`, msg: `素材 ${i + 1}「保留说明」仍含中文` });
+      if (hasCJK(r.whoEn || "")) warnings.push({ field: `ref-${i}-whoEn`, msg: `素材 ${i + 1}「是谁」填了中文：最终提示词会含中文，可自行翻译` });
+      if (hasCJK(r.lookEn || "")) warnings.push({ field: `ref-${i}-lookEn`, msg: `素材 ${i + 1}「外观」填了中文：最终提示词会含中文，可自行翻译` });
+      if (hasCJK(r.shownEn || "")) warnings.push({ field: `ref-${i}-shownEn`, msg: `素材 ${i + 1}「画面内容」填了中文：最终提示词会含中文，可自行翻译` });
+      if (hasCJK(r.noteEn || "")) warnings.push({ field: `ref-${i}-noteEn`, msg: `素材 ${i + 1}「说明」填了中文：最终提示词会含中文，可自行翻译` });
+      if (hasCJK(r.retainEn || "")) warnings.push({ field: `ref-${i}-retainEn`, msg: `素材 ${i + 1}「保留说明」填了中文：最终提示词会含中文，可自行翻译` });
       if (hasCJK(r.appear || "")) warnings.push({ field: `ref-${i}-appear`, msg: `素材 ${i + 1}「出现位置」应写英文镜头标签` });
       if (r.kind === "subject" && r.appear && !/\[\s*Shot\b/i.test(r.appear)) {
         warnings.push({ field: `ref-${i}-appear`, msg: `素材 ${i + 1}「出现位置」建议形如 "[Shot 1], [Shot 3]"` });
@@ -680,7 +701,7 @@ function validate(state) {
       });
     });
 
-    if (hasCJK(state.summaryEn || "")) warnings.push({ field: "summaryEn", msg: "「summary 概括」仍含中文（会自动加 [任务类型] 前缀）" });
+    if (hasCJK(state.summaryEn || "")) warnings.push({ field: "summaryEn", msg: "「summary 概括」填了中文：最终提示词会含中文，可自行翻译（自动加 [任务类型] 前缀）" });
   }
 
   return { errors, warnings };
@@ -730,17 +751,18 @@ function emptyDialog() {
 }
 
 let __refSeq = 0;
-function emptyRef() {
+function emptyRef(kind = "subject") {
   __refSeq += 1;
   return {
     id: `ref${__refSeq}_${Date.now().toString(36)}`,
-    kind: "subject",
+    kind,
     subjectType: "person",
     whoZh: "",
     whoEn: "",
     lookZh: "",
     lookEn: "",
-    sourceFromIds: [], // 引用已有 Picture/Video 素材 id
+    sourceFromIds: [], // 旧版来源引用（兼容：无 parts 时回退拼 "in <Picture N>"）
+    parts: [], // subject 多素材引用片段：[{ srcId, desc }]，desc 填素材提供什么
     pictureRole: "first_frame",
     shotMap: "[Shot 1]",
     shownZh: "",
@@ -801,11 +823,50 @@ function mergeState(saved) {
   if (!Array.isArray(merged.soundChipEns)) merged.soundChipEns = [];
   if (!Array.isArray(merged.soundChipZhs)) merged.soundChipZhs = [];
   if (!Array.isArray(merged.refs)) merged.refs = [];
-  merged.refs = merged.refs.map((r) => Object.assign(emptyRef(), r));
+  merged.refs = merged.refs.map((r) => Object.assign(emptyRef(r.kind || "subject"), r));
   merged.refs.forEach((r) => {
     if (!Array.isArray(r.sourceFromIds)) r.sourceFromIds = [];
+    // 旧版 sourceFromIds → parts 迁移：parts 缺失或为空但有旧引用时，迁成 desc 留空的片段（拼装走 "in <Picture N>" 兼容）
+    if (!Array.isArray(r.parts) || (!r.parts.length && r.sourceFromIds.length)) {
+      r.parts = r.sourceFromIds.map((id) => ({ srcId: id, desc: "" }));
+    }
+    r.parts = r.parts
+      .filter((p) => p && typeof p === "object")
+      .map((p) => ({ srcId: p.srcId || "", desc: p.desc || "" }));
   });
   if (!Array.isArray(merged.taskTypes)) merged.taskTypes = [];
+
+  /* 旧双框数据迁移（单框模式）：en 为空时用旧 zh 备注兜底，然后丢弃 zh */
+  const migrate = (obj, pairs) =>
+    pairs.forEach(([en, zh]) => {
+      if (!String(obj[en] || "").trim() && String(obj[zh] || "").trim()) obj[en] = obj[zh];
+      obj[zh] = "";
+    });
+  migrate(merged, [
+    ["styleCustomEn", "styleCustomZh"],
+    ["openingEn", "openingZh"],
+    ["soundEn", "soundZh"],
+    ["musicEn", "musicZh"],
+    ["summaryEn", "summaryZh"],
+  ]);
+  merged.shots.forEach((s) =>
+    migrate(s, [
+      ["sceneEn", "sceneZh"],
+      ["actionEn", "actionZh"],
+      ["diegeticSoundEn", "diegeticSoundZh"],
+      ["camTargetEn", "camTargetZh"],
+    ])
+  );
+  merged.shots.forEach((s) => (s.dialogs || []).forEach((d) => migrate(d, [["whoEn", "whoZh"]])));
+  merged.refs.forEach((r) =>
+    migrate(r, [
+      ["whoEn", "whoZh"],
+      ["lookEn", "lookZh"],
+      ["shownEn", "shownZh"],
+      ["noteEn", "noteZh"],
+      ["retainEn", "retainZh"],
+    ])
+  );
   return merged;
 }
 
@@ -813,12 +874,12 @@ let state = defaultState();
 
 /* ============================ 表单渲染 ============================ */
 
-function fieldHtml(label, enName, zhName, enValue, zhValue, enPlaceholder, zhPlaceholder, rows = 2) {
+// 单框字段：写什么语言就拼什么语言（中/英均可，原样进最终提示词）
+function fieldHtml(label, name, value, placeholder, rows = 2) {
   return `
     <div class="h3wz-field h3wz-col">
       <label>${esc(label)}</label>
-      <textarea class="h3wz-en" data-${enName} rows="${rows}" placeholder="${esc(enPlaceholder || "英文（进入输出）")}">${esc(enValue || "")}</textarea>
-      <input class="h3wz-zh" data-${zhName} value="${esc(zhValue || "")}" placeholder="中文备注（仅自己看，不进输出）" />
+      <textarea data-${name} rows="${rows}" placeholder="${esc(placeholder || "用中文或英文填写，内容会原样拼进提示词")}">${esc(value || "")}</textarea>
     </div>`;
 }
 
@@ -871,18 +932,17 @@ function shotCardHtml(s, i) {
           <select data-shot-speed="${i}">${optionsHtml(CAM_SPEED, s.camSpeedZh)}</select>
         </div>
         <div class="h3wz-field">
-          <label>运镜目标（EN）</label>
-          <input data-shot-camtarget-en="${i}" value="${esc(s.camTargetEn || "")}" placeholder="toward her face" />
-          <input class="h3wz-zh" data-shot-camtarget-zh="${i}" value="${esc(s.camTargetZh || "")}" placeholder="中文备注" />
+          <label>运镜目标（可选，镜头推向/拉向什么）</label>
+          <input data-shot-camtarget-en="${i}" value="${esc(s.camTargetEn || "")}" placeholder="如：toward her face（推向她的脸）" />
         </div>
       </div>
       <div class="h3wz-grid-2">
-        ${fieldHtml("画面 / 主体 / 环境", `shot-scene-en-${i}`, `shot-scene-zh-${i}`, s.sceneEn, s.sceneZh, "The woman sits by the rain-streaked window", "女子坐在雨窗边")}
-        ${fieldHtml("动作与反应", `shot-action-en-${i}`, `shot-action-zh-${i}`, s.actionEn, s.actionZh, "She looks up slowly toward the camera", "她缓缓抬眼看向镜头")}
-        ${fieldHtml("本镜画内声音（角色听得到）", `shot-dsound-en-${i}`, `shot-dsound-zh-${i}`, s.diegeticSoundEn, s.diegeticSoundZh, "Station noise and the train entering", "站台嘈杂与列车进站声")}
+        ${fieldHtml("画面 / 主体 / 环境", `shot-scene-en-${i}`, s.sceneEn, "这一镜的画面里有什么，如：女子坐在雨窗边")}
+        ${fieldHtml("动作与反应", `shot-action-en-${i}`, s.actionEn, "发生什么动作，如：她缓缓抬眼看向镜头")}
+        ${fieldHtml("本镜画内声音（角色听得到）", `shot-dsound-en-${i}`, s.diegeticSoundEn, "这一镜能听到的环境声/动作声，如：站台嘈杂与列车进站声")}
         <div class="h3wz-field">
-          <label>画面可见文字（原文，不翻译）</label>
-          <input data-shot-onscreen="${i}" value="${esc(s.onscreenText || "")}" placeholder="营业中" />
+          <label>画面可见文字（原文原样保留，不翻译）</label>
+          <input data-shot-onscreen="${i}" value="${esc(s.onscreenText || "")}" placeholder="如：营业中" />
         </div>
       </div>
       <div class="h3wz-dialogs" data-dialogs="${i}">${dialogs || '<div class="h3wz-hint">还没有对白。</div>'}</div>
@@ -927,9 +987,8 @@ function dialogHtml(si, d, di) {
       </div>
       </div>
       <div class="h3wz-field">
-        <label>说话人描述（EN，可选；空则用 The speaker）</label>
-        <input data-d-whoen="${si}-${di}" value="${esc(d.whoEn || "")}" placeholder="a young woman with a quiet voice" />
-        <input class="h3wz-zh" data-d-whozh="${si}-${di}" value="${esc(d.whoZh || "")}" placeholder="中文备注：嗓音轻柔的年轻女子" />
+        <label>说话人描述（可选，空则用 The speaker）</label>
+        <input data-d-whoen="${si}-${di}" value="${esc(d.whoEn || "")}" placeholder="如：a young woman with a quiet voice / 嗓音轻柔的年轻女子" />
       </div>
       <div class="h3wz-field">
         <label>台词原文（原语言保留，不翻译）</label>
@@ -947,21 +1006,42 @@ function renderShots(root) {
   if (list) list.innerHTML = (state.shots || []).map((s, i) => shotCardHtml(s, i)).join("");
 }
 
-/* ---- Ref2VA 素材卡片 ---- */
+/* ---- Ref2VA 素材/Subject 卡片 ---- */
 
-function refSourcesHtml(r) {
-  const sources = (state.refs || []).filter((x) => (x.kind === "picture" || x.kind === "video") && x.id !== r.id);
-  if (!sources.length) {
-    return `<span class="h3wz-hint" style="font-size:12px;color:#9aa3af;">（还没有 Picture/Video 素材可引用，先添加图/视频素材）</span>`;
+// subject 引用片段：@ 选素材 + 填它提供什么 → "whose face comes from <Picture 1>"
+function subjectPartsHtml(r, i) {
+  const materials = (state.refs || []).filter((x) => x.kind !== "subject" && x.id !== r.id);
+  if (!materials.length) {
+    return `<div class="h3wz-field">
+      <label>引用片段（@ 选素材，拼成 whose … comes from &lt;Picture N&gt;）</label>
+      <div class="h3wz-hint" style="font-size:12px;color:#9aa3af;">（还没有素材可引用，先在上方「引用元素」区添加图片/视频/音频）</div>
+    </div>`;
   }
-  return sources
-    .map((s) => {
-      const on = (r.sourceFromIds || []).includes(s.id);
-      return `<label class="h3wz-checks" style="display:inline-flex;gap:4px;margin-right:10px;font-size:12px;">
-        <input type="checkbox" data-ref-src="${r.id}|${s.id}" ${on ? "checked" : ""} /> ${labelOf(s, state.refs)} · ${esc(s.noteZh || s.shownZh || s.noteEn || s.shownEn || "来源")}
-      </label>`;
-    })
+  const brief = (m) => String(m.shownEn || m.noteEn || m.shownZh || m.noteZh || "").trim();
+  const rows = (r.parts || [])
+    .map(
+      (p, pi) => `
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">
+        <span style="color:#2b6cb0;font-weight:700;flex-shrink:0;">@</span>
+        <select data-ref-part-src="${i}|${pi}" style="flex:1;min-width:130px;">
+          <option value="">（选择素材…）</option>
+          ${materials
+            .map(
+              (m) =>
+                `<option value="${esc(m.id)}" ${m.id === p.srcId ? "selected" : ""}>${labelOf(m, state.refs)}${brief(m) ? ` · ${esc(brief(m))}` : ""}</option>`
+            )
+            .join("")}
+        </select>
+        <input data-ref-part-desc="${i}|${pi}" value="${esc(p.desc || "")}" placeholder="提供什么，如 face / 面部" style="flex:1.2;min-width:110px;" />
+        <button type="button" class="h3wz-btn h3wz-btn-del" data-del-part="${i}|${pi}" style="flex-shrink:0;">删</button>
+      </div>`
+    )
     .join("");
+  return `<div class="h3wz-field">
+    <label>引用片段（@ 选素材 + 填它提供什么，自动拼成 whose … comes from &lt;Picture N&gt;）</label>
+    ${rows || `<div class="h3wz-hint" style="font-size:12px;color:#9aa3af;">（还没有引用片段，点下面「+ 添加引用」）</div>`}
+    <button type="button" class="h3wz-btn h3wz-btn-add" data-add-part="${i}" style="margin-top:4px;">+ 添加引用（@ 素材）</button>
+  </div>`;
 }
 
 function refCardHtml(r, i) {
@@ -971,39 +1051,31 @@ function refCardHtml(r, i) {
     r.retain ||
     (isAudio ? AUDIO_ROLE_DEFAULT_RETAIN[r.audioRole] || "reference" : "fully_preserved");
   const retainLabel = retainList.find((x) => x.id === retainZh)?.zh || retainZh;
-  const field = (label, enAttr, zhAttr, enVal, zhVal, enPh, zhPh) => `
+  const field = (label, attr, value, placeholder) => `
     <div class="h3wz-field">
       <label>${esc(label)}</label>
-      <input data-${enAttr} value="${esc(enVal || "")}" placeholder="${esc(enPh || "英文（进入输出）")}" />
-      <input class="h3wz-zh" data-${zhAttr} value="${esc(zhVal || "")}" placeholder="中文备注" />
+      <input data-${attr} value="${esc(value || "")}" placeholder="${esc(placeholder || "用中文或英文填写")}" />
     </div>`;
   const kindZh = REF_KINDS.find((k) => k.id === r.kind)?.zh || "";
+  const headLabel = r.kind === "subject" ? "Subject 定义" : kindZh;
   return `
     <div class="h3wz-ref" data-ref="${i}" style="border:1px solid #d8dee6;border-radius:8px;padding:8px 10px;margin-bottom:8px;background:#fbfcfe;">
       <div class="h3wz-ref-head" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-        <span style="font-weight:700;color:#2d3748;font-size:13px;">${labelOf(r, state.refs)} · ${kindZh}</span>
+        <span style="font-weight:700;color:#2d3748;font-size:13px;">${labelOf(r, state.refs)} · ${headLabel}</span>
         <button type="button" class="h3wz-btn h3wz-btn-del" data-del-ref="${i}">删除</button>
-      </div>
-      <div class="h3wz-grid-2">
-        <div class="h3wz-field">
-          <label>素材类型（切换会重建下方字段）</label>
-          <select data-ref-kind="${i}">${REF_KINDS.map((k) => `<option value="${k.id}" ${k.id === r.kind ? "selected" : ""}>${k.tag} · ${k.zh}</option>`).join("")}</select>
-        </div>
-        ${r.kind === "subject" ? `
-        <div class="h3wz-field">
-          <label>主体类别</label>
-          <select data-ref-subjtype="${i}">${SUBJECT_TYPES.map((t) => `<option value="${t.id}" ${t.id === r.subjectType ? "selected" : ""}>${t.zh}</option>`).join("")}</select>
-        </div>` : ""}
       </div>
       ${r.kind === "subject" ? `
       <div class="h3wz-grid-2">
-        ${field("是谁（EN）", `ref-whoen-${i}`, `ref-whozh-${i}`, r.whoEn, r.whoZh, "the young woman", "年轻女子")}
-        ${field("外观特征（EN）", `ref-looken-${i}`, `ref-lookzh-${i}`, r.lookEn, r.lookZh, "long dark hair, blue cardigan", "长发、蓝开衫")}
+        <div class="h3wz-field">
+          <label>主体类别</label>
+          <select data-ref-subjtype="${i}">${SUBJECT_TYPES.map((t) => `<option value="${t.id}" ${t.id === r.subjectType ? "selected" : ""}>${t.zh}</option>`).join("")}</select>
+        </div>
       </div>
-      <div class="h3wz-field">
-        <label>来源引用（勾选已有图/视频，拼成 in &lt;Picture 1&gt;）</label>
-        <div>${refSourcesHtml(r)}</div>
-      </div>` : ""}
+      <div class="h3wz-grid-2">
+        ${field("是谁（主体指代，如 the young woman）", `ref-whoen-${i}`, r.whoEn, "如：the young woman / 那个年轻女子")}
+        ${field("外观特征（保持一致的样貌）", `ref-looken-${i}`, r.lookEn, "如：long dark hair, blue cardigan / 黑色长发、蓝色开衫")}
+      </div>
+      ${subjectPartsHtml(r, i)}` : ""}
       ${r.kind === "picture" ? `
       <div class="h3wz-grid-3">
         <div class="h3wz-field">
@@ -1014,7 +1086,7 @@ function refCardHtml(r, i) {
           <label>对应镜头</label>
           <input data-ref-shotmap="${i}" value="${esc(r.shotMap || "")}" placeholder="[Shot 1]" />
         </div>
-        ${field("画面内容（EN）", `ref-shownen-${i}`, `ref-shownzh-${i}`, r.shownEn, r.shownZh, "a woman seated beside a café window", "咖啡馆窗边女子")}
+        ${field("画面内容（这张图里显示了什么）", `ref-shownen-${i}`, r.shownEn, "如：a woman seated beside a café window / 咖啡馆窗边坐着的女子")}
       </div>` : ""}
       ${r.kind === "video" ? `
       <div class="h3wz-grid-2">
@@ -1022,7 +1094,7 @@ function refCardHtml(r, i) {
           <label>角色</label>
           <select data-ref-vidrole="${i}">${VIDEO_ROLES.map((t) => `<option value="${t.id}" ${t.id === r.videoRole ? "selected" : ""}>${t.zh}</option>`).join("")}</select>
         </div>
-        ${field("说明（EN）", `ref-noten-${i}`, `ref-notezh-${i}`, r.noteEn, r.noteZh, "original footage shot handheld", "手持拍摄的原始素材")}
+        ${field("说明（这条视频素材的用途/内容）", `ref-noten-${i}`, r.noteEn, "如：original footage shot handheld / 手持拍摄的原始素材")}
       </div>` : ""}
       ${r.kind === "audio" ? `
       <div class="h3wz-grid-3">
@@ -1040,23 +1112,22 @@ function refCardHtml(r, i) {
               .join("")}
           </select>
         </div>
-        ${field("说明（EN）", `ref-noten-${i}`, `ref-notezh-${i}`, r.noteEn, r.noteZh, "spoken English vocal layer", "英文人声层")}
+        ${field("说明（这段音频是什么/用途）", `ref-noten-${i}`, r.noteEn, "如：spoken English vocal layer / 英文人声层")}
       </div>` : ""}
       <div class="h3wz-ref-retain" style="border-top:1px dashed #d8dee6;margin-top:8px;padding-top:6px;">
         <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">retention_analysis（保真度）${isAudio ? "· 音频标记" : "· 可见内容标记"}</div>
         <div class="h3wz-grid-3">
           ${isAudio ? "" : `<div class="h3wz-field">
-            <label>${r.kind === "subject" ? "出现位置（EN，可选，自动拼 appears in）" : r.kind === "picture" ? "位置描述（EN，可选）" : "结构描述（EN，可选）"}</label>
-            <input data-ref-appear="${i}" value="${esc(r.appear || "")}" placeholder="${r.kind === "subject" ? "[Shot 1], [Shot 3]" : r.kind === "picture" ? "[Shot 1] first frame" : "cut and pacing structure"}" />
+            <label>${r.kind === "subject" ? "出现位置（可选，自动拼 appears in）" : r.kind === "picture" ? "位置描述（可选）" : "结构描述（可选）"}</label>
+            <input data-ref-appear="${i}" value="${esc(r.appear || "")}" placeholder="${r.kind === "subject" ? "如：[Shot 1], [Shot 3]" : r.kind === "picture" ? "如：[Shot 1] first frame" : "如：cut and pacing structure"}" />
           </div>`}
           <div class="h3wz-field">
             <label>保留标记</label>
             <select data-ref-retain="${i}">${retainList.map((x) => `<option value="${x.id}" ${x.id === retainZh ? "selected" : ""}>${x.zh}</option>`).join("")}</select>
           </div>
           <div class="h3wz-field">
-            <label>保留说明（EN）</label>
-            <input data-ref-retainen="${i}" value="${esc(r.retainEn || "")}" placeholder="the dark hair and blue cardigan are retained" />
-            <input class="h3wz-zh" data-ref-retainzh="${i}" value="${esc(r.retainZh || "")}" placeholder="中文备注" />
+            <label>保留说明（哪些特征保持不变）</label>
+            <input data-ref-retainen="${i}" value="${esc(r.retainEn || "")}" placeholder="如：the dark hair and blue cardigan are retained / 黑发与蓝开衫保持不变" />
           </div>
         </div>
         <div style="font-size:11px;color:#9aa3af;margin-top:2px;">当前标记：<b>${esc(retainLabel)}</b> · 预览行：<code>${esc(retainLineOf(r, state.refs))}</code></div>
@@ -1065,8 +1136,16 @@ function refCardHtml(r, i) {
 }
 
 function renderRefs(root) {
-  const list = root.querySelector(".h3wz-ref-list");
-  if (list) list.innerHTML = (state.refs || []).map((r, i) => refCardHtml(r, i)).join("");
+  const matList = root.querySelector(".h3wz-mat-list");
+  if (matList) {
+    const mats = (state.refs || []).filter((x) => x.kind !== "subject");
+    matList.innerHTML = mats.map((r) => refCardHtml(r, state.refs.indexOf(r))).join("");
+  }
+  const subjList = root.querySelector(".h3wz-subj-list");
+  if (subjList) {
+    const subjs = (state.refs || []).filter((x) => x.kind === "subject");
+    subjList.innerHTML = subjs.map((r) => refCardHtml(r, state.refs.indexOf(r))).join("");
+  }
 }
 
 function renderStatic(root) {
@@ -1111,13 +1190,9 @@ function renderStatic(root) {
   };
   setVal("[data-duration]", state.duration);
   setVal("[data-style-custom-en]", state.styleCustomEn);
-  setVal("[data-style-custom-zh]", state.styleCustomZh);
   setVal("[data-opening-en]", state.openingEn);
-  setVal("[data-opening-zh]", state.openingZh);
   setVal("[data-sound-en]", state.soundEn);
-  setVal("[data-sound-zh]", state.soundZh);
   setVal("[data-music-en]", state.musicEn);
-  setVal("[data-music-zh]", state.musicZh);
   setChecked("[data-sound-silent]", state.soundSilent);
   setChecked("[data-music-na]", state.musicNA);
 
@@ -1135,7 +1210,6 @@ function renderStatic(root) {
     }).join("");
   }
   setVal("[data-summary-en]", state.summaryEn);
-  setVal("[data-summary-zh]", state.summaryZh);
 
   renderRefs(root);
   renderShots(root); // Ref 模式下对话框有"绑定主体"下拉，需随 refs/mode 重绘
@@ -1158,14 +1232,16 @@ function collectFromDom(root) {
     if (state.styleZh !== STYLE_CUSTOM_ZH) state.styleEn = syncSelectEn(STYLES, state.styleZh);
   }
   const styleCustomEn = q("[data-style-custom-en]");
-  if (styleCustomEn) state.styleCustomEn = styleCustomEn.value;
-  const styleCustomZh = q("[data-style-custom-zh]");
-  if (styleCustomZh) state.styleCustomZh = styleCustomZh.value;
-  if (state.styleZh === STYLE_CUSTOM_ZH) state.styleEn = (state.styleCustomEn || state.styleCustomZh || "").trim();
+  if (styleCustomEn) {
+    state.styleCustomEn = styleCustomEn.value;
+    state.styleCustomZh = ""; // 单框模式：旧 zh 备注不再参与拼装
+  }
+  if (state.styleZh === STYLE_CUSTOM_ZH) state.styleEn = (state.styleCustomEn || "").trim();
   const openingEn = q("[data-opening-en]");
-  if (openingEn) state.openingEn = openingEn.value;
-  const openingZh = q("[data-opening-zh]");
-  if (openingZh) state.openingZh = openingZh.value;
+  if (openingEn) {
+    state.openingEn = openingEn.value;
+    state.openingZh = "";
+  }
 
   state.shots.forEach((s, i) => {
     const time = q(`[data-shot-time="${i}"]`);
@@ -1196,21 +1272,25 @@ function collectFromDom(root) {
       s.camSpeedEn = syncSelectEn(CAM_SPEED, speed.value);
     }
     const camTargetEn = q(`[data-shot-camtarget-en="${i}"]`);
-    if (camTargetEn) s.camTargetEn = camTargetEn.value;
-    const camTargetZh = q(`[data-shot-camtarget-zh="${i}"]`);
-    if (camTargetZh) s.camTargetZh = camTargetZh.value;
+    if (camTargetEn) {
+      s.camTargetEn = camTargetEn.value;
+      s.camTargetZh = "";
+    }
     const sceneEn = q(`[data-shot-scene-en-${i}]`);
-    if (sceneEn) s.sceneEn = sceneEn.value;
-    const sceneZh = q(`[data-shot-scene-zh-${i}]`);
-    if (sceneZh) s.sceneZh = sceneZh.value;
+    if (sceneEn) {
+      s.sceneEn = sceneEn.value;
+      s.sceneZh = "";
+    }
     const actionEn = q(`[data-shot-action-en-${i}]`);
-    if (actionEn) s.actionEn = actionEn.value;
-    const actionZh = q(`[data-shot-action-zh-${i}]`);
-    if (actionZh) s.actionZh = actionZh.value;
+    if (actionEn) {
+      s.actionEn = actionEn.value;
+      s.actionZh = "";
+    }
     const dsoundEn = q(`[data-shot-dsound-en-${i}]`);
-    if (dsoundEn) s.diegeticSoundEn = dsoundEn.value;
-    const dsoundZh = q(`[data-shot-dsound-zh-${i}]`);
-    if (dsoundZh) s.diegeticSoundZh = dsoundZh.value;
+    if (dsoundEn) {
+      s.diegeticSoundEn = dsoundEn.value;
+      s.diegeticSoundZh = "";
+    }
     const onscreen = q(`[data-shot-onscreen="${i}"]`);
     if (onscreen) s.onscreenText = onscreen.value;
 
@@ -1227,9 +1307,10 @@ function collectFromDom(root) {
       const lang = q(`[data-d-lang="${i}-${di}"]`);
       if (lang) d.lang = lang.value;
       const whoEn = q(`[data-d-whoen="${i}-${di}"]`);
-      if (whoEn) d.whoEn = whoEn.value;
-      const whoZh = q(`[data-d-whozh="${i}-${di}"]`);
-      if (whoZh) d.whoZh = whoZh.value;
+      if (whoEn) {
+        d.whoEn = whoEn.value;
+        d.whoZh = "";
+      }
       const text = q(`[data-d-text="${i}-${di}"]`);
       if (text) d.text = text.value;
       const vo = q(`[data-d-vo="${i}-${di}"]`);
@@ -1242,9 +1323,10 @@ function collectFromDom(root) {
   const soundSilent = q("[data-sound-silent]");
   if (soundSilent) state.soundSilent = soundSilent.checked;
   const soundEn = q("[data-sound-en]");
-  if (soundEn) state.soundEn = soundEn.value;
-  const soundZh = q("[data-sound-zh]");
-  if (soundZh) state.soundZh = soundZh.value;
+  if (soundEn) {
+    state.soundEn = soundEn.value;
+    state.soundZh = "";
+  }
   const musicChip = q("[data-music-chip]");
   if (musicChip) {
     state.musicChipZh = musicChip.value;
@@ -1253,9 +1335,10 @@ function collectFromDom(root) {
   const musicNA = q("[data-music-na]");
   if (musicNA) state.musicNA = musicNA.checked;
   const musicEn = q("[data-music-en]");
-  if (musicEn) state.musicEn = musicEn.value;
-  const musicZh = q("[data-music-zh]");
-  if (musicZh) state.musicZh = musicZh.value;
+  if (musicEn) {
+    state.musicEn = musicEn.value;
+    state.musicZh = "";
+  }
 
   /* ---- Ref2VA ---- */
   const taskChips = qa("[data-task-chip]");
@@ -1263,13 +1346,12 @@ function collectFromDom(root) {
     state.taskTypes = taskChips.filter((c) => c.classList.contains("on")).map((c) => c.dataset.taskChip);
   }
   const summaryEn = q("[data-summary-en]");
-  if (summaryEn) state.summaryEn = summaryEn.value;
-  const summaryZh = q("[data-summary-zh]");
-  if (summaryZh) state.summaryZh = summaryZh.value;
+  if (summaryEn) {
+    state.summaryEn = summaryEn.value;
+    state.summaryZh = "";
+  }
 
   state.refs.forEach((r, i) => {
-    const kind = q(`[data-ref-kind="${i}"]`);
-    if (kind) r.kind = kind.value;
     const subjType = q(`[data-ref-subjtype="${i}"]`);
     if (subjType) r.subjectType = subjType.value;
     const get = (attr) => {
@@ -1277,21 +1359,24 @@ function collectFromDom(root) {
       return el ? el.value : undefined;
     };
     const whoEn = get("ref-whoen");
-    if (whoEn !== undefined) r.whoEn = whoEn;
-    const whoZh = get("ref-whozh");
-    if (whoZh !== undefined) r.whoZh = whoZh;
+    if (whoEn !== undefined) {
+      r.whoEn = whoEn;
+      r.whoZh = "";
+    }
     const lookEn = get("ref-looken");
-    if (lookEn !== undefined) r.lookEn = lookEn;
-    const lookZh = get("ref-lookzh");
-    if (lookZh !== undefined) r.lookZh = lookZh;
+    if (lookEn !== undefined) {
+      r.lookEn = lookEn;
+      r.lookZh = "";
+    }
     const picRole = q(`[data-ref-picrole="${i}"]`);
     if (picRole) r.pictureRole = picRole.value;
     const shotMap = q(`[data-ref-shotmap="${i}"]`);
     if (shotMap) r.shotMap = shotMap.value;
     const shownEn = get("ref-shownen");
-    if (shownEn !== undefined) r.shownEn = shownEn;
-    const shownZh = get("ref-shownzh");
-    if (shownZh !== undefined) r.shownZh = shownZh;
+    if (shownEn !== undefined) {
+      r.shownEn = shownEn;
+      r.shownZh = "";
+    }
     const vidRole = q(`[data-ref-vidrole="${i}"]`);
     if (vidRole) r.videoRole = vidRole.value;
     const audRole = q(`[data-ref-audrole="${i}"]`);
@@ -1299,25 +1384,32 @@ function collectFromDom(root) {
     const boundSubj = q(`[data-ref-boundsubj="${i}"]`);
     if (boundSubj) r.boundSubjectId = boundSubj.value;
     const noteEn = get("ref-noten");
-    if (noteEn !== undefined) r.noteEn = noteEn;
-    const noteZh = get("ref-notezh");
-    if (noteZh !== undefined) r.noteZh = noteZh;
-    // 来源引用复选框
-    qa(`[data-ref-src^="${r.id}|"]`).forEach((cb) => {
-      const srcId = cb.dataset.refSrc.split("|")[1];
-      const list = r.sourceFromIds || [];
-      if (cb.checked && !list.includes(srcId)) list.push(srcId);
-      if (!cb.checked && list.includes(srcId)) list.splice(list.indexOf(srcId), 1);
-      r.sourceFromIds = list;
+    if (noteEn !== undefined) {
+      r.noteEn = noteEn;
+      r.noteZh = "";
+    }
+    // subject 引用片段（parts）：@ 选素材 + 提供什么
+    qa(`[data-ref-part-src^="${i}|"]`).forEach((sel) => {
+      const pi = Number(sel.dataset.refPartSrc.split("|")[1]);
+      if (!r.parts) r.parts = [];
+      r.parts[pi] = Object.assign({ srcId: "", desc: "" }, r.parts[pi] || {});
+      r.parts[pi].srcId = sel.value;
+    });
+    qa(`[data-ref-part-desc^="${i}|"]`).forEach((sel) => {
+      const pi = Number(sel.dataset.refPartDesc.split("|")[1]);
+      if (!r.parts) r.parts = [];
+      r.parts[pi] = Object.assign({ srcId: "", desc: "" }, r.parts[pi] || {});
+      r.parts[pi].desc = sel.value;
     });
     const appear = q(`[data-ref-appear="${i}"]`);
     if (appear) r.appear = appear.value;
     const retain = q(`[data-ref-retain="${i}"]`);
     if (retain) r.retain = retain.value;
     const retainEn = q(`[data-ref-retainen="${i}"]`);
-    if (retainEn) r.retainEn = retainEn.value;
-    const retainZh = q(`[data-ref-retainzh="${i}"]`);
-    if (retainZh) r.retainZh = retainZh.value;
+    if (retainEn) {
+      r.retainEn = retainEn.value;
+      r.retainZh = "";
+    }
   });
 }
 
@@ -1434,56 +1526,62 @@ function setupNode(node) {
       <button type="button" class="h3wz-btn" data-copy-all>复制全部</button>
       <span class="h3wz-status" style="font-size:12px;font-weight:600;margin-left:auto;"></span>
     </div>
-    <div class="h3wz-body" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:12px;">
+    <div class="h3wz-body" style="flex:1;overflow:hidden;display:flex;flex-direction:row;min-height:0;">
+      <div class="h3wz-form-col" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:12px;min-width:0;">
+      <section class="h3wz-sec h3wz-sec-ref" style="display:none;border:1px solid #c8d8f0;border-radius:8px;padding:8px 10px;background:#f7fafd;">
+        <div class="h3wz-sec-title" style="font-weight:700;margin-bottom:4px;color:#2d3748;">① 参考素材 + Subject 定义（Ref2VA · 自动编号）</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:6px;">
+          素材（图片/视频/音频）是「引用元素」，先定义素材，再定义 Subject 引用它们。一个 Subject 可引用多个素材（如：脸来自图1、衣服来自图2）。输出时 Subject 定义行自动排在素材定义行之前（对齐官方 subject_definitions）。图片 ≤ 9 · 视频 ≤ 3 · 音频 ≤ 3 · 总数 ≤ 12。
+        </div>
+        <div style="font-size:12px;font-weight:600;color:#2d3748;margin:6px 0 4px;">引用元素（素材）</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
+          <button type="button" class="h3wz-btn h3wz-btn-add" data-add-mat="picture">+ 加图片</button>
+          <button type="button" class="h3wz-btn h3wz-btn-add" data-add-mat="video">+ 加视频</button>
+          <button type="button" class="h3wz-btn h3wz-btn-add" data-add-mat="audio">+ 加音频</button>
+        </div>
+        <div class="h3wz-mat-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div style="font-size:12px;font-weight:600;color:#2d3748;margin:10px 0 4px;">Subject 定义（引用上方素材）</div>
+        <button type="button" class="h3wz-btn h3wz-btn-add" data-add-subj style="margin-bottom:6px;">+ 加 Subject</button>
+        <div class="h3wz-subj-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </section>
       <section class="h3wz-sec">
-        <div class="h3wz-sec-title" style="font-weight:700;margin-bottom:6px;color:#2d3748;">① 整体设定</div>
+        <div class="h3wz-sec-title" style="font-weight:700;margin-bottom:6px;color:#2d3748;">② 整体设定</div>
         <div class="h3wz-grid-2">
           <div class="h3wz-field">
             <label>画面风格（写入 [Shot 1] 开头）</label>
             <select data-style style="width:100%"></select>
           </div>
           <div class="h3wz-field">
-            <label>自定义风格（EN，选「自定义…」时必填）</label>
-            <input data-style-custom-en style="width:100%" placeholder="Cyberpunk neon night, high contrast, shallow depth of field" />
-            <input class="h3wz-zh" data-style-custom-zh style="width:100%" placeholder="中文备注" />
+            <label>自定义风格（选「自定义…」时必填）</label>
+            <input data-style-custom-en style="width:100%" placeholder="如：Cyberpunk neon night / 赛博朋克霓虹夜" />
           </div>
         </div>
         <div class="h3wz-grid-2">
           <div class="h3wz-field">
-            <label>开场构图与场景（EN，会拼到 [Shot 1]）</label>
-            <textarea data-opening-en rows="2" style="width:100%" placeholder="A medium-wide shot frames a young woman by a rain-streaked train window"></textarea>
-          </div>
-          <div class="h3wz-field">
-            <label>开场构图（中文备注，仅自己看）</label>
-            <textarea data-opening-zh rows="2" style="width:100%" placeholder="中全景框住雨夜列车窗边的年轻女子"></textarea>
+            <label>开场构图与场景（会拼到 [Shot 1] 开头）</label>
+            <textarea data-opening-en rows="2" style="width:100%" placeholder="如：雨夜列车窗边，中全景框住一位年轻女子"></textarea>
           </div>
         </div>
         <details class="h3wz-phrases" style="margin-top:6px;">
-          <summary style="cursor:pointer;color:#2b6cb0;font-size:12px;">📋 常用英文句式（点击复制 → 粘贴到对应 EN 框）</summary>
+          <summary style="cursor:pointer;color:#2b6cb0;font-size:12px;">📋 常用英文句式（点击复制 → 粘贴到对应输入框）</summary>
           <div class="h3wz-phrases-body" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;"></div>
         </details>
       </section>
       <section class="h3wz-sec">
-        <div class="h3wz-sec-title" style="font-weight:700;margin-bottom:6px;color:#2d3748;">② 分镜时间线（第一镜无时间戳，后续切镜递增）</div>
+        <div class="h3wz-sec-title" style="font-weight:700;margin-bottom:6px;color:#2d3748;">③ 分镜时间线（第一镜无时间戳，后续切镜递增）</div>
         <div class="h3wz-shot-list" style="display:flex;flex-direction:column;gap:10px;"></div>
         <button type="button" class="h3wz-btn h3wz-btn-add" data-add-shot style="margin-top:6px;">+ 加一个镜头</button>
       </section>
       <section class="h3wz-sec">
-        <div class="h3wz-sec-title" style="font-weight:700;margin-bottom:6px;color:#2d3748;">③ 声音与配乐</div>
+        <div class="h3wz-sec-title" style="font-weight:700;margin-bottom:6px;color:#2d3748;">④ 声音与配乐</div>
         <div class="h3wz-field">
           <label>环境声芯片（可多选，写入 overall_soundscape）</label>
           <div class="h3wz-sound-chips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
         </div>
         <label class="h3wz-checks" style="margin-top:4px;"><input type="checkbox" data-sound-silent /> 全程静音（N/A）</label>
-        <div class="h3wz-grid-2">
-          <div class="h3wz-field">
-            <label>环境声补充（EN）</label>
-            <textarea data-sound-en rows="2" style="width:100%" placeholder="Rain taps on the window, faint voices in the distance"></textarea>
-          </div>
-          <div class="h3wz-field">
-            <label>环境声补充（中文备注）</label>
-            <textarea data-sound-zh rows="2" style="width:100%" placeholder="雨点打在车窗，远处有模糊人声"></textarea>
-          </div>
+        <div class="h3wz-field">
+          <label>环境声补充（可选，写这镜之外的全局环境声）</label>
+          <textarea data-sound-en rows="2" style="width:100%" placeholder="如：雨点打在车窗，远处有模糊人声"></textarea>
         </div>
         <div class="h3wz-grid-2">
           <div class="h3wz-field">
@@ -1491,23 +1589,11 @@ function setupNode(node) {
             <select data-music-chip style="width:100%"></select>
           </div>
           <div class="h3wz-field">
-            <label>配乐补充（EN，写配器/速度/节奏/动态）</label>
-            <textarea data-music-en rows="2" style="width:100%" placeholder="Slow piano notes with a sustained cello bed that fades out"></textarea>
+            <label>配乐补充（可选，写配器/速度/节奏/动态）</label>
+            <textarea data-music-en rows="2" style="width:100%" placeholder="如：慢速钢琴，大提琴铺底后淡出"></textarea>
           </div>
         </div>
         <label class="h3wz-checks"><input type="checkbox" data-music-na /> 强制无配乐（N/A）</label>
-        <div class="h3wz-field">
-          <label>配乐补充（中文备注）</label>
-          <input data-music-zh style="width:100%" placeholder="慢速钢琴，大提琴铺底后淡出" />
-        </div>
-      </section>
-      <section class="h3wz-sec h3wz-sec-ref" style="display:none;border:1px solid #c8d8f0;border-radius:8px;padding:8px 10px;background:#f7fafd;">
-        <div class="h3wz-sec-title" style="font-weight:700;margin-bottom:4px;color:#2d3748;">④ 参考素材（Ref2VA · 自动编号 &lt;Subject N&gt;/&lt;Picture N&gt;/&lt;Video N&gt;/&lt;Audio N&gt;）</div>
-        <div style="font-size:12px;color:#6b7280;margin-bottom:6px;">
-          图片 ≤ 9 · 视频 ≤ 3 · 音频 ≤ 3 · 总数 ≤ 12，音频不能是唯一媒体。类型按「主体/图/视频/音频」分别编号。
-        </div>
-        <div class="h3wz-ref-list" style="display:flex;flex-direction:column;"></div>
-        <button type="button" class="h3wz-btn h3wz-btn-add" data-add-ref style="margin-top:4px;">+ 加素材</button>
       </section>
       <section class="h3wz-sec h3wz-sec-ref" style="display:none;border:1px solid #c8d8f0;border-radius:8px;padding:8px 10px;background:#f7fafd;">
         <div class="h3wz-sec-title" style="font-weight:700;margin-bottom:4px;color:#2d3748;">⑤ 任务类型 + summary（自动生成方括号前缀）</div>
@@ -1515,35 +1601,31 @@ function setupNode(node) {
           <label>任务类型（可多选，自动拼成 [A + B] 前缀）</label>
           <div class="h3wz-task-chips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
         </div>
-        <div class="h3wz-grid-2">
-          <div class="h3wz-field">
-            <label>summary 概括（EN，一句话）</label>
-            <textarea data-summary-en rows="2" style="width:100%" placeholder="The target video shows the young woman from <Subject 1> walking through <Subject 2> and turning to smile at the camera."></textarea>
-          </div>
-          <div class="h3wz-field">
-            <label>summary（中文备注）</label>
-            <textarea data-summary-zh rows="2" style="width:100%" placeholder="目标视频：<Subject 1> 中的女子走过 <Subject 2> 场景并回眸微笑"></textarea>
-          </div>
+        <div class="h3wz-field">
+          <label>summary 概括（一句话，自动加 [任务类型] 前缀）</label>
+          <textarea data-summary-en rows="2" style="width:100%" placeholder="如：目标视频里，<Subject 1> 中的女子走过 <Subject 2> 场景并回眸微笑"></textarea>
         </div>
         <div style="font-size:12px;color:#6b7280;">详述（detailed_description）由 ① 风格 + ② 分镜时间线自动拼出；对白可绑定主体输出 &lt;Subject N&gt; (Sx)。</div>
       </section>
-    </div>
-    <div class="h3wz-footer" style="border-top:1px solid #d8dee6;background:#fbfcfe;">
-      <div class="h3wz-errors" style="display:none;padding:8px 12px;font-size:12px;line-height:1.5;border-bottom:1px solid #e8edf3;"></div>
-      <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:#f2f5f9;border-bottom:1px solid #e8edf3;">
-        <span style="font-weight:600;color:#2d3748;font-size:12px;">实时预览（点预览复制单字段）</span>
-        <button type="button" class="h3wz-btn" data-toggle-preview style="margin-left:auto;">收起预览</button>
       </div>
-      <pre class="h3wz-preview" style="margin:0;padding:10px 12px;white-space:pre-wrap;word-break:break-word;font:12px/1.6 Consolas, monospace;max-height:220px;overflow:auto;user-select:all;"></pre>
+      <div class="h3wz-preview-col" style="width:min(340px,38%);flex-shrink:0;border-left:1px solid #d8dee6;background:#fbfcfe;display:flex;flex-direction:column;overflow:hidden;min-width:0;">
+        <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:#f2f5f9;border-bottom:1px solid #e8edf3;flex-shrink:0;">
+          <span style="font-weight:600;color:#2d3748;font-size:12px;">最终提示词（点击可复制）</span>
+          <button type="button" class="h3wz-btn" data-toggle-preview style="margin-left:auto;">收起预览</button>
+        </div>
+        <div class="h3wz-errors" style="display:none;padding:8px 12px;font-size:12px;line-height:1.5;border-bottom:1px solid #e8edf3;flex-shrink:0;"></div>
+        <pre class="h3wz-preview" style="margin:0;padding:10px 12px;white-space:pre-wrap;word-break:break-word;font:12px/1.6 Consolas, monospace;flex:1;overflow-y:auto;user-select:all;"></pre>
+      </div>
     </div>`;
 
   const body = container.querySelector(".h3wz-body");
+  const formCol = container.querySelector(".h3wz-form-col");
   const preview = container.querySelector(".h3wz-preview");
   const errors = container.querySelector(".h3wz-errors");
   const status = container.querySelector(".h3wz-status");
   const root = container;
 
-  node.__h3WzState = { root, body, preview, errors, status, container };
+  node.__h3WzState = { root, body, formCol, preview, errors, status, container };
 
   renderStatic(root);
   renderShots(root);
@@ -1670,16 +1752,6 @@ function bindEvents(node) {
           state.styleEn = "";
         }
       }
-      /* 素材类型切换 → 重建卡片字段（select 走 change 不走 click） */
-      if (target.matches("[data-ref-kind]")) {
-        const i = Number(target.dataset.refKind);
-        const r = state.refs[i];
-        if (r && r.kind !== target.value) {
-          r.kind = target.value;
-          renderRefs(root);
-          renderShots(root); // 对话框"绑定主体"下拉依赖 refs
-        }
-      }
       refresh();
     }
   });
@@ -1700,8 +1772,8 @@ function bindEvents(node) {
 
     /* 折叠/展开 */
     if (target.matches("[data-toggle-body]")) {
-      const collapsed = st.body.style.display === "none";
-      st.body.style.display = collapsed ? "" : "none";
+      const collapsed = st.formCol.style.display === "none";
+      st.formCol.style.display = collapsed ? "" : "none";
       target.textContent = collapsed ? "收起表单" : "展开表单";
       return;
     }
@@ -1803,10 +1875,38 @@ function bindEvents(node) {
       return;
     }
 
-    /* Ref2VA 素材增删 */
-    if (target.matches("[data-add-ref]")) {
+    /* Ref2VA 素材 / Subject / 引用片段增删 */
+    if (target.matches("[data-add-mat]")) {
       state.refs = state.refs || [];
-      state.refs.push(emptyRef());
+      state.refs.push(emptyRef(target.dataset.addMat));
+      renderRefs(root);
+      renderShots(root); // 对话框"绑定主体"下拉依赖 refs
+      refresh();
+      return;
+    }
+    if (target.matches("[data-add-subj]")) {
+      state.refs = state.refs || [];
+      state.refs.push(emptyRef("subject"));
+      renderRefs(root);
+      renderShots(root);
+      refresh();
+      return;
+    }
+    if (target.matches("[data-add-part]")) {
+      const i = Number(target.dataset.addPart);
+      const r = state.refs[i];
+      if (!r) return;
+      if (!Array.isArray(r.parts)) r.parts = [];
+      r.parts.push({ srcId: "", desc: "" });
+      renderRefs(root);
+      refresh();
+      return;
+    }
+    if (target.matches("[data-del-part]")) {
+      const [ri, pi] = target.dataset.delPart.split("|").map(Number);
+      const r = state.refs[ri];
+      if (!r || !Array.isArray(r.parts)) return;
+      r.parts.splice(pi, 1);
       renderRefs(root);
       refresh();
       return;
@@ -1814,7 +1914,14 @@ function bindEvents(node) {
     if (target.matches("[data-del-ref]")) {
       if (!state.refs || !state.refs.length) return;
       const i = Number(target.dataset.delRef);
+      const removed = state.refs[i];
       state.refs.splice(i, 1);
+      // 清理其他 subject 的 parts 里指向被删素材的悬空引用
+      if (removed && removed.kind !== "subject") {
+        state.refs.forEach((x) => {
+          if (Array.isArray(x.parts)) x.parts = x.parts.filter((p) => p.srcId !== removed.id);
+        });
+      }
       renderRefs(root);
       renderShots(root); // 对话框"绑定主体"下拉依赖 refs
       refresh();

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>H3 提示词排版台 · Lab</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="lab-page">
+    <header class="lab-topbar">
+      <div class="lab-topbar-title">H3 提示词排版台 · HTML 原型</div>
+      <div class="lab-topbar-hint">模拟 Comfy 节点外观 · 不跑工作流也能看预览 · 定稿后再移植</div>
+      <button type="button" class="lab-ghost" id="btn-reset">重置示例</button>
+    </header>
+
+    <div class="lab-stage">
+      <article class="cz-node" id="cz-node" aria-label="H3 提示词排版台节点">
+        <div class="cz-node-title">
+          <span class="cz-node-dot"></span>
+          <span class="cz-node-name">H3 提示词排版台</span>
+          <span class="cz-node-class">CzH3PromptFormatter</span>
+        </div>
+
+        <div class="cz-node-body">
+          <div class="cz-slots left" aria-hidden="true">
+            <div class="cz-slot"><i></i><span>form_state · 表单状态</span></div>
+          </div>
+
+          <div class="cz-panel m3td" id="formatter-root">
+            <div class="m3td-head">
+              <span class="m3td-brand">排版台</span>
+              <div class="task-tabs" id="mode-tabs" role="tablist"></div>
+              <span class="m3td-spacer"></span>
+              <span class="m3td-status" id="status-line">就绪</span>
+            </div>
+
+            <div class="m3td-settings">
+              <label class="m3td-field">总时长(s)
+                <input type="number" id="total-duration" min="4" max="15" step="0.01" value="6" />
+              </label>
+              <span class="m3td-spacer"></span>
+              <button type="button" class="m3td-btn" id="btn-copy-full">复制全文</button>
+            </div>
+
+            <div class="m3td-taskbar" id="task-types" hidden></div>
+
+            <div class="work-grid">
+              <div class="work-left">
+                <div class="info-strip" id="mode-hint"></div>
+
+                <!-- Ref2VA：先引用，再 Subject -->
+                <section class="block" id="block-refs" hidden>
+                  <div class="block-head">
+                    <strong>① 引用定义 · References</strong>
+                    <span class="muted">不接真图/视频 · 只声明「将来接到采样节点的那路」是什么</span>
+                  </div>
+                  <div class="defs-toolbar">
+                    <button type="button" class="m3td-btn" data-add-ref="picture">＋ Picture 图</button>
+                    <button type="button" class="m3td-btn" data-add-ref="video">＋ Video 视频</button>
+                    <button type="button" class="m3td-btn" data-add-ref="audio">＋ Audio 音频</button>
+                  </div>
+                  <div class="defs-list" id="refs-list"></div>
+                </section>
+
+                <section class="block" id="block-subjects" hidden>
+                  <div class="block-head">
+                    <strong>② subject_definitions · 主体定义</strong>
+                    <span class="muted">可复用内容单元 · 用绑定或 @ 关联上方引用</span>
+                  </div>
+                  <div class="defs-toolbar">
+                    <button type="button" class="m3td-btn" id="btn-add-subject">＋ Subject</button>
+                  </div>
+                  <div class="defs-list" id="subjects-list"></div>
+                  <label class="stack-field" style="margin-top:8px">
+                    <span>summary · 任务摘要<span class="muted">（方括号任务类型由上方多选自动加）</span></span>
+                    <textarea id="summary-body" rows="2" placeholder="一句话概括目标视频与参考关系…"></textarea>
+                  </label>
+                </section>
+
+                <label class="stack-field block" id="wrap-style-opening" style="margin:0 0 10px;padding:8px 10px;border:1px solid #2f3848;border-radius:6px;background:#12171f">
+                  <span id="style-opening-label">整体风格</span>
+                  <textarea id="style-opening" rows="2" placeholder="例：Live-action, cinematic"></textarea>
+                </label>
+
+                <section class="block">
+                  <div class="block-head">
+                    <strong>分镜轨道</strong>
+                    <span class="muted">正文自由写 · 工具栏插入运镜/对白/画内声</span>
+                    <button type="button" class="m3td-btn" id="btn-add-shot" style="margin-left:auto">＋ 加一段</button>
+                  </div>
+                  <div class="timeline-ruler" id="timeline-ruler"></div>
+                  <div class="timeline-track" id="timeline-track" title="拖分段右缘改切点；拖分段本体可粗调"></div>
+                  <div class="shot-list" id="shot-list"></div>
+                </section>
+
+                <section class="block">
+                  <div class="block-head"><strong>全片声音字段</strong><span class="muted">与单镜「画内声」分开 · 这里是整片汇总</span></div>
+                  <label class="stack-field">
+                    <span>overall_soundscape · 整体环境声</span>
+                    <textarea id="soundscape" rows="2" placeholder="环境声 / 动作声 / 非语言人声…"></textarea>
+                  </label>
+                  <label class="stack-field">
+                    <span>non_diegetic_music · 非叙事配乐（观众层）</span>
+                    <textarea id="music" rows="2" placeholder="观众配乐，或写 N/A"></textarea>
+                  </label>
+                </section>
+              </div>
+
+              <div class="work-right">
+                <div class="preview-head">
+                  <strong>实时预览</strong>
+                  <span class="muted" id="preview-meta"></span>
+                </div>
+                <pre class="preview-body" id="preview-body"></pre>
+                <div class="outputs-sim">
+                  <div class="outputs-title">模拟 Output（跑工作流时可见）</div>
+                  <div class="outputs-list" id="outputs-list"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="m3td-foot">
+              <strong>规则：</strong>
+              <span>先定义引用 → 再定义 Subject（@关联）→ 分镜填内容 · 节点只排版</span>
+            </div>
+          </div>
+
+          <div class="cz-slots right" id="output-slots" aria-hidden="true"></div>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <!-- @ 引用选择浮层 -->
+  <div class="mention-menu" id="mention-menu" hidden></div>
+
+  <!-- 图形化 AU 选脸器 -->
+  <div class="au-modal" id="au-modal" hidden>
+    <div class="au-dialog" role="dialog" aria-label="AU 表情选择">
+      <div class="au-dialog-head">
+        <strong>图形化 AU 表情</strong>
+        <span class="muted">强度 0–5 · 基本情绪 + 文戏复合内心 · 悬停看 AU 说明 · 插入英文描述</span>
+        <button type="button" class="m3td-btn" data-au-close>关闭</button>
+      </div>
+      <div class="au-dialog-body">
+        <div class="au-face-col">
+          <div id="au-face-host"></div>
+          <div class="au-presets" id="au-presets"></div>
+        </div>
+        <div class="au-chip-col">
+          <div id="au-chip-host"></div>
+        </div>
+      </div>
+      <div class="au-dialog-foot">
+        <div class="au-summary">
+          <div><span class="muted">英文描述：</span><strong id="au-desc-en">（尚未选择 AU）</strong></div>
+          <div><span class="muted">AU 组合：</span><code id="au-desc-codes">—</code></div>
+        </div>
+        <label class="au-opt"><input type="checkbox" id="au-include-codes" /> 插入时附带 AU 代号备忘</label>
+        <div class="au-actions">
+          <button type="button" class="m3td-btn" data-au-insert>插入面部描述</button>
+          <button type="button" class="m3td-btn" data-au-insert-while-saying>插入「边说边带表情」</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="au-picker.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
