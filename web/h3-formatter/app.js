@@ -6,6 +6,41 @@
  */
 
 const STORAGE_KEY = "h3-prompt-formatter-lab-v5";
+const IS_EMBED = (() => {
+  try {
+    return new URLSearchParams(location.search).has("embed") || window.parent !== window;
+  } catch (_) {
+    return false;
+  }
+})();
+if (IS_EMBED) document.documentElement.classList.add("embed");
+
+let __comfySyncTimer = null;
+function notifyComfyParent() {
+  if (!IS_EMBED) return;
+  clearTimeout(__comfySyncTimer);
+  __comfySyncTimer = setTimeout(() => {
+    try {
+      const out = buildFormatterOutput(state);
+      const formPayload = {
+        ...state,
+        linkedBundle: linkedBundle || null,
+      };
+      window.parent.postMessage(
+        {
+          type: "h3-formatter-sync",
+          form_state: JSON.stringify(formPayload),
+          duration: out.duration,
+          prompt: out.prompt,
+          prompt_pack_json: JSON.stringify(out.prompt_pack),
+        },
+        "*"
+      );
+    } catch (err) {
+      console.warn("[h3-formatter] notifyComfy failed", err);
+    }
+  }, 80);
+}
 
 const MODES = [
   { id: "t2va", label: "T2VA", format: "base", hint: "纯文生 · 三字段 · 无对齐句、无参考标签。" },
@@ -138,11 +173,10 @@ function defaultRoleFromBundleItem(item) {
   const src = String(item.source_input || "");
   const kind = String(item.kind || "").toLowerCase();
   if (kind === "picture") {
-    if (src === "first_frame" || src === "last_frame") return "keyframe";
+    if (src === "first_frame" || src === "last_frame" || src === "首帧图" || src === "尾帧图") return "keyframe";
     return "subject_only";
   }
   if (kind === "video") {
-    // 续拍常用；用户可改成 structure / subject_only
     return "source_edit";
   }
   if (kind === "audio") {
@@ -155,6 +189,7 @@ function defaultRoleFromBundleItem(item) {
 function noteSeedFromBundleItem(item) {
   const label = String(item.label || "").trim();
   const kind = String(item.kind || "").toLowerCase();
+  const src = String(item.source_input || "");
   const role = defaultRoleFromBundleItem(item);
   if (kind === "audio" && role === "timbre") {
     return label ? `is the voice-timbre reference (${label}).` : "is a voice-timbre reference.";
@@ -163,54 +198,100 @@ function noteSeedFromBundleItem(item) {
     return label ? `is the source video (${label}) for editing or continuation.` : "is the source video for editing or continuation.";
   }
   if (kind === "picture" && role === "keyframe") {
+    if (src === "last_frame" || src === "尾帧图") {
+      return label ? `is the last-frame / end-composition anchor (${label}).` : "is the last-frame / end-composition anchor.";
+    }
+    if (src === "first_frame" || src === "首帧图") {
+      return label ? `is the first-frame / composition anchor (${label}).` : "is the first-frame / composition anchor.";
+    }
     return label ? `is a keyframe / composition anchor (${label}).` : "is a keyframe / composition anchor.";
   }
   return label ? `(from media bundle: ${label})` : "";
 }
 
+/** 统一 source_input 键，便于合并对齐 */
+function normalizeSourceKey(src) {
+  const s = String(src || "").trim();
+  if (!s) return "";
+  if (s === "首帧图" || s === "first_frame") return "first_frame";
+  if (s === "尾帧图" || s === "last_frame") return "last_frame";
+  let m;
+  if ((m = s.match(/^参考图(\d+)$/))) return `ref_image_${Number(m[1]) - 1}`;
+  if ((m = s.match(/^参考视频音轨(\d+)$/))) return `ref_video_audio_${Number(m[1]) - 1}`;
+  if ((m = s.match(/^参考视频(\d+)$/))) return `ref_video_${Number(m[1]) - 1}`;
+  if ((m = s.match(/^参考音频(\d+)$/))) return `ref_audio_${Number(m[1]) - 1}`;
+  if ((m = s.match(/^(ref_image|ref_video_audio|ref_video|ref_audio)_(\d+)$/))) return `${m[1]}_${m[2]}`;
+  return s;
+}
+
+function ensureRefModeScaffold() {
+  if (!state.taskTypes.length) state.taskTypes = ["reference generation"];
+  if (!state.subjects.length) {
+    state.subjects = [{
+      id: uid(),
+      name: "",
+      text: "",
+      binds: [],
+      retain: "fully_preserved",
+      retainNote: "",
+    }];
+  }
+}
+
 /**
- * 根据素材包 manifest 生成/合并引用卡。
- * - 按 source_input 对齐已有卡：保留用户改过的 role / retain / note（若 note 非空）
- * - 新素材追加；包里没有的旧卡保留（不擅自删，避免误伤手写引用）
- * - mode_hint 为 Ref2VA 时切到 ref2va；I2VA/FL2VA/L2VA 切对应基础模式
+ * 根据素材包 manifest 增量合并引用卡（不整表重建）。
+ * - 按 source_input 对齐：保留用户已填的 note / role / retain / retainNote
+ * - 新槽位追加；断开的包内槽位对应卡删除；手加卡（无 sourceInput）一律保留
+ * - 有 ref_* → 强制 Ref2VA；否则按首/尾帧判 I2VA / FL2VA / L2VA / T2VA
  */
 function applyMediaBundle(bundle, { replaceMatching = true } = {}) {
   if (!bundle || !bundle.manifest) throw new Error("素材包无效：缺少 manifest");
   const items = Array.isArray(bundle.manifest.items) ? bundle.manifest.items : [];
-  const modeHint = String(bundle.mode_hint || bundle.manifest.mode || "").toUpperCase();
 
-  if (modeHint === "REF2VA") state.mode = "ref2va";
-  else if (modeHint === "I2VA") state.mode = "i2va";
-  else if (modeHint === "FL2VA") state.mode = "fl2va";
-  else if (modeHint === "L2VA") state.mode = "l2va";
-  else if (modeHint === "T2VA") state.mode = "t2va";
+  const hasRefAssets = items.some((it) => /^ref_/.test(normalizeSourceKey(it.source_input)));
+  const hasFirst = items.some((it) => normalizeSourceKey(it.source_input) === "first_frame");
+  const hasLast = items.some((it) => normalizeSourceKey(it.source_input) === "last_frame");
 
-  // 基础模式只有首尾帧：仍可写入 Picture 引用说明，但 Ref 区块在非 ref 时隐藏——
-  // 若有参考图/视频/音频，强制 Ref2VA 更合理
-  const hasRefAssets = items.some((it) => {
-    const src = String(it.source_input || "");
-    return /^ref_/.test(src);
-  });
+  // 模式：除首尾帧外只要有素材 → Ref；否则按首尾帧
   if (hasRefAssets) state.mode = "ref2va";
+  else if (hasFirst && hasLast) state.mode = "fl2va";
+  else if (hasFirst) state.mode = "i2va";
+  else if (hasLast) state.mode = "l2va";
+  else {
+    const hint = String(bundle.mode_hint || bundle.manifest.mode || "").toUpperCase();
+    if (hint === "REF2VA") state.mode = "ref2va";
+    else if (hint === "I2VA") state.mode = "i2va";
+    else if (hint === "FL2VA") state.mode = "fl2va";
+    else if (hint === "L2VA") state.mode = "l2va";
+    else state.mode = "t2va";
+  }
+
+  if (state.mode === "ref2va") ensureRefModeScaffold();
 
   const bySource = new Map();
   (state.refs || []).forEach((r) => {
-    if (r.sourceInput) bySource.set(r.sourceInput, r);
+    const key = normalizeSourceKey(r.sourceInput);
+    if (key) bySource.set(key, r);
   });
 
+  const activeKeys = new Set();
   let added = 0;
   let updated = 0;
+
   items.forEach((item) => {
     const kind = String(item.kind || "Picture").toLowerCase();
     if (!["picture", "video", "audio"].includes(kind)) return;
-    const sourceInput = item.source_input || `${kind}_${item.index}`;
+    const sourceInput = normalizeSourceKey(item.source_input || `${kind}_${item.index}`);
+    if (!sourceInput) return;
+    activeKeys.add(sourceInput);
+
     const existing = bySource.get(sourceInput);
     if (existing && replaceMatching) {
+      // 只同步包侧元数据；用户填写一律保留
       existing.kind = kind;
-      existing.bundleToken = item.token || "";
-      existing.bundleLabel = item.label || "";
+      existing.bundleToken = item.token || existing.bundleToken || "";
+      existing.bundleLabel = item.label || existing.bundleLabel || "";
       existing.sourceInput = sourceInput;
-      // 用途留给用户；仅当从未设过才填默认
       if (!existing.role) existing.role = defaultRoleFromBundleItem(item);
       existing.role = migrateRefRole(kind, existing.role);
       if (!String(existing.note || "").trim()) existing.note = noteSeedFromBundleItem(item);
@@ -219,6 +300,7 @@ function applyMediaBundle(bundle, { replaceMatching = true } = {}) {
       return;
     }
     if (existing) return;
+
     const role = defaultRoleFromBundleItem(item);
     const ref = {
       id: uid(),
@@ -236,21 +318,57 @@ function applyMediaBundle(bundle, { replaceMatching = true } = {}) {
     added += 1;
   });
 
+  // 包内曾识别、现已断开的卡 → 删掉；无 sourceInput 的手加卡保留
+  let removed = 0;
+  state.refs = (state.refs || []).filter((r) => {
+    const key = normalizeSourceKey(r.sourceInput);
+    if (!key) return true;
+    if (activeKeys.has(key)) return true;
+    removed += 1;
+    return false;
+  });
+
+  // 清理 Subject 里指向已删引用的 binds
+  if (removed && Array.isArray(state.subjects)) {
+    const alive = new Set((state.refs || []).map((r) => r.id));
+    state.subjects.forEach((s) => {
+      if (!Array.isArray(s.binds)) return;
+      s.binds = s.binds.filter((b) => !b.refId || alive.has(b.refId));
+    });
+  }
+
+  const modeLabel = modeMeta(state).label;
   linkedBundle = {
-    mode_hint: modeHint || bundle.manifest.mode || "",
+    mode_hint: modeLabel,
     manifest: {
       version: bundle.manifest.version || 1,
-      mode: bundle.manifest.mode || modeHint,
+      mode: modeLabel,
       items: items.map((it) => ({
         kind: it.kind,
         index: it.index,
         token: it.token,
         label: it.label,
-        source_input: it.source_input,
+        source_input: normalizeSourceKey(it.source_input) || it.source_input,
       })),
     },
   };
-  return { added, updated, total: items.length, mode: state.mode };
+  return { added, updated, removed, total: items.length, mode: state.mode };
+}
+
+/** 清空所有「由素材包识别出来」的引用卡（保留手加卡） */
+function clearBundleLinkedRefs() {
+  const before = (state.refs || []).length;
+  state.refs = (state.refs || []).filter((r) => !normalizeSourceKey(r.sourceInput));
+  const removed = before - state.refs.length;
+  if (removed && Array.isArray(state.subjects)) {
+    const alive = new Set(state.refs.map((r) => r.id));
+    state.subjects.forEach((s) => {
+      if (!Array.isArray(s.binds)) return;
+      s.binds = s.binds.filter((b) => !b.refId || alive.has(b.refId));
+    });
+  }
+  linkedBundle = null;
+  return { added: 0, updated: 0, removed, total: 0, mode: state.mode };
 }
 
 function renderBundleStatus() {
@@ -258,7 +376,9 @@ function renderBundleStatus() {
   const slot = document.getElementById("slot-media-bundle");
   if (!el) return;
   if (!linkedBundle) {
-    el.textContent = "未连接素材包（Lab 可用「加载示例包」演示）";
+    el.textContent = IS_EMBED
+      ? "未连接素材包 · 接好后点「识别」同步引用"
+      : "未连接素材包（Lab 可用「加载示例包」演示）";
     el.classList.remove("has-bundle");
     if (slot) slot.classList.remove("active");
     return;
@@ -374,43 +494,6 @@ const AUDIO_RETAIN = [
 
 const PACK_VERSION = 1;
 
-const FIELD_LABEL_ZH = {
-  prompt_pack: "H3 提示词包",
-  duration: "时长（秒）",
-  mode: "任务类型",
-  prompt: "完整提示词",
-  "prompt_pack.mode": "任务类型（包内）",
-  "prompt_pack.structured.referenceHeader": "首行对齐句",
-  "prompt_pack.structured.globalStyle": "整体风格",
-  "prompt_pack.structured.summary": "任务摘要",
-  "prompt_pack.structured.subjectDefinitions": "主体定义",
-  "prompt_pack.structured.retentionAnalysis": "保真度分析",
-  "prompt_pack.structured.overallSoundscape": "整体环境声",
-  "prompt_pack.structured.nonDiegeticMusic": "非叙事配乐",
-  alignment: "开头对齐句",
-  integrated_multimodal_description: "视听一体描述（时间线正文）",
-  overall_soundscape: "整体环境声",
-  non_diegetic_music: "非叙事配乐（观众层）",
-  subject_definitions: "主体/素材定义",
-  summary: "任务摘要",
-  retention_analysis: "保真度分析",
-  detailed_description: "逐镜详细描述",
-};
-
-function fieldLabel(key) {
-  if (/^prompt_pack\.structured\.shots\[\d+\]$/.test(key)) {
-    const i = Number(key.match(/\d+/)[0]);
-    return `prompt_pack.structured.shots[${i}] · 第 ${i + 1} 镜`;
-  }
-  if (/^structured\.shots\[\d+\]$/.test(key)) {
-    const i = Number(key.match(/\d+/)[0]);
-    return `structured.shots[${i}] · 第 ${i + 1} 镜`;
-  }
-  if (/^shot_\d+$/.test(key)) return `${key} · 第 ${key.slice(5)} 镜`;
-  const zh = FIELD_LABEL_ZH[key];
-  return zh ? `${key} · ${zh}` : key;
-}
-
 function nullOrText(value) {
   const t = String(value ?? "").trim();
   return t ? t : null;
@@ -518,6 +601,55 @@ function refTag(state, refId) {
   const same = state.refs.filter((r) => r.kind === ref.kind);
   const idx = same.findIndex((r) => r.id === refId) + 1;
   return `<${capitalizeKind(ref.kind)} ${idx}>`;
+}
+
+/** 同类型内的 1-based 序号 */
+function refKindIndex(state, refId) {
+  const ref = state.refs.find((r) => r.id === refId);
+  if (!ref) return 0;
+  const same = state.refs.filter((r) => r.kind === ref.kind);
+  return same.findIndex((r) => r.id === refId) + 1;
+}
+
+/** 与 Comfy 素材包槽位的对应提示：ref_image_0 ↔ Picture 1 */
+function refSlotLabel(state, refId) {
+  const ref = state.refs.find((r) => r.id === refId);
+  if (!ref) return "";
+  const idx0 = refKindIndex(state, refId) - 1;
+  const expected =
+    ref.kind === "picture"
+      ? `ref_image_${idx0}`
+      : ref.kind === "video"
+        ? `ref_video_${idx0}`
+        : ref.kind === "audio"
+          ? `ref_audio_${idx0}`
+          : "";
+  const wired = normalizeSourceKey(ref.sourceInput);
+  if (wired && wired !== "first_frame" && wired !== "last_frame") {
+    if (wired === expected) return wired;
+    return `${wired} → 现第${idx0 + 1}（期望 ${expected}）`;
+  }
+  if (wired === "first_frame") return "first_frame · 首帧";
+  if (wired === "last_frame") return "last_frame · 尾帧";
+  return expected ? `应对接 ${expected}` : "";
+}
+
+/** 在同类型引用中上移/下移（交换位置，从而交换 Picture/Video/Audio 编号） */
+function moveRefAmongKind(refId, dir) {
+  const ref = state.refs.find((r) => r.id === refId);
+  if (!ref) return false;
+  const sameIds = state.refs.filter((r) => r.kind === ref.kind).map((r) => r.id);
+  const pos = sameIds.indexOf(refId);
+  const swapWith = dir < 0 ? pos - 1 : pos + 1;
+  if (swapWith < 0 || swapWith >= sameIds.length) return false;
+  const otherId = sameIds[swapWith];
+  const i = state.refs.findIndex((r) => r.id === refId);
+  const j = state.refs.findIndex((r) => r.id === otherId);
+  if (i < 0 || j < 0) return false;
+  const tmp = state.refs[i];
+  state.refs[i] = state.refs[j];
+  state.refs[j] = tmp;
+  return true;
 }
 
 function subjectTag(state, subjectId) {
@@ -1079,41 +1211,6 @@ function buildFormatterOutput(state) {
   return { duration, prompt, prompt_pack };
 }
 
-function outputPreviewRows(out) {
-  const rows = [
-    { key: "duration", value: `${out.duration}s`, isNull: false, group: "direct" },
-    { key: "prompt", value: out.prompt, isNull: false, group: "direct" },
-    { key: "prompt_pack.mode", value: out.prompt_pack.mode, isNull: false, group: "pack" },
-  ];
-  const st = out.prompt_pack.structured;
-  [
-    "referenceHeader",
-    "globalStyle",
-    "summary",
-    "subjectDefinitions",
-    "retentionAnalysis",
-    "overallSoundscape",
-    "nonDiegeticMusic",
-  ].forEach((k) => {
-    const v = st[k];
-    rows.push({
-      key: `prompt_pack.structured.${k}`,
-      value: v == null ? "null" : v,
-      isNull: v == null,
-      group: "pack",
-    });
-  });
-  (st.shots || []).forEach((sh) => {
-    rows.push({
-      key: `prompt_pack.structured.shots[${sh.index}]`,
-      value: sh.raw || sh.body || "",
-      isNull: false,
-      group: "pack",
-    });
-  });
-  return rows;
-}
-
 /* —— state —— */
 let state = loadState();
 let mentionCtx = null; // { el, start, end }
@@ -1161,6 +1258,8 @@ function hydrateStateFromObject(raw) {
 }
 
 function loadState() {
+  // Comfy 嵌入：状态由节点 form_state widget 注入，勿抢 localStorage
+  if (IS_EMBED) return defaultState();
   try {
     const raw = JSON.parse(
       localStorage.getItem(STORAGE_KEY) ||
@@ -1176,7 +1275,10 @@ function loadState() {
 
 function saveState() {
   const payload = { ...state, linkedBundle: linkedBundle || null };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  if (!IS_EMBED) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  }
+  notifyComfyParent();
 }
 
 /** 导出表单 JSON（可再加载；附带当前输出快照方便核对） */
@@ -1343,21 +1445,38 @@ function validateState(st) {
   return { errors, warnings, ok: !errors.length };
 }
 
-function renderValidatePanel(result, { forceShow = false } = {}) {
+function renderValidatePanel(result, { forceShow = false, expand = false } = {}) {
   const panel = document.getElementById("validate-panel");
+  const summary = document.getElementById("validate-summary");
+  const block = document.getElementById("block-validate");
   if (!panel) return;
+
+  const setSummary = (text, kind) => {
+    if (!summary) return;
+    summary.textContent = text;
+    summary.classList.remove("is-err", "is-warn", "is-ok");
+    if (kind) summary.classList.add(kind);
+  };
+
   if (!result) {
-    panel.hidden = true;
+    panel.innerHTML = `<div class="vp-ok">点击工具栏「校验」检查时长、切点、缺项等</div>`;
+    panel.classList.remove("has-errors", "ok-only");
+    block?.classList.remove("has-errors", "ok-only");
+    setSummary("未检查 · 点工具栏「校验」", null);
     return;
   }
+
   const { errors, warnings, ok } = result;
   if (!forceShow && ok && !warnings.length) {
-    panel.hidden = true;
-    return;
+    // 静默通过：仍更新摘要，保留面板内容简短
   }
+
   panel.hidden = false;
   panel.classList.toggle("has-errors", !!errors.length);
   panel.classList.toggle("ok-only", ok && !warnings.length);
+  block?.classList.toggle("has-errors", !!errors.length);
+  block?.classList.toggle("ok-only", ok && !warnings.length);
+
   let html = `<div class="vp-title">校验 ${ok ? (warnings.length ? "通过（有建议）" : "通过") : "未通过"}</div>`;
   if (ok && !warnings.length) html += `<div class="vp-ok">未见明显问题</div>`;
   errors.forEach((m) => {
@@ -1367,11 +1486,25 @@ function renderValidatePanel(result, { forceShow = false } = {}) {
     html += `<div class="vp-warn">· ${escapeHtml(m)}</div>`;
   });
   panel.innerHTML = html;
+
+  if (!ok) {
+    setSummary(`未通过 · ${errors.length} 错误 / ${warnings.length} 建议`, "is-err");
+  } else if (warnings.length) {
+    setSummary(`通过 · ${warnings.length} 条建议`, "is-warn");
+  } else {
+    setSummary("通过 · 未见明显问题", "is-ok");
+  }
+
+  // 点校验后自动展开，方便看结果
+  if (expand && state.collapsed?.validate) {
+    state.collapsed.validate = false;
+    applyCollapsedState();
+  }
 }
 
 function runValidate({ silentOk = false } = {}) {
   const result = validateState(state);
-  renderValidatePanel(result, { forceShow: true });
+  renderValidatePanel(result, { forceShow: true, expand: true });
   if (!result.ok) {
     setStatus(`校验未通过：${result.errors.length} 错误 / ${result.warnings.length} 建议`);
   } else if (result.warnings.length) {
@@ -1493,32 +1626,39 @@ function renderRefs() {
 
   const list = document.getElementById("refs-list");
   if (!state.refs.length) {
-    list.innerHTML = `<div class="muted">先添加 Picture / Video / Audio。编号按类型自动排（Picture 1、Video 1…）。采样时你再把对应口接到真正素材。</div>`;
+    list.innerHTML = `<div class="muted">先添加 Picture / Video / Audio。编号按类型排列（&lt;Picture 1&gt; ↔ ref_image_0）。可用上移/下移调整顺序。</div>`;
     return;
   }
 
   list.innerHTML = state.refs
     .map((r) => {
       const tag = refTag(state, r.id);
+      const kindIdx = refKindIndex(state, r.id);
+      const slotLabel = refSlotLabel(state, r.id);
+      const same = state.refs.filter((x) => x.kind === r.kind);
+      const posInKind = same.findIndex((x) => x.id === r.id);
+      const canUp = posInKind > 0;
+      const canDown = posInKind >= 0 && posInKind < same.length - 1;
       const role = migrateRefRole(r.kind, r.role || defaultRoleForKind(r.kind));
-      r.role = role; // 写回迁移后的 role，避免旧值残留
+      r.role = role;
       const showRetain = isStandaloneRef(r);
       const retain = r.retain || defaultRetainForRef(r);
       const appearHint = autoAppearForRef(state, r);
       return `<div class="def-card ref-card" data-ref="${r.id}">
         <div class="def-side">
-          <div class="tag">${tag}</div>
-          ${
-            r.sourceInput
-              ? `<div class="muted" style="font-size:9px;line-height:1.2" title="来自素材包">${escapeHtml(r.bundleLabel || r.sourceInput)}</div>`
-              : ""
-          }
-          <select data-ref-kind="${r.id}">
-            ${["picture", "video", "audio"].map((k) => `<option value="${k}" ${r.kind === k ? "selected" : ""}>${capitalizeKind(k)}</option>`).join("")}
-          </select>
+          <div class="ref-badge">
+            <span class="ref-num">#${kindIdx}</span>
+            <span class="tag">${tag}</span>
+          </div>
+          <div class="ref-slot" title="与 H3 参考素材节点槽位对应">${escapeHtml(slotLabel)}</div>
+          <div class="ref-kind-locked" title="类型在添加时已确定，不可更改；需换类型请删除后重加">${escapeHtml(capitalizeKind(r.kind))}</div>
           <select data-ref-role="${r.id}" title="用途（随类型变化）">
             ${roleOptionsHtml(r.kind, role)}
           </select>
+          <div class="ref-move">
+            <button type="button" class="m3td-btn" data-ref-up="${r.id}" title="上移（交换编号）" ${canUp ? "" : "disabled"}>上移</button>
+            <button type="button" class="m3td-btn" data-ref-down="${r.id}" title="下移（交换编号）" ${canDown ? "" : "disabled"}>下移</button>
+          </div>
         </div>
         <div class="subj-body">
           <textarea data-ref-note="${r.id}" placeholder="${escapeAttr(refNotePlaceholder(r.kind, role))}">${escapeHtml(r.note || "")}</textarea>
@@ -2029,24 +2169,9 @@ function renderPreview() {
   document.getElementById("preview-meta").textContent =
     `${out.prompt_pack.mode} · ${meta.format === "ref" ? "六字段" : "三字段"} · ${state.shots.length} 镜 · ${out.duration}s`;
 
-  const rows = outputPreviewRows(out);
-  let html = `<div class="outputs-group-title">直接输出</div>`;
-  rows
-    .filter((o) => o.group === "direct")
-    .forEach((o) => {
-      html += `<div class="out-row"><code>${escapeHtml(fieldLabel(o.key))}</code><span class="snip" title="${escapeAttr(o.value)}">${escapeHtml(oneLine(o.value))}</span></div>`;
-    });
-  html += `<div class="outputs-group-title">prompt_pack · H3_PROMPT_PACK</div>`;
-  rows
-    .filter((o) => o.group === "pack")
-    .forEach((o) => {
-      html += `<div class="out-row${o.isNull ? " is-null" : ""}"><code>${escapeHtml(fieldLabel(o.key))}</code><span class="snip" title="${escapeAttr(o.value)}">${escapeHtml(oneLine(o.value))}</span></div>`;
-    });
-  document.getElementById("outputs-list").innerHTML = html;
-
-  // 若校验面板已打开，随编辑刷新结果
+  // 若已经校验过，随编辑刷新结果（不强制展开）
   const vp = document.getElementById("validate-panel");
-  if (vp && !vp.hidden) renderValidatePanel(validateState(state), { forceShow: true });
+  if (vp?.querySelector(".vp-title")) renderValidatePanel(validateState(state), { forceShow: true });
 
   updateAppearHints();
 }
@@ -2070,7 +2195,9 @@ function updateAppearHints() {
 }
 
 function renderOutputSlots() {
-  document.getElementById("output-slots").innerHTML = [
+  const el = document.getElementById("output-slots");
+  if (!el) return;
+  el.innerHTML = [
     `<div class="cz-slot number active"><i></i><span>duration · FLOAT</span></div>`,
     `<div class="cz-slot string active"><i></i><span>prompt · STRING</span></div>`,
     `<div class="cz-slot custom active"><i></i><span>prompt_pack · H3_PROMPT_PACK</span></div>`,
@@ -2078,32 +2205,74 @@ function renderOutputSlots() {
 }
 
 /* —— @ mention —— */
-function openMentionMenu(anchorBtn, targetKey) {
+function resolveMentionTarget(targetKey) {
+  const colon = String(targetKey || "").indexOf(":");
+  if (colon < 0) return { type: "", id: "", el: null };
+  const type = targetKey.slice(0, colon);
+  const id = targetKey.slice(colon + 1);
+  let el = null;
+  if (type === "subj-text") el = document.querySelector(`[data-subj-text="${CSS.escape ? CSS.escape(id) : id}"]`);
+  else if (type === "shot-visual" || type === "shot-body") {
+    el =
+      document.querySelector(`[data-shot-body="${CSS.escape ? CSS.escape(id) : id}"]`) ||
+      document.querySelector(`[data-shot-visual="${CSS.escape ? CSS.escape(id) : id}"]`);
+  } else if (type === "summary") {
+    el = document.getElementById("summary-body");
+  }
+  return { type, id, el };
+}
+
+function placeMentionMenu(anchorBtn, menu) {
+  const rect = anchorBtn.getBoundingClientRect();
+  const menuW = Math.min(320, window.innerWidth - 16);
+  const menuH = Math.min(240, window.innerHeight - 16);
+  let left = rect.left;
+  let top = rect.bottom + 4;
+  if (left + menuW > window.innerWidth - 8) left = Math.max(8, window.innerWidth - menuW - 8);
+  if (top + Math.min(180, menuH) > window.innerHeight - 8) {
+    top = Math.max(8, rect.top - 4 - Math.min(180, menuH));
+  }
+  menu.style.left = `${Math.max(8, left)}px`;
+  menu.style.top = `${top}px`;
+  menu.style.zIndex = "100000";
+}
+
+function openMentionMenu(anchorBtn, targetKey, evt) {
+  if (evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+  }
   if (!isRef(state)) {
     setStatus("仅 Ref2VA 可 @ 插入引用/Subject 标签");
     return;
   }
   const menu = document.getElementById("mention-menu");
-  const items = allMentionItems(state);
-  if (!items.length) {
-    setStatus("还没有可 @ 的引用/Subject");
+  if (!menu) {
+    setStatus("@ 菜单节点缺失");
     return;
   }
-  const [type, id] = targetKey.split(":");
-  let el = null;
-  if (type === "subj-text") el = document.querySelector(`[data-subj-text="${id}"]`);
-  if (type === "shot-visual" || type === "shot-body") el = document.querySelector(`[data-shot-body="${id}"]`) || document.querySelector(`[data-shot-visual="${id}"]`);
-  if (!el) return;
+  // 确保挂在 body，避免被 overflow 裁切
+  if (menu.parentElement !== document.body) document.body.appendChild(menu);
+
+  const items = allMentionItems(state);
+  if (!items.length) {
+    setStatus("还没有可 @ 的引用/Subject，请先添加");
+    return;
+  }
+  const { type, id, el } = resolveMentionTarget(targetKey);
+  if (!el) {
+    setStatus(`@ 找不到输入框（${targetKey}）`);
+    console.warn("[h3-formatter] mention target missing", targetKey);
+    return;
+  }
 
   mentionCtx = { el, type, id };
   menu.hidden = false;
   menu.innerHTML = items
     .map((it) => `<button type="button" data-insert="${escapeAttr(it.insert)}">${escapeHtml(it.label)}</button>`)
     .join("");
-
-  const rect = anchorBtn.getBoundingClientRect();
-  menu.style.left = `${Math.min(rect.left, window.innerWidth - 260)}px`;
-  menu.style.top = `${rect.bottom + 4}px`;
+  placeMentionMenu(anchorBtn, menu);
+  setStatus(`选择要插入的标签（${items.length}）`);
 }
 
 function insertMention(text) {
@@ -2115,7 +2284,7 @@ function insertMention(text) {
   const after = el.value.slice(end);
   const pad = before && !/\s$/.test(before) ? " " : "";
   el.value = before + pad + text + " " + after;
-  // 同步到 state（shot body / subject text）
+
   if (el.dataset.shotBody) {
     const shot = state.shots.find((s) => s.id === el.dataset.shotBody);
     if (shot) shot.body = el.value;
@@ -2124,37 +2293,55 @@ function insertMention(text) {
     const s = state.subjects.find((x) => x.id === el.dataset.subjText);
     if (s) s.text = el.value;
   }
+  if (el.id === "summary-body" || mentionCtx.type === "summary") {
+    state.summaryBody = el.value;
+  }
+
   el.dispatchEvent(new Event("input", { bubbles: true }));
   el.focus();
+  const caret = Math.min((before + pad + text + " ").length, el.value.length);
+  try {
+    el.setSelectionRange(caret, caret);
+  } catch (_) { /* ignore */ }
   hideMention();
+  saveState();
+  renderPreview();
+  setStatus(`已插入 ${text}`);
 }
 
 function hideMention() {
   const menu = document.getElementById("mention-menu");
-  menu.hidden = true;
-  menu.innerHTML = "";
+  if (menu) {
+    menu.hidden = true;
+    menu.innerHTML = "";
+  }
   mentionCtx = null;
 }
 
 /* —— events —— */
 function bind() {
-  document.querySelector(".work-left")?.addEventListener("click", (e) => {
-    if (e.target.closest("[data-no-collapse]")) return;
-    if (e.target.closest("button.m3td-btn") && !e.target.closest("[data-collapse-toggle]")) return;
-    const head = e.target.closest("[data-collapse-toggle]");
-    if (!head) return;
-    const block = head.closest(".block.collapsible[data-sec]");
-    if (!block) return;
-    toggleSectionCollapse(block.dataset.sec);
-  });
-  document.querySelector(".work-left")?.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter" && e.key !== " ") return;
-    const head = e.target.closest("[data-collapse-toggle]");
-    if (!head) return;
-    e.preventDefault();
-    const block = head.closest(".block.collapsible[data-sec]");
-    if (block) toggleSectionCollapse(block.dataset.sec);
-  });
+  const bindCollapse = (root) => {
+    if (!root) return;
+    root.addEventListener("click", (e) => {
+      if (e.target.closest("[data-no-collapse]")) return;
+      if (e.target.closest("button.m3td-btn") && !e.target.closest("[data-collapse-toggle]")) return;
+      const head = e.target.closest("[data-collapse-toggle]");
+      if (!head) return;
+      const block = head.closest(".block.collapsible[data-sec]");
+      if (!block) return;
+      toggleSectionCollapse(block.dataset.sec);
+    });
+    root.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const head = e.target.closest("[data-collapse-toggle]");
+      if (!head) return;
+      e.preventDefault();
+      const block = head.closest(".block.collapsible[data-sec]");
+      if (block) toggleSectionCollapse(block.dataset.sec);
+    });
+  };
+  bindCollapse(document.querySelector(".work-left"));
+  bindCollapse(document.querySelector(".work-right"));
 
   document.getElementById("mode-tabs").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-mode]");
@@ -2211,6 +2398,12 @@ function bind() {
   });
 
   document.getElementById("btn-import-bundle").addEventListener("click", () => {
+    // 向 Comfy 父页要最新接线再识别，避免用过期的 linkedBundle
+    if (IS_EMBED) {
+      window.parent.postMessage({ type: "h3-formatter-request-import" }, "*");
+      setStatus("正在按当前接线同步引用…");
+      return;
+    }
     if (!linkedBundle) {
       setStatus("请先连接素材包，或点「加载示例包」");
       return;
@@ -2219,7 +2412,12 @@ function bind() {
       const r = applyMediaBundle(linkedBundle);
       saveState();
       render();
-      setStatus(`已识别 ${r.total} 路 → 新增 ${r.added} · 更新 ${r.updated} · 模式 ${modeMeta(state).label}（请再指定每条用途）`);
+      const bits = [`模式 ${modeMeta(state).label}`];
+      if (r.added) bits.push(`新增 ${r.added}`);
+      if (r.updated) bits.push(`保留更新 ${r.updated}`);
+      if (r.removed) bits.push(`移除断开 ${r.removed}`);
+      if (!r.added && !r.updated && !r.removed) bits.push("无变化");
+      setStatus(`识别完成 · ${bits.join(" · ")}（已填内容会保留）`);
     } catch (err) {
       setStatus(`识别失败：${err?.message || err}`);
     }
@@ -2259,15 +2457,6 @@ function bind() {
   });
   document.getElementById("refs-list").addEventListener("change", (e) => {
     const t = e.target;
-    if (t.matches("[data-ref-kind]")) {
-      const r = state.refs.find((x) => x.id === t.dataset.refKind);
-      if (r) {
-        r.kind = t.value;
-        r.role = defaultRoleForKind(r.kind);
-        r.retain = defaultRetainForRef(r);
-      }
-      render();
-    }
     if (t.matches("[data-ref-role]")) {
       const r = state.refs.find((x) => x.id === t.dataset.refRole);
       if (r) {
@@ -2286,6 +2475,22 @@ function bind() {
     }
   });
   document.getElementById("refs-list").addEventListener("click", (e) => {
+    const up = e.target.closest("[data-ref-up]");
+    if (up && !up.disabled) {
+      if (moveRefAmongKind(up.dataset.refUp, -1)) {
+        setStatus(`已上移 · ${refTag(state, up.dataset.refUp) || ""}`);
+        render();
+      }
+      return;
+    }
+    const down = e.target.closest("[data-ref-down]");
+    if (down && !down.disabled) {
+      if (moveRefAmongKind(down.dataset.refDown, 1)) {
+        setStatus(`已下移 · ${refTag(state, down.dataset.refDown) || ""}`);
+        render();
+      }
+      return;
+    }
     const del = e.target.closest("[data-del-ref]");
     if (!del) return;
     const id = del.dataset.delRef;
@@ -2388,7 +2593,8 @@ function bind() {
     }
     const at = e.target.closest("[data-at-target]");
     if (at) {
-      openMentionMenu(at, at.dataset.atTarget);
+      openMentionMenu(at, at.dataset.atTarget, e);
+      return;
     }
   });
 
@@ -2534,12 +2740,12 @@ function bind() {
       else if (kind === "dlg") openDlgTool(sid);
       else if (kind === "sfx") openSfxTool(sid);
       else if (kind === "au") openAuTool(sid);
-      else if (kind === "at") openMentionMenu(tool, tool.dataset.atTarget || `shot-body:${sid}`);
+      else if (kind === "at") openMentionMenu(tool, tool.dataset.atTarget || `shot-body:${sid}`, e);
       return;
     }
     const at = e.target.closest("[data-at-target]");
     if (at && !at.matches("[data-tool]")) {
-      openMentionMenu(at, at.dataset.atTarget);
+      openMentionMenu(at, at.dataset.atTarget, e);
       return;
     }
     const card = e.target.closest("[data-shot]");
@@ -2664,12 +2870,26 @@ function bind() {
   document.getElementById("mention-menu").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-insert]");
     if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
     insertMention(btn.dataset.insert);
   });
 
-  document.addEventListener("click", (e) => {
-    if (e.target.closest("#mention-menu") || e.target.closest("[data-at-target]")) return;
-    hideMention();
+  // 用 pointerdown 关闭，避免与「打开菜单」的同一次 click 打架
+  document.addEventListener(
+    "pointerdown",
+    (e) => {
+      if (!document.getElementById("mention-menu") || document.getElementById("mention-menu").hidden) return;
+      if (e.target.closest("#mention-menu")) return;
+      if (e.target.closest("[data-at-target]") || e.target.closest('[data-tool="at"]')) return;
+      hideMention();
+    },
+    true
+  );
+
+  // summary 上的 @（subjects 区块外也兜底）
+  document.getElementById("btn-summary-at")?.addEventListener("click", (e) => {
+    openMentionMenu(e.currentTarget, "summary:body", e);
   });
 
   document.getElementById("btn-copy-full").addEventListener("click", async () => {
@@ -2730,3 +2950,55 @@ if (window.AuPicker) {
   if (presets) presets.innerHTML = AuPicker.presetButtonsHtml();
 }
 render();
+
+/* —— Comfy 父页面桥 —— */
+window.addEventListener("message", (event) => {
+  const data = event?.data;
+  if (!data || data.type !== "h3-formatter-parent") return;
+  if (data.action === "setState") {
+    try {
+      const raw = typeof data.form_state === "string" ? JSON.parse(data.form_state || "{}") : data.form_state;
+      state = hydrateStateFromObject(raw || {});
+      renderValidatePanel(null);
+      render();
+      notifyComfyParent();
+    } catch (err) {
+      console.warn("[h3-formatter] setState failed", err);
+    }
+    return;
+  }
+  if (data.action === "setBundle") {
+    const wantImport = Boolean(data.autoImport);
+    linkedBundle = data.bundle || null;
+    renderBundleStatus();
+    if (!wantImport) return;
+
+    try {
+      let r;
+      if (!linkedBundle || !linkedBundle.manifest) {
+        r = clearBundleLinkedRefs();
+      } else {
+        r = applyMediaBundle(linkedBundle);
+      }
+      saveState();
+      render();
+      const bits = [`模式 ${modeMeta(state).label}`];
+      if (r.added) bits.push(`+${r.added}`);
+      if (r.updated) bits.push(`~${r.updated}`);
+      if (r.removed) bits.push(`-${r.removed}`);
+      if (!r.added && !r.updated && !r.removed) bits.push("无变化");
+      setStatus(`已同步引用 · ${bits.join(" · ")}`);
+    } catch (err) {
+      setStatus(`识别失败：${err?.message || err}`);
+    }
+    return;
+  }
+  if (data.action === "ping") {
+    window.parent.postMessage({ type: "h3-formatter-ready" }, "*");
+  }
+});
+
+if (IS_EMBED) {
+  window.parent.postMessage({ type: "h3-formatter-ready" }, "*");
+  notifyComfyParent();
+}

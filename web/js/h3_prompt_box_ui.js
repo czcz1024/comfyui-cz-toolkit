@@ -100,33 +100,57 @@ function findInput(node, name) {
 
 function inputLinkId(input) {
     if (!input) return null;
-    if (input.link != null) return input.link;
+    const pick = (id) => (id != null && id !== -1 ? id : null);
+    if (input.link != null) return pick(input.link);
     const links = input.links;
     if (links == null) return null;
-    if (Array.isArray(links)) return links[0] ?? null;
-    if (links instanceof Set || links instanceof Map) return links.values().next().value ?? null;
-    if (typeof links?.[Symbol.iterator] === "function" && typeof links !== "string") {
-        return links[Symbol.iterator]().next().value ?? null;
+    if (Array.isArray(links)) {
+        for (const id of links) {
+            const got = pick(id);
+            if (got != null) return got;
+        }
+        return null;
     }
-    return links;
+    if (links instanceof Set || links instanceof Map) {
+        for (const id of links.values()) {
+            const got = pick(id);
+            if (got != null) return got;
+        }
+        return null;
+    }
+    if (typeof links?.[Symbol.iterator] === "function" && typeof links !== "string") {
+        for (const id of links) {
+            const got = pick(id);
+            if (got != null) return got;
+        }
+        return null;
+    }
+    return pick(links);
 }
 
 function originNode(node, inputName) {
     const graph = graphOf(node);
     const input = typeof inputName === "string" ? findInput(node, inputName) : inputName;
+    if (!input || !node) return null;
+
     const linkRef = inputLinkId(input);
     let link = graphLink(graph, linkRef);
-    if (!link && graph && node && input) {
-        const inputIndex = node.inputs?.indexOf(input);
+
+    // 禁止「仅按下标」认线：空的 first_frame 在槽位压缩后容易把尾帧的线误认成首帧
+    if (!link && graph) {
+        const leaf = inputLeafName(input);
         link = graphLinks(graph).find((candidate) => {
             if (String(targetId(candidate)) !== String(node.id)) return false;
             const rawSlot = targetSlotValue(candidate);
-            const slot = Number(rawSlot);
-            return slot === inputIndex
-                || String(rawSlot) === String(input.name)
-                || String(rawSlot) === String(inputLeafName(input));
+            if (String(rawSlot) === String(input.name) || String(rawSlot) === String(leaf)) return true;
+            if (linkRef != null && String(candidate?.id ?? candidate?.[0]) === String(linkRef)) {
+                const inputIndex = node.inputs?.indexOf(input);
+                return Number(rawSlot) === inputIndex;
+            }
+            return false;
         }) || null;
     }
+
     return link ? graphNode(graph, originId(link)) : null;
 }
 

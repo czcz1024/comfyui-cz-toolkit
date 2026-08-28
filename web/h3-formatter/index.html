@@ -3,14 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>H3 提示词排版台 · Lab</title>
+  <title>H3 提示词排版台</title>
+  <script>
+    (function () {
+      try {
+        if (new URLSearchParams(location.search).has("embed") || window.parent !== window) {
+          document.documentElement.classList.add("embed");
+        }
+      } catch (_) { /* cross-origin */ }
+    })();
+  </script>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="lab-page">
     <header class="lab-topbar">
       <div class="lab-topbar-title">H3 提示词排版台 · HTML 原型</div>
-      <div class="lab-topbar-hint">模拟 Comfy 节点外观 · 不跑工作流也能看预览 · 定稿后再移植</div>
+      <div class="lab-topbar-hint">本地 Lab · Comfy 内用 iframe embed=1</div>
       <button type="button" class="lab-ghost" id="btn-reset">重置示例</button>
     </header>
 
@@ -55,8 +64,8 @@
                 <div class="info-strip" id="mode-hint"></div>
 
                 <div class="bundle-bar" id="bundle-bar">
-                  <span class="bundle-status" id="bundle-status">未连接素材包（Lab 可用「加载示例包」演示）</span>
-                  <button type="button" class="m3td-btn" id="btn-import-bundle" title="按 H3_MEDIA_BUNDLE.manifest 生成 Picture/Video/Audio 引用卡">从素材包识别引用</button>
+                  <span class="bundle-status" id="bundle-status">未连接素材包 · 接好后点「识别」同步引用</span>
+                  <button type="button" class="m3td-btn" id="btn-import-bundle" title="按当前接线增量同步引用卡与模式（不会在接线时自动改）">识别</button>
                   <button type="button" class="m3td-btn" id="btn-demo-bundle" title="注入一份示例 manifest，方便演示">加载示例包</button>
                 </div>
 
@@ -90,9 +99,12 @@
                       <button type="button" class="m3td-btn" id="btn-add-subject">＋ Subject</button>
                     </div>
                     <div class="defs-list" id="subjects-list"></div>
-                    <label class="stack-field" style="margin-top:8px">
-                      <span>summary · 任务摘要<span class="muted">（方括号任务类型由上方多选自动加）</span></span>
-                      <textarea id="summary-body" rows="2" placeholder="一句话概括目标视频与参考关系…"></textarea>
+                    <label class="stack-field summary-field" style="margin-top:8px">
+                      <span>summary · 任务摘要<span class="muted">（方括号任务类型由上方多选自动加 · 可 @ 插入 Subject/引用）</span></span>
+                      <div class="summary-row">
+                        <textarea id="summary-body" rows="2" placeholder="一句话概括目标视频与参考关系… 例：&lt;Subject 1&gt; drives &lt;Subject 2&gt;…"></textarea>
+                        <button type="button" class="m3td-btn at-btn" id="btn-summary-at" data-at-target="summary:body" title="插入 Subject / 引用标签">@</button>
+                      </div>
                     </label>
                   </div>
                 </section>
@@ -149,22 +161,30 @@
               </div>
 
               <div class="work-right">
-                <div class="preview-head">
-                  <strong>实时预览</strong>
-                  <span class="muted" id="preview-meta"></span>
-                </div>
-                <div class="validate-panel" id="validate-panel" hidden></div>
-                <pre class="preview-body" id="preview-body"></pre>
-                <div class="outputs-sim">
-                  <div class="outputs-title">输出预览（右侧三个连线口）</div>
-                  <div class="outputs-list" id="outputs-list"></div>
-                </div>
-              </div>
-            </div>
+                <section class="block collapsible preview-sec" id="block-validate" data-sec="validate">
+                  <div class="block-head" data-collapse-toggle role="button" tabindex="0" aria-expanded="true">
+                    <strong>校验</strong>
+                    <span class="muted" id="validate-summary">未检查 · 点工具栏「校验」</span>
+                    <span class="collapse-chevron" aria-hidden="true">▾</span>
+                  </div>
+                  <div class="block-body">
+                    <div class="validate-panel" id="validate-panel">
+                      <div class="vp-ok">点击工具栏「校验」检查时长、切点、缺项等</div>
+                    </div>
+                  </div>
+                </section>
 
-            <div class="m3td-foot">
-              <strong>输出：</strong>
-              <span><code>duration</code> + <code>prompt</code> 直连 · <code>prompt_pack</code> 含 mode / structured（shots 按下标取）</span>
+                <section class="block collapsible preview-sec" id="block-preview" data-sec="preview">
+                  <div class="block-head" data-collapse-toggle role="button" tabindex="0" aria-expanded="true">
+                    <strong>最终提示词</strong>
+                    <span class="muted" id="preview-meta"></span>
+                    <span class="collapse-chevron" aria-hidden="true">▾</span>
+                  </div>
+                  <div class="block-body preview-body-wrap">
+                    <pre class="preview-body" id="preview-body"></pre>
+                  </div>
+                </section>
+              </div>
             </div>
           </div>
 
