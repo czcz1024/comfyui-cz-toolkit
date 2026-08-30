@@ -247,6 +247,15 @@ def _normalize_handler_name(handler_name):
     return "Qwen3.8" if handler_name == "Qwen3-8B" else handler_name
 
 
+def qwen38_thinking_active(handle):
+    """Qwen3.8 且思考模式与推理强度均已开启。"""
+    if _normalize_handler_name(handle.get("handler_name", "None")) != "Qwen3.8":
+        return False
+    if not handle.get("think_mode", False):
+        return False
+    return normalize_qwen38_reasoning_effort(handle.get("reasoning_effort", "off")) != "off"
+
+
 # ── 模块级缓存 ────────────────────────────────────────────────────────────────
 class _ModelCache:
     def __init__(self):
