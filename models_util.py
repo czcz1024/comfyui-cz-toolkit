@@ -915,6 +915,19 @@ def load_model(handle):
     return llm
 
 
+def model_supports_audio(llm):
+    """当前已加载模型（mmproj + chat handler）是否支持 input_audio。"""
+    handler = getattr(llm, "chat_handler", None)
+    if handler is None:
+        return False
+    if hasattr(handler, "_init_mtmd_context") and getattr(handler, "mtmd_ctx", None) is None:
+        try:
+            handler._init_mtmd_context(llm)
+        except Exception:
+            return False
+    return bool(getattr(handler, "is_support_audio", False))
+
+
 def set_seed(llm, seed):
     """修复随机种子：每次生成前显式复位 RNG，确保相同 seed + 相同输入可复现。"""
     seed = int(seed)

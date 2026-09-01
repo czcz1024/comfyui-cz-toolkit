@@ -483,12 +483,13 @@ def bundle_media_counts(bundle):
     return len(bundle.get("image_parts") or []), len(bundle.get("audio_parts") or [])
 
 
-def build_llm_user_content(bundle, text):
+def build_llm_user_content(bundle, text, *, include_audio=True):
     """组装 llama.cpp 多模态 user message：图/音在前，文本在后。"""
     parts = []
     if bundle and isinstance(bundle, dict):
         parts.extend(bundle.get("image_parts") or [])
-        parts.extend(bundle.get("audio_parts") or [])
+        if include_audio:
+            parts.extend(bundle.get("audio_parts") or [])
     text = (text or "").strip()
     if text:
         parts.append({"type": "text", "text": text})

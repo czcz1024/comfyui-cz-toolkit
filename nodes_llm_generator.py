@@ -1,6 +1,7 @@
 """通用 LLM 生成节点：系统提示词 + 用户消息，可选多模态素材包（图/音）。
 
-接 H3 参考素材时，将 image_parts / audio_parts 送入带 mmproj 的本地模型。
+接 H3 参考素材时，将 image_parts / audio_parts 送入带 mmproj 的本地模型；
+若当前模型不支持音频，则仅跳过送入 LLM 的音频，素材包本身仍可传给其他节点。
 """
 
 import re
@@ -155,19 +156,28 @@ class LLMGenerator:
             bundle = None
 
         n_images, n_audio = mdu.bundle_media_counts(bundle)
-        has_media = n_images > 0 or n_audio > 0
+        llm_supports_audio = mu.model_supports_audio(llm)
+        llm_audio_count = n_audio if llm_supports_audio else 0
+        has_llm_media = n_images > 0 or llm_audio_count > 0
         mmproj_file = 模型句柄.get("mmproj_file", "None")
-        if has_media and (not mmproj_file or mmproj_file == "None"):
+        if has_llm_media and (not mmproj_file or mmproj_file == "None"):
             raise RuntimeError(
                 "已接入多模态素材，但模型加载器未选择 mmproj。"
                 "请在 LLM 模型加载器中选择与基座配套的 mmproj，并将对话处理器设为 Qwen3.8 / Qwen3-VL 等视觉处理器。"
             )
+        if n_audio > 0 and not llm_supports_audio:
+            print(
+                f"[CZ-Toolkit] LLMGenerator：当前模型不支持音频，已跳过送入 LLM 的 {n_audio} 段音频"
+                "（素材包仍可传给其他节点）。"
+            )
 
-        user_content = mdu.build_llm_user_content(bundle, 用户消息)
-        if has_media:
+        user_content = mdu.build_llm_user_content(
+            bundle, 用户消息, include_audio=llm_supports_audio
+        )
+        if has_llm_media:
             print(
                 f"[CZ-Toolkit] LLMGenerator：送入 {n_images} 张图像"
-                + (f"、{n_audio} 段音频" if n_audio else "")
+                + (f"、{llm_audio_count} 段音频" if llm_audio_count else "")
             )
 
         n_ctx = int(模型句柄.get("n_ctx", 8192))
@@ -177,7 +187,7 @@ class LLMGenerator:
             len(system_content) // 3
             + len(用户消息) // 3
             + n_images * img_max
-            + n_audio * 256
+            + llm_audio_count * 256
             + output_budget
         )
         if est_total > n_ctx:
