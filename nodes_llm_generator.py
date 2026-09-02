@@ -5,6 +5,7 @@
 """
 
 import re
+import time
 
 from . import media_util as mdu
 from . import models_util as mu
@@ -19,6 +20,9 @@ _THINK_OPEN_TAIL_RE = re.compile(rf"{re.escape(_THINK_OPEN)}.*$", re.DOTALL)
 _REASONING_BUDGET_MESSAGE = "\n[思考预算已满，开始输出最终答案]\n"
 # 强制闭合思考块时额外占用的 token 余量（budget_message + 闭合标签）
 _REASONING_BUDGET_OVERHEAD = 128
+# 流式进度：至少隔这么多秒 / token 才打一行，避免刷屏
+_PROGRESS_INTERVAL_SEC = 2.0
+_PROGRESS_INTERVAL_TOKENS = 64
 
 
 def _strip_thinking(text, *, require_complete=False):
@@ -75,6 +79,82 @@ def _estimate_output_tokens(handle, answer_tokens, thinking_budget_tokens):
     return thinking_budget_tokens + answer_tokens + _REASONING_BUDGET_OVERHEAD
 
 
+def _delta_text(chunk):
+    try:
+        delta = chunk["choices"][0].get("delta") or {}
+    except (KeyError, IndexError, TypeError, AttributeError):
+        return ""
+    content = delta.get("content")
+    if isinstance(content, str):
+        return content
+    return ""
+
+
+def _run_chat_completion(llm, messages, gen_kwargs, *, thinking_active, max_tokens):
+    """流式生成并打印进度，避免 GPU 在跑但界面长时间无反馈像卡死。"""
+    stream_kwargs = dict(gen_kwargs)
+    stream_kwargs["stream"] = True
+    started = time.perf_counter()
+    last_log = started
+    pieces = []
+    n_tokens = 0
+    saw_think_close = False
+    phase = "思考中" if thinking_active else "生成中"
+
+    print(
+        f"[CZ-Toolkit] LLMGenerator：开始生成（上限约 {int(max_tokens)} token"
+        + ("，含思考" if thinking_active else "")
+        + "）。控制台会定期输出进度。"
+    )
+
+    try:
+        stream = llm.create_chat_completion(messages=messages, **stream_kwargs)
+        for chunk in stream:
+            piece = _delta_text(chunk)
+            if not piece:
+                continue
+            pieces.append(piece)
+            n_tokens += 1
+            if thinking_active and (not saw_think_close):
+                # 闭合标签可能被拆到多个 chunk，用累计文本判断
+                if _THINK_CLOSE in "".join(pieces[-8:]):
+                    saw_think_close = True
+                    phase = "写最终答案"
+            now = time.perf_counter()
+            if (
+                n_tokens == 1
+                or n_tokens % _PROGRESS_INTERVAL_TOKENS == 0
+                or (now - last_log) >= _PROGRESS_INTERVAL_SEC
+            ):
+                elapsed = max(now - started, 1e-6)
+                speed = n_tokens / elapsed
+                print(
+                    f"[CZ-Toolkit] LLMGenerator：{phase}… "
+                    f"{n_tokens}/{int(max_tokens)} token，"
+                    f"{speed:.1f} tok/s，已用时 {elapsed:.1f}s"
+                )
+                last_log = now
+    except TypeError as e:
+        # 极少数后端不接受 stream=True 时回退非流式
+        if "stream" not in str(e).lower():
+            raise
+        print("[CZ-Toolkit] LLMGenerator：当前后端不支持流式，改用一次性生成（期间无进度）。")
+        resp = llm.create_chat_completion(messages=messages, **gen_kwargs)
+        message = resp["choices"][0]["message"]
+        raw = _message_content(message)
+        if not raw and isinstance(message.get("reasoning_content"), str):
+            raw = message["reasoning_content"].strip()
+        return raw
+
+    raw = "".join(pieces).strip()
+    elapsed = max(time.perf_counter() - started, 1e-6)
+    print(
+        f"[CZ-Toolkit] LLMGenerator：生成完成，共约 {n_tokens} token，"
+        f"耗时 {elapsed:.1f}s，平均 {n_tokens / elapsed:.1f} tok/s"
+    )
+    return raw
+
+
 class LLMGenerator:
     """通用本地 LLM 生成；可选接入 H3 素材包让 Qwen+mmproj 看见参考图/视频抽帧。"""
 
@@ -102,11 +182,11 @@ class LLMGenerator:
                 "思考预算token": (
                     "INT",
                     {
-                        "default": 2048,
+                        "default": 1024,
                         "min": -1,
                         "max": 8192,
                         "step": 64,
-                        "tooltip": "仅 Qwen3.8 且加载器开启思考模式时生效。-1=思考与答案共用「最终答案token」；≥0 为思考阶段单独预算。",
+                        "tooltip": "仅 Qwen3.8 且加载器开启思考模式时生效。≥0 为思考单独预算（推荐 512~2048）；-1=与最终答案共用上限，容易把 token 全耗在思考上，看起来像卡住。",
                     },
                 ),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647, "tooltip": "随机种子，配合右键菜单控制每次是否随机"}),
@@ -142,6 +222,8 @@ class LLMGenerator:
         多模态素材 = kwargs.get("多模态素材")
 
         llm = mu.load_model(模型句柄)
+        # 生成前清 KV：上次中途取消/杀掉后复用模型时，脏 hybrid/KV 会让 prefills 慢数倍
+        mu.clear_kv_cache(llm, 模型句柄.get("handler_name", "None"))
         seed = mu.set_seed(llm, seed)
 
         system_content = 系统提示词.strip() if 系统提示词 else ""
@@ -170,6 +252,11 @@ class LLMGenerator:
                 f"[CZ-Toolkit] LLMGenerator：当前模型不支持音频，已跳过送入 LLM 的 {n_audio} 段音频"
                 "（素材包仍可传给其他节点）。"
             )
+        if (not has_llm_media) and mmproj_file and mmproj_file != "None":
+            print(
+                "[CZ-Toolkit] LLMGenerator：当前是纯文本，但加载器挂了 mmproj。"
+                "会走多模态路径并多占显存；若经常觉得比平时慢，可把 mmproj 设为 None 再加载。"
+            )
 
         user_content = mdu.build_llm_user_content(
             bundle, 用户消息, include_audio=llm_supports_audio
@@ -178,6 +265,7 @@ class LLMGenerator:
             print(
                 f"[CZ-Toolkit] LLMGenerator：送入 {n_images} 张图像"
                 + (f"、{llm_audio_count} 段音频" if llm_audio_count else "")
+                + "。多模态编码阶段 GPU 会先跑一阵，控制台尚无 token 进度属正常。"
             )
 
         n_ctx = int(模型句柄.get("n_ctx", 8192))
@@ -223,13 +311,30 @@ class LLMGenerator:
             )
         else:
             gen_kwargs["max_tokens"] = int(最终答案token)
+            if thinking_active:
+                print(
+                    "[CZ-Toolkit] LLMGenerator：思考预算=-1，思考与最终答案共用「最终答案token」。"
+                    "若感觉卡住，请把「思考预算token」设为 512~2048，或暂时关闭思考模式。"
+                )
+
+        print(
+            f"[CZ-Toolkit] LLMGenerator：纯文本={not has_llm_media}，思考={thinking_active}，"
+            f"n_ctx={n_ctx}，max_tokens={gen_kwargs['max_tokens']}，"
+            f"输入约 {len(system_content) + len(用户消息)} 字符"
+        )
 
         lora_active = mu.get_lora_active()
         if lora_active:
             gen_kwargs["active_loras"] = [lora_active]
 
         try:
-            resp = llm.create_chat_completion(messages=messages, **gen_kwargs)
+            raw = _run_chat_completion(
+                llm,
+                messages,
+                gen_kwargs,
+                thinking_active=thinking_active,
+                max_tokens=gen_kwargs["max_tokens"],
+            )
         except Exception as e:
             msg = str(e).lower()
             if "context" in msg and ("exceed" in msg or "overflow" in msg or "too large" in msg):
@@ -238,10 +343,6 @@ class LLMGenerator:
                 ) from e
             raise RuntimeError(f"本地模型推理失败：{e}") from e
 
-        message = resp["choices"][0]["message"]
-        raw = _message_content(message)
-        if not raw and isinstance(message.get("reasoning_content"), str):
-            raw = message["reasoning_content"].strip()
         text = _strip_thinking(raw, require_complete=thinking_active and not separate_thinking_budget)
 
         if thinking_active and separate_thinking_budget and not text:

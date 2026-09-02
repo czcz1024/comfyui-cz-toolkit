@@ -942,12 +942,13 @@ def get_lora_active():
 
 
 def clear_kv_cache(llm, handler_name):
+    """清空 KV / hybrid 缓存。中途取消或复用脏状态时，不清理会导致后续生成异常变慢。"""
     if _normalize_handler_name(handler_name) not in _QWEN_KV_CLEAR_HANDLERS:
         return
     try:
         llm.n_tokens = 0
         llm._ctx.memory_clear(True)
-        if llm.is_hybrid and llm._hybrid_cache_mgr is not None:
+        if getattr(llm, "is_hybrid", False) and getattr(llm, "_hybrid_cache_mgr", None) is not None:
             llm._hybrid_cache_mgr.clear()
     except Exception:
         pass
