@@ -261,7 +261,7 @@ class _ModelCache:
     def __init__(self):
         self.llm = None
         self.chat_handler = None
-        self.config = None
+        self.config = None  # (base_key, loaded_mmproj)
         self.lora_active = None  # modern API: {"name", "scale"}
 
     def clean(self):
@@ -759,15 +759,103 @@ def _reraise_model_load_error(load_error, model_path, mmproj_path, n_gpu_layers,
     ) from load_error
 
 
-def load_model(handle):
-    """依据 handle 配置加载（或复用）模型，返回 Llama 实例。handle 由加载器节点产出。"""
+_MMPROJ_AUDIO_META_KEYS = {
+    "clip.has_audio_encoder",
+    "clip.has_audioencoder",
+    "clip.audio.block_count",
+    "clip.audio.n_block",
+    "clip.audio.num_mel_bins",
+    "clip.audio.n_mel_bins",
+}
+
+
+def _normalize_mmproj_name(mmproj_file):
+    if not mmproj_file or mmproj_file == "None":
+        return "None"
+    return mmproj_file
+
+
+def validate_handle_paths(handle):
+    """加载器侧轻量检查：基座 / 已选 mmproj 文件能解析到路径。不创建 Llama。"""
+    model_file = handle.get("model_file")
+    mmproj_file = handle.get("mmproj_file", "None")
+    model_path, _mmproj_path = _resolve_paths(model_file, mmproj_file)
+    if not model_path:
+        raise ValueError("基座 GGUF 模型未选择或不存在。")
+
+
+def handle_supports_audio(handle):
+    """不加载模型：看句柄里的 mmproj GGUF 是否带音频编码器。视觉-only mmproj 为 False。"""
+    mmproj_file = _normalize_mmproj_name(handle.get("mmproj_file", "None"))
+    if mmproj_file == "None":
+        return False
+    try:
+        _model_path, mmproj_path = _resolve_paths(handle.get("model_file"), mmproj_file)
+    except FileNotFoundError:
+        return False
+    if not mmproj_path:
+        return False
+    meta = _get_gguf_metadata(mmproj_path, _MMPROJ_AUDIO_META_KEYS)
+    for key in ("clip.has_audio_encoder", "clip.has_audioencoder"):
+        if bool(meta.get(key)):
+            return True
+    for key in (
+        "clip.audio.block_count",
+        "clip.audio.n_block",
+        "clip.audio.num_mel_bins",
+        "clip.audio.n_mel_bins",
+    ):
+        try:
+            if int(meta.get(key) or 0) > 0:
+                return True
+        except (TypeError, ValueError):
+            continue
+    return False
+
+
+def _base_cache_key(handle, lora_file, lora_scale_key):
+    return (
+        handle["model_file"],
+        _normalize_handler_name(handle.get("handler_name", "None")),
+        _normalize_mmproj_name(handle.get("mmproj_file", "None")),
+        int(handle.get("n_gpu_layers", -1)),
+        int(handle.get("n_ctx", 8192)),
+        float(handle.get("vram_limit_gb", -1)),
+        bool(handle.get("think_mode", False)),
+        int(handle.get("image_min_tokens", 256)),
+        int(handle.get("image_max_tokens", 1024)),
+        normalize_qwen38_reasoning_effort(handle.get("reasoning_effort", "off")),
+        lora_file,
+        lora_scale_key,
+    )
+
+
+def _cache_reusable(base_key, *, use_mmproj, selected_mmproj):
+    if CACHE.llm is None or CACHE.config is None:
+        return False
+    cached = CACHE.config
+    if not (isinstance(cached, tuple) and len(cached) == 2):
+        return False
+    cached_base, cached_mmproj = cached
+    if cached_base != base_key:
+        return False
+    if use_mmproj:
+        return cached_mmproj == selected_mmproj
+    return cached_mmproj == "None" or cached_mmproj == selected_mmproj
+
+
+def load_model(handle, *, use_mmproj=True):
+    """依据 handle 加载（或复用）模型。use_mmproj=False 时本次不挂视觉塔；
+    若缓存里已是同一配置的带 mmproj 实例，则复用、不降级重载。
+    """
     if Llama is None:
         raise RuntimeError(
             "未找到 llama-cpp-python。请按 README 安装 GPU 版。"
             "Qwen3.8 需要 JamePeng llama-cpp-python 0.3.47+。"
         )
     model_file = handle["model_file"]
-    mmproj_file = handle.get("mmproj_file", "None")
+    selected_mmproj = _normalize_mmproj_name(handle.get("mmproj_file", "None"))
+    mmproj_file = selected_mmproj if use_mmproj else "None"
     handler_name = _normalize_handler_name(handle.get("handler_name", "None"))
     n_gpu_layers = handle.get("n_gpu_layers", -1)
     n_ctx = handle.get("n_ctx", 8192)
@@ -778,14 +866,18 @@ def load_model(handle):
     reasoning_effort = normalize_qwen38_reasoning_effort(handle.get("reasoning_effort", "off"))
     lora = handle.get("lora")
 
-    model_path, mmproj_path = _resolve_paths(model_file, mmproj_file)
+    model_path, selected_mmproj_path = _resolve_paths(model_file, selected_mmproj)
+    mmproj_path = selected_mmproj_path if use_mmproj else None
     if not model_path:
         raise ValueError("基座 GGUF 模型未选择或不存在。")
+    if use_mmproj and selected_mmproj != "None" and not mmproj_path:
+        raise ValueError(f"mmproj 未选择或不存在：{selected_mmproj}")
 
     if handler_name == "Qwen3.8":
         _validate_qwen38_backend()
 
-    _validate_multimodal_pair(model_path, model_file, handler_name, mmproj_path, mmproj_file)
+    if mmproj_path:
+        _validate_multimodal_pair(model_path, model_file, handler_name, mmproj_path, mmproj_file)
 
     if vram_limit_gb != -1 and n_gpu_layers == -1:
         n_gpu_layers = _compute_n_gpu_layers(model_path, mmproj_path, vram_limit_gb)
@@ -797,15 +889,16 @@ def load_model(handle):
         float(lora.get("scale", 1.0)) if (lora and api == "legacy" and legacy_has_scale) else None
     )
 
-    # 缓存命中：配置完全一致则复用
-    key = (model_file, mmproj_file, handler_name, n_gpu_layers, n_ctx,
-           think_mode, img_min, img_max, reasoning_effort, lora_file, lora_scale_key)
-    if CACHE.config == key and CACHE.llm is not None:
-        # modern API：scale 是生成时透传的，缓存命中也要刷新当前 scale
+    base_key = _base_cache_key(handle, lora_file, lora_scale_key)
+    if _cache_reusable(base_key, use_mmproj=use_mmproj, selected_mmproj=selected_mmproj):
         if lora and api == "modern" and CACHE.lora_active is not None:
             CACHE.lora_active["scale"] = float(lora.get("scale", 1.0))
-        print("[CZ-Toolkit] 复用已加载模型")
+        cached_mmproj = CACHE.config[1]
+        extra = f"（含 mmproj={cached_mmproj}）" if cached_mmproj != "None" else "（纯文本）"
+        print(f"[CZ-Toolkit] 复用已加载模型{extra}")
         return CACHE.llm
+
+    key = (base_key, mmproj_file)
 
     # 否则卸载旧模型再加载
     if handler_name == "Qwen3.8":
@@ -911,7 +1004,8 @@ def load_model(handle):
     extra = ""
     if handler_name == "Qwen3.8":
         extra = f"  handler=Qwen3.8  think={think_mode}  reasoning={reasoning_effort}"
-    print(f"[CZ-Toolkit] 模型已加载: {model_file}  n_gpu_layers={n_gpu_layers}{extra}")
+    mm_note = f"  mmproj={mmproj_file}"
+    print(f"[CZ-Toolkit] 模型已加载: {model_file}  n_gpu_layers={n_gpu_layers}{mm_note}{extra}")
     return llm
 
 
@@ -952,6 +1046,38 @@ def clear_kv_cache(llm, handler_name):
             llm._hybrid_cache_mgr.clear()
     except Exception:
         pass
+
+
+def release_comfy_models_if_needed(*, enabled, threshold_gb):
+    """LLM 加载前按需卸掉 Comfy 生图/视频模型。llama.cpp 不走 Comfy 调度，显存不够时不会自动腾位。
+    enabled 关闭则什么都不做。threshold_gb < 0：只要开关开就卸；≥0：空闲显存低于该 GB 才卸。
+    """
+    if not enabled:
+        return
+    threshold_gb = float(threshold_gb)
+    free_bytes = None
+    try:
+        free_bytes = int(mm.get_free_memory())
+    except (AttributeError, RuntimeError, TypeError, ValueError):
+        free_bytes = None
+    if threshold_gb >= 0 and free_bytes is not None:
+        free_gb = free_bytes / (1024 ** 3)
+        if free_gb >= threshold_gb:
+            print(
+                f"[CZ-Toolkit] 空闲显存约 {free_gb:.1f} GB ≥ {threshold_gb:g} GB，"
+                "跳过释放 Comfy 模型"
+            )
+            return
+    try:
+        mm.unload_all_models()
+        mm.soft_empty_cache()
+    except Exception:
+        pass
+    gc.collect()
+    extra = ""
+    if free_bytes is not None:
+        extra = f"（释放前空闲约 {free_bytes / (1024 ** 3):.1f} GB）"
+    print(f"[CZ-Toolkit] 已释放 Comfy 模型，给 LLM 腾显存{extra}")
 
 
 def unload():

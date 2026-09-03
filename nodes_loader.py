@@ -1,10 +1,10 @@
-"""LLM 模型加载器：进程内 llama_cpp 加载 GGUF + mmproj，接 LoRA，缓存复用。"""
+"""LLM 模型加载器：只打包加载参数，真正创建 Llama 由生成节点按本次输入决定。"""
 
 from . import models_util as mu
 
 
 class LLMModelLoader:
-    """加载本地 GGUF（可带 mmproj 多模态、LoRA 适配器），输出模型句柄供生成节点复用。"""
+    """输出模型句柄（路径、处理器、LoRA 等）。不占用显存；生成节点按是否有图/可用音频再加载。"""
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -58,6 +58,5 @@ class LLMModelLoader:
             "image_max_tokens": int(图像最大token),
             "lora": lora,
         }
-        # 立即加载并缓存，供后续生成节点复用
-        mu.load_model(handle)
+        mu.validate_handle_paths(handle)
         return (handle,)

@@ -40,9 +40,9 @@ PyPI 版本滞后，Qwen3 等新模型需要 JamePeng 的构建版：
 
 | 节点 | 类名 | 说明 |
 |---|---|---|
-| **LLM 模型加载器** | `LLMModelLoader` | 加载本地 GGUF（可带 mmproj、LoRA），缓存复用 |
+| **LLM 模型加载器** | `LLMModelLoader` | 打包 GGUF / mmproj / LoRA 参数；不占显存，真正加载在生成节点 |
 | **LLM LoRA 选择器** | `LLMLoraSelector` | 从 `models/LLM` 选择 GGUF LoRA，输出给加载器 |
-| **LLM 通用生成** | `LLMGenerator` | 系统提示词 + 用户消息 → 本地推理；可选 **多模态素材** 送入 mmproj 模型 |
+| **LLM 通用生成** | `LLMGenerator` | 系统提示词 + 用户消息 → 本地推理；有图才加载 mmproj；可选加载前释放 Comfy 模型 |
 
 ### CZ/H3 — MiniMax H3 提示词与素材
 

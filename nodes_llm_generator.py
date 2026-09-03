@@ -191,6 +191,23 @@ class LLMGenerator:
                 ),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647, "tooltip": "随机种子，配合右键菜单控制每次是否随机"}),
                 "⚡推理后卸载模型": ("BOOLEAN", {"default": False}),
+                "⚡加载前释放Comfy模型": (
+                    "BOOLEAN",
+                    {
+                        "default": False,
+                        "tooltip": "真正加载 LLM 前卸掉还驻留的生图/视频等 Comfy 模型。llama.cpp 不会在显存不够时自动腾位；LLM→生图→再 LLM 时建议打开。",
+                    },
+                ),
+                "释放阈值GB": (
+                    "FLOAT",
+                    {
+                        "default": 20.0,
+                        "min": -1.0,
+                        "max": 256.0,
+                        "step": 0.5,
+                        "tooltip": "仅「加载前释放Comfy模型」开启时生效。空闲显存低于此值才卸；-1=只要开关开就卸。24G 卡跑过大模型后可先用 20。",
+                    },
+                ),
             },
             "optional": {
                 "多模态素材": (
@@ -219,12 +236,9 @@ class LLMGenerator:
         思考预算token = kwargs["思考预算token"]
         seed = int(kwargs["seed"])
         auto_unload = kwargs["⚡推理后卸载模型"]
+        release_comfy = bool(kwargs.get("⚡加载前释放Comfy模型", False))
+        release_threshold_gb = float(kwargs.get("释放阈值GB", 20.0))
         多模态素材 = kwargs.get("多模态素材")
-
-        llm = mu.load_model(模型句柄)
-        # 生成前清 KV：上次中途取消/杀掉后复用模型时，脏 hybrid/KV 会让 prefills 慢数倍
-        mu.clear_kv_cache(llm, 模型句柄.get("handler_name", "None"))
-        seed = mu.set_seed(llm, seed)
 
         system_content = 系统提示词.strip() if 系统提示词 else ""
         bundle = 多模态素材 if isinstance(多模态素材, dict) else None
@@ -238,24 +252,34 @@ class LLMGenerator:
             bundle = None
 
         n_images, n_audio = mdu.bundle_media_counts(bundle)
-        llm_supports_audio = mu.model_supports_audio(llm)
-        llm_audio_count = n_audio if llm_supports_audio else 0
-        has_llm_media = n_images > 0 or llm_audio_count > 0
+        handle_audio = mu.handle_supports_audio(模型句柄)
+        need_mmproj = n_images > 0 or (n_audio > 0 and handle_audio)
         mmproj_file = 模型句柄.get("mmproj_file", "None")
-        if has_llm_media and (not mmproj_file or mmproj_file == "None"):
+        if need_mmproj and (not mmproj_file or mmproj_file == "None"):
             raise RuntimeError(
                 "已接入多模态素材，但模型加载器未选择 mmproj。"
                 "请在 LLM 模型加载器中选择与基座配套的 mmproj，并将对话处理器设为 Qwen3.8 / Qwen3-VL 等视觉处理器。"
             )
+        if (not need_mmproj) and mmproj_file and mmproj_file != "None":
+            print(
+                f"[CZ-Toolkit] LLMGenerator：本次无图像且无可用音频，不加载 mmproj（加载器选择了 {mmproj_file}）。"
+            )
+
+        mu.release_comfy_models_if_needed(
+            enabled=release_comfy, threshold_gb=release_threshold_gb
+        )
+        llm = mu.load_model(模型句柄, use_mmproj=need_mmproj)
+        # 生成前清 KV：上次中途取消/杀掉后复用模型时，脏 hybrid/KV 会让 prefills 慢数倍
+        mu.clear_kv_cache(llm, 模型句柄.get("handler_name", "None"))
+        seed = mu.set_seed(llm, seed)
+
+        llm_supports_audio = mu.model_supports_audio(llm)
+        llm_audio_count = n_audio if llm_supports_audio else 0
+        has_llm_media = n_images > 0 or llm_audio_count > 0
         if n_audio > 0 and not llm_supports_audio:
             print(
                 f"[CZ-Toolkit] LLMGenerator：当前模型不支持音频，已跳过送入 LLM 的 {n_audio} 段音频"
                 "（素材包仍可传给其他节点）。"
-            )
-        if (not has_llm_media) and mmproj_file and mmproj_file != "None":
-            print(
-                "[CZ-Toolkit] LLMGenerator：当前是纯文本，但加载器挂了 mmproj。"
-                "会走多模态路径并多占显存；若经常觉得比平时慢，可把 mmproj 设为 None 再加载。"
             )
 
         user_content = mdu.build_llm_user_content(
