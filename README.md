@@ -32,6 +32,8 @@ PyPI 版本滞后，Qwen3 等新模型需要 JamePeng 的构建版：
 - 若 ComfyUI 过旧、无 V3 API，会自动回退 Legacy 媒体节点（仅首个槽位，无 Autogrow）。
 - 升级插件后请 **完全重启 ComfyUI**，并 **Ctrl+F5** 硬刷新浏览器。
 
+本地 LLM 偶发卡死（GPU 空转、取消无效）的调查与未完成项见 **[docs/LLM-偶发卡死-开发备忘.md](./docs/LLM-偶发卡死-开发备忘.md)**。
+
 ---
 
 ## 节点一览
