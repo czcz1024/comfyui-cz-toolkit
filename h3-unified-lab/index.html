@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CZ H3 统一工作流 · 节点外观模拟（Comfy 风格）</title>
+  <style>
+    :root {
+      --bg: #1e1e1e;
+      --grid: #2a2a2a;
+      --node: #353535;
+      --node-head: #2b2b2b;
+      --text: #ddd;
+      --muted: #999;
+      --border: #111;
+      --cz: #4a90d9;
+      --official: #7a7a7a;
+      --slot-image: #64b5f6;
+      --slot-audio: #ce93d8;
+      --slot-string: #ffcc80;
+      --slot-int: #a5d6a7;
+      --slot-float: #81c784;
+      --slot-bool: #ef9a9a;
+      --slot-plan: #f48fb1;
+      --slot-bundle: #80cbc4;
+      --slot-model: #90caf9;
+      --slot-video: #ffab91;
+      --wire: #888;
+      --accent: #5c9ded;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; height: 100%;
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+      background: var(--bg); color: var(--text);
+      overflow: hidden;
+    }
+    .topbar {
+      height: 44px; display: flex; align-items: center; gap: 16px;
+      padding: 0 16px; background: #161616; border-bottom: 1px solid #000;
+      z-index: 20; position: relative;
+    }
+    .topbar h1 { font-size: 14px; font-weight: 600; margin: 0; }
+    .topbar .tag {
+      font-size: 11px; color: #111; background: var(--accent);
+      padding: 2px 8px; border-radius: 10px;
+    }
+    .topbar .hint { font-size: 12px; color: var(--muted); flex: 1; }
+    .topbar button {
+      background: #333; color: var(--text); border: 1px solid #555;
+      border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 12px;
+    }
+    .topbar button:hover { background: #444; }
+    .topbar button.active { background: var(--accent); color: #111; border-color: var(--accent); }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      height: calc(100% - 44px);
+    }
+    .canvas-wrap {
+      position: relative; overflow: auto;
+      background:
+        linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 24px 24px,
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 24px 24px,
+        var(--bg);
+    }
+    .canvas {
+      position: relative;
+      width: 1600px; height: 900px;
+      transform-origin: 0 0;
+    }
+    #wires {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 1;
+    }
+    .wire { fill: none; stroke: var(--wire); stroke-width: 2.5; opacity: 0.85; }
+    .wire.plan { stroke: var(--slot-plan); }
+    .wire.bundle { stroke: var(--slot-bundle); }
+    .wire.audio { stroke: var(--slot-audio); }
+    .wire.string { stroke: var(--slot-string); }
+    .wire.image { stroke: var(--slot-image); }
+
+    .node {
+      position: absolute; z-index: 2;
+      min-width: 200px; max-width: 280px;
+      background: var(--node);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.45);
+      user-select: none;
+    }
+    .node.wide { max-width: 520px; min-width: 480px; }
+    .node.xl { max-width: 560px; min-width: 520px; }
+    .nle-shell.readonly .nle-clip { cursor: default; }
+    .nle-shell.readonly .nle-clip .edge { display: none; }
+    .nle-shell.readonly .cut { cursor: default; pointer-events: none; }
+    .executor-panel {
+      margin: 4px 8px 0; padding: 6px 8px 8px;
+      background: #121820; border: 1px solid #2a3548; border-radius: 4px;
+    }
+    .executor-panel .ro-badge {
+      display: inline-block; font-size: 9px; padding: 1px 5px; margin-left: 4px;
+      border-radius: 3px; background: #3a4558; color: #cde;
+    }
+    .exec-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; margin-top: 4px;
+    }
+    .exec-grid label { font-size: 10px; color: #9ab; display: block; }
+    .exec-grid select, .exec-grid input {
+      width: 100%; margin-top: 2px; background: #1a2230; border: 1px solid #3a4558;
+      color: #eee; border-radius: 3px; padding: 3px 5px; font-size: 11px;
+    }
+    .picker-panel {
+      margin: 4px 8px 0; padding: 6px 8px 8px;
+      background: #121820; border: 1px solid #2a3548; border-radius: 4px;
+      max-height: 420px; overflow: auto;
+    }
+    .pick-seg {
+      margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #243044;
+    }
+    .pick-seg:last-of-type { border-bottom: none; }
+    .pick-seg-h {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; color: #cde; margin-bottom: 4px;
+    }
+    .pick-seg-h small { color: #8ab; font-size: 10px; }
+    .pick-cards {
+      display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .pick-card {
+      width: 96px; border: 1px solid #3a4a60; border-radius: 4px;
+      background: #182030; cursor: pointer; overflow: hidden;
+      position: relative;
+    }
+    .pick-card:hover { border-color: #5a8ad0; }
+    .pick-card.on {
+      border: 2px solid #6ab0ff;
+      box-shadow: 0 0 0 1px #328bff66;
+    }
+    .pick-card .thumb {
+      height: 54px;
+      background-size: cover; background-position: center;
+    }
+    .pick-card .meta {
+      padding: 3px 5px; font-size: 9px; color: #b8c8dc; line-height: 1.3;
+    }
+    .pick-card .tag {
+      position: absolute; top: 3px; left: 3px;
+      background: #0c1a33cc; color: #9ec8ff; border: 1px solid #5688ec88;
+      font-size: 9px; padding: 0 4px; border-radius: 2px;
+    }
+    .pick-card .sel {
+      position: absolute; top: 3px; right: 3px;
+      font-size: 9px; background: #2e7d32; color: #c8e6c9;
+      padding: 0 4px; border-radius: 2px; display: none;
+    }
+    .pick-card.on .sel { display: inline; }
+    .pick-compare {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+      margin: 6px 0; padding: 6px; background: #0e141c; border-radius: 4px;
+      border: 1px dashed #334;
+    }
+    .pick-compare .slot {
+      min-height: 64px; border-radius: 3px; background: #1a2434;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: #8ab; background-size: cover; background-position: center;
+    }
+    .pick-final {
+      font-size: 10px; color: #9ab; line-height: 1.45; margin: 4px 0 6px;
+      font-variant-numeric: tabular-nums;
+    }
+    .node.selected {
+      outline: 2px solid var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 8px 24px rgba(0,0,0,.5);
+    }
+    .node-head {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 10px;
+      background: var(--node-head);
+      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #222;
+      cursor: grab;
+      font-size: 12px; font-weight: 600;
+    }
+    .node-head .dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .node.cz .node-head .dot { background: var(--cz); }
+    .node.official .node-head .dot { background: var(--official); }
+    .node.core .node-head { background: #1a3a5c; }
+    .node-body { padding: 6px 0 8px; font-size: 11px; }
+    .slot-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      min-height: 22px; align-items: center;
+      padding: 1px 0; position: relative;
+    }
+    .slot-row.solo-in { grid-template-columns: 1fr; }
+    .slot-row.solo-out { grid-template-columns: 1fr; justify-items: end; }
+    .slot {
+      display: flex; align-items: center; gap: 6px;
+      padding: 0 10px; color: #ccc; white-space: nowrap;
+    }
+    .slot.out { justify-content: flex-end; }
+    .port {
+      width: 10px; height: 10px; border-radius: 50%;
+      border: 1px solid #111; flex-shrink: 0;
+      position: absolute; top: 50%; transform: translateY(-50%);
+    }
+    .slot.in .port { left: -5px; }
+    .slot.out .port { right: -5px; }
+    .port.IMAGE, .port.LATENT { background: var(--slot-image); }
+    .port.AUDIO { background: var(--slot-audio); }
+    .port.STRING { background: var(--slot-string); }
+    .port.INT { background: var(--slot-int); }
+    .port.FLOAT { background: var(--slot-float); }
+    .port.BOOLEAN { background: var(--slot-bool); }
+    .port.H3_SEGMENT_PLAN { background: var(--slot-plan); }
+    .port.H3_MEDIA_BUNDLE { background: var(--slot-bundle); }
+    .port.H3_PROMPT_PACK { background: #f8bbd0; }
+    .port.MODEL { background: var(--slot-model); }
+    .port.VIDEO { background: var(--slot-video); }
+
+    .widget {
+      margin: 4px 10px; padding: 4px 6px;
+      background: #2a2a2a; border: 1px solid #1a1a1a; border-radius: 4px;
+      font-size: 11px; color: #bbb;
+    }
+    .widget label { display: block; color: var(--muted); font-size: 10px; margin-bottom: 2px; }
+    .widget select, .widget input, .widget textarea {
+      width: 100%; background: #1f1f1f; border: 1px solid #333;
+      color: #ddd; border-radius: 3px; padding: 3px 5px; font-size: 11px;
+      font-family: inherit;
+    }
+    .widget textarea { min-height: 48px; resize: vertical; }
+    .widget .row { display: flex; gap: 8px; align-items: center; }
+    .widget .chk { display: flex; align-items: center; gap: 6px; }
+
+    .director-panel {
+      margin: 6px 10px; padding: 8px;
+      background: #252525; border: 1px solid #3a4a5c; border-radius: 6px;
+      font-size: 11px;
+    }
+    .director-panel .timeline {
+      position: relative;
+      height: 44px; border-radius: 0; margin: 0;
+      background: #111720; border: none; overflow: hidden;
+      cursor: crosshair;
+    }
+    .director-panel .timeline .bars {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        #3d5a80 0 2px, transparent 2px 4px,
+        #2d4a6a 4px 5px, transparent 5px 7px
+      );
+      opacity: 0.55;
+    }
+    .director-panel .cut {
+      position: absolute; top: 0; bottom: 0; width: 2px;
+      background: #f48fb1; z-index: 2;
+      cursor: ew-resize;
+    }
+    .director-panel .cut .handle {
+      position: absolute; top: 2px; left: -4px; width: 10px; height: 10px;
+      background: #f48fb1; border-radius: 2px;
+    }
+    .director-panel .cut .label {
+      position: absolute; bottom: 2px; left: 4px;
+      font-size: 9px; color: #f8bbd0; white-space: nowrap;
+      text-shadow: 0 0 3px #000;
+    }
+    .director-panel .playhead {
+      position: absolute; top: 0; bottom: 0; width: 2px;
+      background: #ff5a5a; z-index: 5;
+      box-shadow: 0 0 4px rgba(255,90,90,.6);
+      pointer-events: none;
+    }
+    .director-panel .seg-band {
+      position: absolute; top: 0; bottom: 0; opacity: 0.12; z-index: 1;
+    }
+    /* TimelineDirector 风格多轨 */
+    .nle-shell {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      border: 1px solid #272e3b;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 6px;
+      background: #0e131a;
+    }
+    .nle-label {
+      display: flex; align-items: center; padding: 0 8px;
+      border-top: 1px solid #272e3b; color: #aab5c7; font-size: 10px;
+      background: #141a22;
+    }
+    .nle-label.ruler { height: 22px; border-top: none; color: #6a7385; }
+    .nle-label.video { height: 72px; }
+    .nle-label.audio { height: 44px; color: #c0a36f; }
+    .nle-lane {
+      position: relative; border-top: 1px solid #262d3a;
+      background:
+        repeating-linear-gradient(90deg, transparent 0 39px, #1a2230 39px 40px);
+    }
+    .nle-lane.ruler {
+      height: 22px; border-top: none; background: #121820;
+      font-size: 9px; color: #6a7385;
+    }
+    .nle-lane.video { height: 72px; background-color: #10161f; }
+    .nle-lane.audio { height: 44px; background-color: #111720; }
+    .nle-ruler-tick {
+      position: absolute; top: 3px; transform: translateX(-50%);
+      pointer-events: none; white-space: nowrap;
+    }
+    .nle-clip {
+      position: absolute; top: 6px; height: 60px; min-width: 12px;
+      overflow: hidden; border: 1px solid #5688ec; border-radius: 4px;
+      background: linear-gradient(180deg, #2a4a7a, #122038);
+      cursor: grab; z-index: 2; user-select: none;
+      box-shadow: 0 3px 10px #0008;
+    }
+    .nle-clip.selected {
+      border: 2px solid #b9ddff;
+      box-shadow: 0 0 0 2px #328bff99, 0 5px 14px #0009;
+    }
+    .nle-clip .thumb {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center; opacity: 0.5;
+    }
+    .nle-clip .shade {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, #0002, #061329cc);
+    }
+    .nle-clip .name {
+      position: absolute; left: 8px; right: 28px; top: 6px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-size: 10px; color: #e8f0ff; text-shadow: 0 1px 2px #000;
+      pointer-events: none;
+    }
+    .nle-clip .meta {
+      position: absolute; left: 8px; bottom: 5px;
+      font-size: 9px; color: #c8d9f7; text-shadow: 0 1px 2px #000;
+      pointer-events: none;
+    }
+    .nle-clip .ref-tag {
+      position: absolute; right: 5px; top: 5px; z-index: 3;
+      padding: 1px 4px; border-radius: 3px; font-size: 9px;
+      background: #0c1a33cc; color: #9ec8ff; border: 1px solid #5688ec88;
+      pointer-events: none;
+    }
+    .nle-clip .edge {
+      position: absolute; top: 0; bottom: 0; width: 6px; z-index: 3;
+      cursor: ew-resize; background: transparent;
+    }
+    .nle-clip .edge.left { left: 0; }
+    .nle-clip .edge.right { right: 0; }
+    .nle-clip .edge:hover { background: #b9ddff55; }
+    .nle-playhead-full {
+      position: absolute; top: 0; bottom: 0; width: 2px;
+      background: #ff5a5a; z-index: 6; pointer-events: none;
+      box-shadow: 0 0 6px #ff5a5aaa;
+    }
+    .nle-hint {
+      font-size: 10px; color: #8ab; margin: 0 0 6px; line-height: 1.35;
+    }
+    .nle-clip-info {
+      font-size: 10px; color: #9ab; margin: 0 0 6px;
+      font-variant-numeric: tabular-nums;
+    }
+    .transport {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      margin-bottom: 6px; font-size: 10px; color: #aaa;
+    }
+    .transport button {
+      background: #3a3a3a; border: 1px solid #555; color: #eee;
+      border-radius: 3px; padding: 3px 8px; font-size: 10px; cursor: pointer;
+    }
+    .transport button:hover { background: #4a90d9; border-color: #4a90d9; }
+    .transport .time { font-variant-numeric: tabular-nums; min-width: 72px; }
+    .seg-tabs { display: flex; gap: 4px; margin-bottom: 6px; flex-wrap: wrap; }
+    .seg-tabs button {
+      background: #333; border: 1px solid #444; color: #ccc;
+      border-radius: 3px; padding: 2px 8px; font-size: 10px; cursor: pointer;
+    }
+    .seg-tabs button.on { background: #4a90d9; color: #fff; border-color: #4a90d9; }
+    .mini-btns { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+    .mini-btns button {
+      background: #3a3a3a; border: 1px solid #555; color: #ddd;
+      border-radius: 3px; padding: 3px 7px; font-size: 10px; cursor: pointer;
+    }
+    .mini-btns button:hover { background: #4a90d9; border-color: #4a90d9; }
+    .mini-btns button.primary { background: #2e5a8a; border-color: #4a90d9; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 4px; }
+    .chip {
+      background: #333; border: 1px solid #555; color: #ccc;
+      border-radius: 4px; padding: 4px 8px; font-size: 10px; cursor: pointer;
+      line-height: 1.25; text-align: center;
+    }
+    .chip small { display: block; color: #888; font-size: 9px; }
+    .chip.on { background: #1a4a7a; border-color: #4a90d9; color: #fff; }
+    .badge {
+      display: inline-block; font-size: 9px; padding: 1px 5px;
+      border-radius: 3px; margin-left: 4px; vertical-align: middle;
+    }
+    .badge.new { background: #2e7d32; color: #c8e6c9; }
+    .badge.exist { background: #555; color: #ccc; }
+    .badge.opt { background: #6a1b9a; color: #e1bee7; }
+
+    .side {
+      border-left: 1px solid #000; background: #1a1a1a;
+      overflow: auto; padding: 12px 14px; font-size: 12px;
+    }
+    .side h2 { font-size: 13px; margin: 0 0 8px; }
+    .side h3 { font-size: 12px; margin: 14px 0 6px; color: var(--accent); }
+    .side p, .side li { color: #aaa; line-height: 1.45; margin: 0 0 6px; }
+    .side ul { padding-left: 18px; margin: 0 0 8px; }
+    .side .code {
+      background: #111; border: 1px solid #333; border-radius: 4px;
+      padding: 8px; font-family: Consolas, monospace; font-size: 10px;
+      color: #cfc; white-space: pre-wrap; margin: 8px 0;
+    }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+    .legend span {
+      display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: #bbb;
+    }
+    .legend i {
+      width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+    }
+    .empty-sel { color: var(--muted); font-style: italic; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>CZ / H3 统一工作流</h1>
+    <span class="tag">外观模拟 · 非真节点</span>
+    <span class="hint">主路径：导演台 → 模型收集 → 段执行台 → 选片拼接 · 点击节点看说明</span>
+    <button type="button" id="btnZoomOut">缩小</button>
+    <button type="button" id="btnZoomIn">放大</button>
+    <button type="button" id="btnResetView">复位</button>
+  </div>
+  <div class="workspace">
+    <div class="canvas-wrap" id="canvasWrap">
+      <div class="canvas" id="canvas" style="transform: scale(0.85)">
+        <svg id="wires"></svg>
+        <!-- nodes injected by JS -->
+      </div>
+    </div>
+    <aside class="side" id="side">
+      <h2>图例</h2>
+      <div class="legend">
+        <span><i style="background:var(--slot-image)"></i> IMAGE</span>
+        <span><i style="background:var(--slot-audio)"></i> AUDIO</span>
+        <span><i style="background:var(--slot-string)"></i> STRING</span>
+        <span><i style="background:var(--slot-plan)"></i> PLAN</span>
+        <span><i style="background:var(--slot-bundle)"></i> BUNDLE</span>
+        <span><i style="background:var(--slot-video)"></i> VIDEO</span>
+        <span><i style="background:var(--slot-bool)"></i> BOOL</span>
+      </div>
+      <p><span class="badge new">新建</span> 规划中的 CZ 节点 · <span class="badge exist">已有</span> 现成节点 · <span class="badge opt">可选</span></p>
+      <div id="detail">
+        <p class="empty-sel">点击画布上的节点，右侧显示输入 / 输出 / 参数说明。</p>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    /** @typedef {{ id: string, title: string, category: string, kind: 'cz'|'official'|'core', badge: string, x: number, y: number, wide?: boolean, xl?: boolean, inputs: {name:string,type:string,optional?:boolean}[], outputs: {name:string,type:string,optional?:boolean}[], widgets?: any[], director?: boolean, executor?: boolean, picker?: boolean, desc: string, notes?: string[] }} NodeDef */
+
+    /** @type {NodeDef[]} */
+    const NODES = [
+      {
+        id: "n3",
+        title: "H3 多段计划台（导演台）",
+        category: "CZ/H3",
+        kind: "core",
+        badge: "new",
+        x: 40, y: 40,
+        wide: true,
+        director: true,
+        inputs: [
+          { name: "library", type: "H3_MEDIA_LIBRARY" },
+          { name: "llm_handle", type: "H3_MODEL_HANDLE", optional: true },
+        ],
+        outputs: [
+          { name: "plan", type: "H3_SEGMENT_PLAN" },
+          { name: "boundaries_json", type: "STRING" },
+          { name: "active_segment_index", type: "INT" },
+        ],
+        widgets: [
+          { type: "text", label: "project_name", value: "mv_demo" },
+          { type: "note", text: "LLM：接上游 LLMModelLoader；前端认线读 widget（同 @），点润色时 CZ 起 llama-server · 不必 Queue" },
+        ],
+        desc: "N3。只做计划。润色复用 LLMModelLoader 句柄：前端不 Queue 也能读到选了哪套模型。",
+        notes: [
+          "上游 Load / N0：真 Comfy 完成；视频=画面 IMAGE+伴音",
+          "自动切分 = 台内按钮",
+          "llm_handle ← LLMModelLoader（配置不占显存）；原理同提示词框 @",
+          "采样交给右侧 N8 段执行台",
+        ],
+      },
+      {
+        id: "llm_loader",
+        title: "LLM 模型加载器",
+        category: "CZ/LLM",
+        kind: "existing",
+        badge: "reuse",
+        x: 40, y: 520,
+        inputs: [],
+        outputs: [
+          { name: "模型句柄", type: "H3_MODEL_HANDLE" },
+        ],
+        widgets: [
+          { type: "select", label: "基座GGUF", options: [
+            "Qwen3.8-27B-Q4_K_M.gguf",
+            "Qwen3-VL-8B-Instruct-Q4_K_M.gguf",
+          ]},
+          { type: "select", label: "mmproj文件", options: [
+            "None",
+            "mmproj-Qwen3.8-27B-F16.gguf",
+          ]},
+          { type: "select", label: "对话处理器", options: ["Qwen3.8", "Qwen3-VL", "None"] },
+        ],
+        desc: "已有节点。只打包配置，不占显存。导演台与 LLMGenerator 共用。",
+        notes: [
+          "导演台前端认线读这些 widget，无需 Queue",
+          "单段图仍可接 LLMGenerator 进程内加载",
+        ],
+      },
+      {
+        id: "n7",
+        title: "H3 模型收集",
+        category: "CZ/H3",
+        kind: "core",
+        badge: "new",
+        x: 40, y: 780,
+        inputs: [
+          { name: "fl2va_model", type: "MODEL" },
+          { name: "ref2va_model", type: "MODEL" },
+          { name: "hybrid_model", type: "MODEL" },
+          { name: "text_encoder", type: "CLIP" },
+          { name: "video_vae", type: "VAE" },
+          { name: "audio_vae", type: "VAE" },
+        ],
+        outputs: [
+          { name: "models", type: "H3_MODEL_BUNDLE" },
+        ],
+        widgets: [
+          { type: "select", label: "latent_upscaler（二采）", options: [
+            "（无 · 不做二采）",
+            "minimax_h3_latent_upscaler_3d_fp16.safetensors",
+            "minimax_h3_latent_upscaler_3d_bf16.safetensors",
+            "minimax_h3_latent_upscaler_2d_fp16.safetensors",
+          ], value: "minimax_h3_latent_upscaler_3d_fp16.safetensors" },
+          { type: "note", text: "放大权重来自 models/latent_upscale_models/ · 同 Comfyui_Minimax_h3_latent_Upscaler · 非扩散 MODEL 口" },
+        ],
+        desc: "N7。6 线口 + Latent Upscaler 下拉。二采走社区 Latent Upscaler 路径；倍数在执行台按段设。",
+        notes: [
+          "latent_upscaler：学习型 latent 放大网络，不是第四个 FL/Ref",
+          "流程：低分一采 → Upscaler(权重+倍数) → 高分二采",
+          "加速 LoRA 仍在上游自串",
+        ],
+      },
+      {
+        id: "n8",
+        title: "H3 段执行台",
+        category: "CZ/H3",
+        kind: "core",
+        badge: "new",
+        x: 580, y: 40,
+        wide: true,
+        xl: true,
+        executor: true,
+        inputs: [
+          { name: "plan", type: "H3_SEGMENT_PLAN" },
+          { name: "models", type: "H3_MODEL_BUNDLE" },
+          { name: "library", type: "H3_MEDIA_LIBRARY", optional: true },
+        ],
+        outputs: [
+          { name: "results_manifest", type: "STRING" },
+          { name: "preview", type: "VIDEO", optional: true },
+        ],
+        widgets: [],
+        desc: "N8。与计划台同构的只读轨道；每段在台内设模型/sampler/sigma/seed；节点内采样。",
+        notes: [
+          "轨道只读：不能改切点/时长/文案（回计划台改）",
+          "每段各自：骨干、sampler、sigma、seed、steps、refine+手填倍数、Motion-Context 开关",
+          "生成全部 / 只跑当前段（Queue 看所选）；覆盖或新版本",
+        ],
+      },
+      {
+        id: "n6",
+        title: "H3 选片对比 / 拼接",
+        category: "CZ/H3",
+        kind: "cz",
+        badge: "new",
+        x: 1180, y: 40,
+        wide: true,
+        picker: true,
+        inputs: [
+          { name: "results_manifest", type: "STRING" },
+          { name: "plan", type: "H3_SEGMENT_PLAN", optional: true },
+        ],
+        outputs: [
+          { name: "VIDEO", type: "VIDEO" },
+          { name: "project_manifest", type: "STRING" },
+        ],
+        widgets: [],
+        desc: "N6。按段版本墙选片、同段对比、成片条拼接。学 Easy-Media 选片，不是简单 VIDEO 口。",
+        notes: [
+          "每段多版本卡片（缩略图/骨干/seed）",
+          "同段勾选两版可并排对比",
+          "选定后按 plan 顺序拼接成片",
+        ],
+      },
+    ];
+
+    const WIRES = [
+      ["llm_loader", 0, "n3", 1, "handle"],
+      ["n3", 0, "n8", 0, "plan"],
+      ["n7", 0, "n8", 1, ""],
+      ["n8", 0, "n6", 0, "string"],
+      ["n3", 0, "n6", 1, "plan"],
+    ];
+
+    const DETAIL = {
+      n3: true,
+    };
+
+    let scale = 0.85;
+    let selectedId = "n3";
+    let drag = null;
+
+    function badgeHtml(b) {
+      const map = { new: "新建", exist: "已有", reuse: "复用", opt: "可选" };
+      return `<span class="badge ${b === "reuse" ? "exist" : b}">${map[b] || b}</span>`;
+    }
+
+    function renderWidgets(widgets = []) {
+      return widgets.map((w) => {
+        if (w.type === "note") return `<div class="widget" style="color:#888">${w.text}</div>`;
+        if (w.type === "text") return `<div class="widget"><label>${w.label}</label><input readonly value="${w.value}" /></div>`;
+        if (w.type === "number") return `<div class="widget"><label>${w.label}</label><input readonly value="${w.value}" /></div>`;
+        if (w.type === "select") {
+          const opts = w.options.map((o) => `<option ${o === w.value ? "selected" : ""}>${o}</option>`).join("");
+          return `<div class="widget"><label>${w.label}</label><select>${opts}</select></div>`;
+        }
+        if (w.type === "check") {
+          return `<div class="widget"><label class="chk"><input type="checkbox" ${w.checked ? "checked" : ""} disabled /> ${w.label}</label></div>`;
+        }
+        return "";
+      }).join("");
+    }
+
+    function directorHtml() {
+      return `
+        <div class="director-panel" id="directorUI">
+          <div class="widget"><label>切分用音频（从素材包枚举）</label>
+            <select id="dirAudioPick">
+              <option value="0">Audio 1 · vocal.wav（示意）</option>
+              <option value="1">Audio 2 · full_mix.wav（示意）</option>
+            </select>
+          </div>
+          <div class="mini-btns" style="margin-top:0;margin-bottom:6px">
+            <button type="button" class="primary" id="btnAutoSplit">自动切分</button>
+            <button type="button" id="btnAddCut">+ 切点</button>
+            <button type="button" id="btnDelCut">删当前切点</button>
+          </div>
+          <p class="nle-hint">参考 TimelineDirector：视频/图轨上可拖动 clip、左右边裁剪范围；下方音频轨管切点。库可很多；每段生成仍映射到官方 9/3/3。</p>
+          <div class="nle-shell" id="dirNle">
+            <div class="nle-label ruler">时间</div>
+            <div class="nle-lane ruler" id="dirRuler"></div>
+            <div class="nle-label video">视频/图</div>
+            <div class="nle-lane video" id="dirVideoLane" title="拖动 clip · 左右边裁剪">
+              <div class="nle-playhead-full" id="dirPlayheadVideo" style="left:0%"></div>
+            </div>
+            <div class="nle-label audio">切分音频</div>
+            <div class="nle-lane audio timeline" id="dirTimeline" title="粉线=切点 · 红线=播放头">
+              <div class="bars"></div>
+              <div class="seg-band" style="left:0%;width:33%;background:#4a90d9"></div>
+              <div class="seg-band" style="left:33%;width:33%;background:#66bb6a"></div>
+              <div class="seg-band" style="left:66%;width:34%;background:#ffa726"></div>
+              <div class="cut" style="left:33%" data-t="7"><span class="handle"></span><span class="label">7.0s</span></div>
+              <div class="cut" style="left:66%" data-t="14"><span class="handle"></span><span class="label">14.0s</span></div>
+              <div class="playhead" id="dirPlayhead" style="left:0%"></div>
+            </div>
+          </div>
+          <div class="nle-clip-info" id="dirClipInfo">未选中 clip · 点选后可拖动 / 裁剪</div>
+          <div class="transport">
+            <button type="button" id="btnPlay">▶ 试听</button>
+            <button type="button" id="btnStop">■</button>
+            <button type="button" id="btnNudgeL">◀ 微调</button>
+            <button type="button" id="btnNudgeR">微调 ▶</button>
+            <label class="chk" style="margin:0"><input type="checkbox" id="chkSnap" checked /> 吸附切点</label>
+            <span class="time" id="dirTime">0.0 / 21.0 s</span>
+          </div>
+          <div class="seg-tabs" id="dirSegTabs">
+            <button type="button" class="on" data-seg="0">段0 0–7s</button>
+            <button type="button" data-seg="1">段1 7–14s</button>
+            <button type="button" data-seg="2">段2 14–21s</button>
+          </div>
+          <div class="widget"><label>底模族（对应两套 H3 权重）</label>
+            <div class="chip-row" id="familyChips">
+              <button type="button" class="chip on" data-f="auto">自动</button>
+              <button type="button" class="chip" data-f="base">Base 族<br><small>T2/I/FL/L</small></button>
+              <button type="button" class="chip" data-f="ref">Ref 族<br><small>Ref2VA</small></button>
+            </div>
+          </div>
+          <div class="widget" id="baseModes"><label>Base 子模式</label>
+            <div class="chip-row">
+              <button type="button" class="chip">T2VA</button>
+              <button type="button" class="chip">I2VA</button>
+              <button type="button" class="chip on">FL2VA</button>
+              <button type="button" class="chip">L2VA</button>
+            </div>
+          </div>
+          <div class="widget" id="refIntents"><label>Ref 玩法意图（可多选 · 让人看懂这段怎么玩）</label>
+            <div class="chip-row">
+              <button type="button" class="chip on" data-i="ref">普通参考生</button>
+              <button type="button" class="chip" data-i="lip">对口型</button>
+              <button type="button" class="chip" data-i="swap">换人</button>
+              <button type="button" class="chip" data-i="vedit">视频编辑</button>
+              <button type="button" class="chip" data-i="cont">视频续拍</button>
+              <button type="button" class="chip" data-i="kf">关键帧</button>
+              <button type="button" class="chip" data-i="aud">音频参考</button>
+            </div>
+            <div style="margin-top:4px;color:#8ab;font-size:10px">当前：<span id="intentSummary">Ref · 普通参考生</span></div>
+          </div>
+          <div class="widget"><label>continuity</label>
+            <select><option>new · 全新镜头</option><option>continue · 接上镜</option></select>
+          </div>
+          <div class="widget"><label>中文意图（轨道已绑素材后可用 @）</label>
+            <textarea readonly>近景演唱… @Picture1 作人物</textarea>
+          </div>
+          <div class="widget"><label>英文定稿 prompt_final</label>
+            <textarea readonly>（可选 LLM 写回）</textarea>
+          </div>
+          <div class="mini-btns">
+            <button type="button">本段→英文(LLM)</button>
+            <button type="button">全部未定稿转换</button>
+            <button type="button">导出 plan JSON</button>
+          </div>
+          <p class="nle-hint" style="margin-top:8px">LLM（不 Queue）：认到 Loader → <code>Qwen3.8…</code> + mmproj · 本段 mode=<strong>Ref2VA</strong> → 内置 <code>prompts/h3/official/</code> 该 Task system + 上方中文 → 英文写回</p>
+        </div>`;
+    }
+
+    /** 执行台：与计划台同构的只读轨道 + 每段采样参数 */
+    function executorHtml() {
+      return `
+        <div class="executor-panel" id="executorUI">
+          <p class="nle-hint">与计划台同构的轨道<span class="ro-badge">只读</span>：不能改切点/时长/文案。下面为<strong>当前段</strong>设模型与采样（每段各自一套）。</p>
+          <div class="nle-shell readonly" id="execNle">
+            <div class="nle-label ruler">时间</div>
+            <div class="nle-lane ruler" id="execRuler"></div>
+            <div class="nle-label video">视频/图</div>
+            <div class="nle-lane video" id="execVideoLane">
+              <div class="nle-playhead-full" id="execPlayheadVideo" style="left:0%"></div>
+            </div>
+            <div class="nle-label audio">切分音频</div>
+            <div class="nle-lane audio timeline" id="execTimeline">
+              <div class="bars"></div>
+              <div class="playhead" id="execPlayhead" style="left:0%"></div>
+            </div>
+          </div>
+          <div class="seg-tabs" id="execSegTabs"></div>
+          <div class="widget" style="margin-top:4px">
+            <label>当前段执行设置 · <span id="execSegLabel">段0</span></label>
+            <div class="exec-grid">
+              <label>骨干模型
+                <select id="execBackbone">
+                  <option value="fl2va">FL2VA</option>
+                  <option value="ref2va" selected>Ref2VA</option>
+                  <option value="hybrid">混合</option>
+                </select>
+              </label>
+              <label>sampler
+                <select id="execSampler">
+                  <option>euler</option>
+                  <option selected>uni_pc</option>
+                  <option>dpmpp_2m</option>
+                </select>
+              </label>
+              <label>sigma / scheduler
+                <select id="execSigma">
+                  <option selected>normal</option>
+                  <option>karras</option>
+                  <option>simple</option>
+                </select>
+              </label>
+              <label>steps
+                <input type="number" id="execSteps" value="8" min="1" max="50" />
+              </label>
+              <label>seed
+                <input type="number" id="execSeed" value="42" />
+              </label>
+              <label>cfg
+                <input type="number" id="execCfg" value="1" step="0.1" />
+              </label>
+              <label class="chk" style="grid-column:1/-1;margin-top:4px">
+                <input type="checkbox" id="execRefine" /> 本段启用放大二采 refine
+              </label>
+              <label>放大倍数（手填）
+                <input type="number" id="execUpscale" value="2" min="1" max="4" step="0.1" />
+              </label>
+              <label class="chk" style="grid-column:1/-1">
+                <input type="checkbox" id="execMotionCtx" /> 本段启用 Motion-Context（段间 latent 续拍）
+              </label>
+              <label>MC 重叠帧
+                <input type="number" id="execMotionOverlap" value="22" min="1" max="56" step="1" />
+              </label>
+              <label style="color:#6a7385;font-size:9px;grid-column:1/-1">二采用 N7 的 Latent Upscaler 权重；MC 默认关，与二采同级用户开关（学 Easy context / Director 段间引导）</label>
+            </div>
+          </div>
+          <div class="mini-btns">
+            <button type="button" class="primary" id="btnExecAll">生成全部</button>
+            <button type="button" id="btnExecOne">只生成当前段</button>
+            <select id="execWriteMode" style="background:#3a3a3a;border:1px solid #555;color:#eee;border-radius:3px;padding:3px 6px;font-size:10px">
+              <option value="new">另存新版本</option>
+              <option value="overwrite">覆盖原结果</option>
+            </select>
+            <span style="color:#6a7385;font-size:9px;align-self:center">Queue 时按你点的按钮：全部=循环各段 · 当前段=只采这一段</span>
+          </div>
+        </div>`;
+    }
+
+    function pickerHtml() {
+      return `
+        <div class="picker-panel" id="pickerUI">
+          <p class="nle-hint">按段看多版本 → 点卡片<strong>选用成片</strong>；勾选两张可<strong>并排对比</strong>；底部一键拼接。</p>
+          <div id="pickSegList"></div>
+          <div class="widget"><label>同段对比（勾选两版）</label>
+            <div class="pick-compare">
+              <div class="slot" id="cmpA">A</div>
+              <div class="slot" id="cmpB">B</div>
+            </div>
+          </div>
+          <div class="widget"><label>成片选用</label>
+            <div class="pick-final" id="pickFinalLine">—</div>
+          </div>
+          <div class="mini-btns">
+            <button type="button" class="primary" id="btnPickCombine">拼接成片</button>
+            <button type="button" id="btnPickClearCmp">清除对比</button>
+          </div>
+        </div>`;
+    }
+
+    function slotSide(list, side) {
+      if (!list.length) return "";
+      return list.map((s, i) => {
+        const opt = s.optional ? " ?" : "";
+        return `
+          <div class="slot-row ${side === "in" ? "solo-in" : "solo-out"}" data-side="${side}" data-idx="${i}">
+            <div class="slot ${side}">
+              <span class="port ${s.type}" data-port="${side}-${i}"></span>
+              <span>${s.name}${opt}</span>
+            </div>
+          </div>`;
+      }).join("");
+    }
+
+    function renderNode(n) {
+      const el = document.createElement("div");
+      el.className = `node ${n.kind}${n.wide ? " wide" : ""}${n.xl ? " xl" : ""}${n.id === selectedId ? " selected" : ""}`;
+      el.dataset.id = n.id;
+      el.style.left = n.x + "px";
+      el.style.top = n.y + "px";
+
+      const maxRows = Math.max(n.inputs.length, n.outputs.length, 1);
+      let rows = "";
+      for (let i = 0; i < maxRows; i++) {
+        const inn = n.inputs[i];
+        const out = n.outputs[i];
+        rows += `<div class="slot-row" data-row="${i}">`;
+        if (inn) {
+          rows += `<div class="slot in"><span class="port ${inn.type}" data-port="in-${i}"></span><span>${inn.name}${inn.optional ? " ?" : ""}</span></div>`;
+        } else {
+          rows += `<div></div>`;
+        }
+        if (out) {
+          rows += `<div class="slot out"><span>${out.name}</span><span class="port ${out.type}" data-port="out-${i}"></span></div>`;
+        } else {
+          rows += `<div></div>`;
+        }
+        rows += `</div>`;
+      }
+
+      el.innerHTML = `
+        <div class="node-head" data-drag>
+          <span class="dot"></span>
+          <span>${n.title}</span>
+          ${badgeHtml(n.badge)}
+        </div>
+        <div class="node-body">
+          ${rows}
+          ${renderWidgets(n.widgets)}
+          ${n.director ? directorHtml() : ""}
+          ${n.executor ? executorHtml() : ""}
+          ${n.picker ? pickerHtml() : ""}
+        </div>`;
+      return el;
+    }
+
+    function portCenter(nodeEl, side, idx) {
+      const port = nodeEl.querySelector(`[data-port="${side}-${idx}"]`);
+      if (!port) return null;
+      const canvas = document.getElementById("canvas");
+      const pr = port.getBoundingClientRect();
+      const cr = canvas.getBoundingClientRect();
+      return {
+        x: (pr.left + pr.width / 2 - cr.left) / scale,
+        y: (pr.top + pr.height / 2 - cr.top) / scale,
+      };
+    }
+
+    function drawWires() {
+      const svg = document.getElementById("wires");
+      const canvas = document.getElementById("canvas");
+      svg.setAttribute("width", canvas.offsetWidth);
+      svg.setAttribute("height", canvas.offsetHeight);
+      let paths = "";
+      for (const [a, ai, b, bi, cls] of WIRES) {
+        const na = canvas.querySelector(`.node[data-id="${a}"]`);
+        const nb = canvas.querySelector(`.node[data-id="${b}"]`);
+        if (!na || !nb) continue;
+        const p0 = portCenter(na, "out", ai);
+        const p1 = portCenter(nb, "in", bi);
+        if (!p0 || !p1) continue;
+        const dx = Math.max(40, Math.abs(p1.x - p0.x) * 0.4);
+        const d = `M ${p0.x} ${p0.y} C ${p0.x + dx} ${p0.y}, ${p1.x - dx} ${p1.y}, ${p1.x} ${p1.y}`;
+        paths += `<path class="wire ${cls || ""}" d="${d}" />`;
+      }
+      svg.innerHTML = paths;
+    }
+
+    function showDetail(id) {
+      const n = NODES.find((x) => x.id === id);
+      const box = document.getElementById("detail");
+      if (!n) {
+        box.innerHTML = `<p class="empty-sel">点击节点查看说明。</p>`;
+        return;
+      }
+      const ins = n.inputs.map((s) => `<li><b>${s.name}</b> : ${s.type}${s.optional ? "（可选）" : ""}</li>`).join("") || "<li>（无）</li>";
+      const outs = n.outputs.map((s) => `<li><b>${s.name}</b> : ${s.type}</li>`).join("") || "<li>（无）</li>";
+      const notes = (n.notes || []).map((t) => `<li>${t}</li>`).join("");
+      box.innerHTML = `
+        <h2>${n.title} ${badgeHtml(n.badge)}</h2>
+        <p>${n.desc}</p>
+        <h3>分类</h3>
+        <p>${n.category} · ${n.kind === "official" ? "官方/原生" : n.kind === "core" ? "CZ 核心新节点" : n.kind === "existing" ? "CZ 已有（复用）" : "CZ"}</p>
+        <h3>输入</h3><ul>${ins}</ul>
+        <h3>输出</h3><ul>${outs}</ul>
+        ${notes ? `<h3>要点</h3><ul>${notes}</ul>` : ""}
+        ${n.id === "n3" ? `<h3>plan 片段示意</h3><div class="code">{
+  "segments": [
+    {
+      "id": 0,
+      "start_s": 0, "end_s": 7,
+      "mode": "Ref2VA",
+      "continuity": "new",
+      "media_refs": ["Picture 1"],
+      "prompt_zh": "近景演唱…",
+      "prompt_final": ""
+    }
+  ]
+}</div>` : ""}
+      `;
+    }
+
+    function mount() {
+      const canvas = document.getElementById("canvas");
+      canvas.querySelectorAll(".node").forEach((n) => n.remove());
+      for (const n of NODES) {
+        canvas.appendChild(renderNode(n));
+      }
+      bindNodeEvents();
+      requestAnimationFrame(drawWires);
+      showDetail(selectedId);
+    }
+
+    function bindNodeEvents() {
+      document.querySelectorAll(".node").forEach((el) => {
+        el.addEventListener("mousedown", (e) => {
+          if (e.target.closest(".director-panel") || e.target.closest(".executor-panel") || e.target.closest(".picker-panel")) return;
+          const id = el.dataset.id;
+          selectedId = id;
+          document.querySelectorAll(".node").forEach((n) => n.classList.toggle("selected", n.dataset.id === id));
+          showDetail(id);
+
+          if (!e.target.closest("[data-drag]") && !e.target.closest(".node-head")) return;
+          const n = NODES.find((x) => x.id === id);
+          drag = {
+            id,
+            ox: e.clientX,
+            oy: e.clientY,
+            sx: n.x,
+            sy: n.y,
+          };
+          e.preventDefault();
+        });
+      });
+      bindDirectorUI();
+      bindExecutorUI();
+      bindPickerUI();
+    }
+
+    /** 导演台时间轴交互（模拟：无真媒体，仅 UI） */
+    const DIR = {
+      duration: 21,
+      t: 0,
+      playing: false,
+      cuts: [7, 14],
+      activeCut: 0,
+      raf: 0,
+      lastTs: 0,
+      selectedClipId: "c0",
+      clips: [
+        {
+          id: "c0", name: "take_A.mp4", kind: "video", ref: "V1",
+          start: 0, duration: 7,
+          thumb: "linear-gradient(110deg,#1a3a6a,#4a7ab0 40%,#1a3a6a)",
+        },
+        {
+          id: "c1", name: "face_ref.png", kind: "image", ref: "P1",
+          start: 7, duration: 7,
+          thumb: "linear-gradient(135deg,#5a3a2a,#c09060 50%,#3a2a1a)",
+        },
+        {
+          id: "c2", name: "chorus_B.mp4", kind: "video", ref: "V2",
+          start: 14, duration: 7,
+          thumb: "linear-gradient(110deg,#2a1a4a,#7a5ab0 45%,#1a2a4a)",
+        },
+      ],
+      drag: null,
+      winBound: false,
+    };
+
+    /** 执行台：每段采样参数（与计划分段对齐，台内各自控制） */
+    const RUN = {
+      activeSeg: 0,
+      segs: [
+        { backbone: "fl2va", sampler: "uni_pc", sigma: "normal", steps: 8, seed: 11, cfg: 1, refine: false, upscale: 2, motionCtx: false, motionOverlap: 22 },
+        { backbone: "ref2va", sampler: "uni_pc", sigma: "karras", steps: 8, seed: 42, cfg: 1, refine: false, upscale: 2, motionCtx: false, motionOverlap: 22 },
+        { backbone: "hybrid", sampler: "euler", sigma: "simple", steps: 10, seed: 7, cfg: 1, refine: false, upscale: 1.5, motionCtx: false, motionOverlap: 22 },
+      ],
+    };
+
+    /** 选片台：各段多版本（模拟执行台落盘） */
+    const PICK = {
+      compare: [], // [{seg, vid}] max 2
+      segs: [
+        {
+          selected: "s0v2",
+          versions: [
+            { id: "s0v1", label: "v1", backbone: "FL2VA", seed: 11, thumb: "linear-gradient(110deg,#1a3a6a,#4a7ab0)" },
+            { id: "s0v2", label: "v2", backbone: "FL2VA", seed: 99, thumb: "linear-gradient(110deg,#2a5a8a,#6a9ad0)" },
+          ],
+        },
+        {
+          selected: "s1v1",
+          versions: [
+            { id: "s1v1", label: "v1", backbone: "Ref2VA", seed: 42, thumb: "linear-gradient(135deg,#5a3a2a,#c09060)" },
+            { id: "s1v2", label: "v2", backbone: "混合", seed: 42, thumb: "linear-gradient(135deg,#4a2a5a,#a070c0)" },
+            { id: "s1v3", label: "v3", backbone: "Ref2VA", seed: 7, thumb: "linear-gradient(135deg,#3a4a2a,#90b060)" },
+          ],
+        },
+        {
+          selected: "s2v1",
+          versions: [
+            { id: "s2v1", label: "v1", backbone: "混合", seed: 7, thumb: "linear-gradient(110deg,#2a1a4a,#7a5ab0)" },
+          ],
+        },
+      ],
+    };
+
+    function fmt(t) { return t.toFixed(1); }
+
+    function snapTime(t, opts = {}) {
+      if (!document.getElementById("chkSnap")?.checked) return t;
+      let best = t, bd = 0.25;
+      const marks = [0, DIR.duration];
+      if (!opts.excludeCuts) marks.push(...DIR.cuts);
+      for (const c of DIR.clips) {
+        if (opts.excludeClipId && c.id === opts.excludeClipId) continue;
+        marks.push(c.start, c.start + c.duration);
+      }
+      for (const m of marks) {
+        const d = Math.abs(m - t);
+        if (d < bd) { best = m; bd = d; }
+      }
+      return best;
+    }
+
+    function syncRuler() {
+      const ruler = document.getElementById("dirRuler");
+      if (!ruler) return;
+      ruler.innerHTML = "";
+      const step = DIR.duration <= 30 ? 1 : 2;
+      for (let s = 0; s <= DIR.duration + 0.01; s += step) {
+        const tick = document.createElement("span");
+        tick.className = "nle-ruler-tick";
+        tick.style.left = (s / DIR.duration) * 100 + "%";
+        tick.textContent = s + "s";
+        ruler.appendChild(tick);
+      }
+    }
+
+    function syncVideoClips() {
+      const lane = document.getElementById("dirVideoLane");
+      const info = document.getElementById("dirClipInfo");
+      if (!lane) return;
+      let ph = document.getElementById("dirPlayheadVideo");
+      lane.querySelectorAll(".nle-clip").forEach((el) => el.remove());
+      for (const clip of DIR.clips) {
+        const el = document.createElement("div");
+        el.className = "nle-clip" + (clip.id === DIR.selectedClipId ? " selected" : "");
+        el.dataset.id = clip.id;
+        el.style.left = (clip.start / DIR.duration) * 100 + "%";
+        el.style.width = (clip.duration / DIR.duration) * 100 + "%";
+        el.innerHTML = `
+          <div class="thumb" style="background:${clip.thumb}"></div>
+          <div class="shade"></div>
+          <div class="name">${clip.name}</div>
+          <div class="meta">${fmt(clip.start)}–${fmt(clip.start + clip.duration)}s · ${fmt(clip.duration)}s</div>
+          <div class="ref-tag">${clip.ref}</div>
+          <div class="edge left" data-edge="left"></div>
+          <div class="edge right" data-edge="right"></div>`;
+        lane.appendChild(el);
+      }
+      if (!ph) {
+        ph = document.createElement("div");
+        ph.className = "nle-playhead-full";
+        ph.id = "dirPlayheadVideo";
+        lane.appendChild(ph);
+      } else {
+        lane.appendChild(ph);
+      }
+      ph.style.left = (DIR.t / DIR.duration) * 100 + "%";
+      const sel = DIR.clips.find((c) => c.id === DIR.selectedClipId);
+      if (info) {
+        info.textContent = sel
+          ? `选中 ${sel.name}（${sel.ref}）· ${fmt(sel.start)}–${fmt(sel.start + sel.duration)}s · 拖中间移动，拖左右边裁剪`
+          : "未选中 clip · 点选后可拖动 / 裁剪";
+      }
+    }
+
+    function syncDirectorVisual() {
+      const tl = document.getElementById("dirTimeline");
+      const ph = document.getElementById("dirPlayhead");
+      const timeEl = document.getElementById("dirTime");
+      const tabs = document.getElementById("dirSegTabs");
+      if (!tl || !ph) return;
+      const pct = (DIR.t / DIR.duration) * 100;
+      ph.style.left = pct + "%";
+      if (timeEl) timeEl.textContent = `${fmt(DIR.t)} / ${fmt(DIR.duration)} s`;
+
+      syncRuler();
+      syncVideoClips();
+
+      const bounds = [0, ...DIR.cuts, DIR.duration];
+      const cuts = [...tl.querySelectorAll(".cut")];
+      cuts.forEach((c, i) => {
+        if (i >= DIR.cuts.length) { c.remove(); return; }
+        const p = (DIR.cuts[i] / DIR.duration) * 100;
+        c.style.left = p + "%";
+        c.dataset.t = String(DIR.cuts[i]);
+        const lab = c.querySelector(".label");
+        if (lab) lab.textContent = fmt(DIR.cuts[i]) + "s";
+        c.style.outline = i === DIR.activeCut ? "1px solid #fff" : "none";
+      });
+      while (tl.querySelectorAll(".cut").length < DIR.cuts.length) {
+        const el = document.createElement("div");
+        el.className = "cut";
+        el.innerHTML = `<span class="handle"></span><span class="label"></span>`;
+        tl.appendChild(el);
+      }
+      tl.querySelectorAll(".seg-band").forEach((b) => b.remove());
+      const colors = ["#4a90d9", "#66bb6a", "#ffa726", "#ab47bc", "#26c6da"];
+      if (tabs) {
+        tabs.innerHTML = "";
+        for (let i = 0; i < bounds.length - 1; i++) {
+          const a = bounds[i], b = bounds[i + 1];
+          const band = document.createElement("div");
+          band.className = "seg-band";
+          band.style.left = (a / DIR.duration) * 100 + "%";
+          band.style.width = ((b - a) / DIR.duration) * 100 + "%";
+          band.style.background = colors[i % colors.length];
+          tl.insertBefore(band, tl.querySelector(".playhead"));
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.dataset.seg = String(i);
+          btn.textContent = `段${i} ${fmt(a)}–${fmt(b)}s`;
+          if (DIR.t >= a && DIR.t < b) btn.classList.add("on");
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            DIR.t = a;
+            syncDirectorVisual();
+          });
+          tabs.appendChild(btn);
+        }
+      }
+      tl.querySelectorAll(".cut").forEach((c, i) => {
+        if (i >= DIR.cuts.length) return;
+        const p = (DIR.cuts[i] / DIR.duration) * 100;
+        c.style.left = p + "%";
+        const lab = c.querySelector(".label");
+        if (lab) lab.textContent = fmt(DIR.cuts[i]) + "s";
+        c.style.outline = i === DIR.activeCut ? "1px solid #fff" : "none";
+      });
+      if (document.getElementById("executorUI")) syncExecutorVisual();
+      drawWires();
+    }
+
+    function syncExecutorVisual() {
+      const panel = document.getElementById("executorUI");
+      if (!panel) return;
+      const bounds = [0, ...DIR.cuts, DIR.duration];
+      const tabs = document.getElementById("execSegTabs");
+      const colors = ["#4a90d9", "#66bb6a", "#ffa726", "#ab47bc", "#26c6da"];
+
+      // ruler
+      const ruler = document.getElementById("execRuler");
+      if (ruler) {
+        ruler.innerHTML = "";
+        const step = DIR.duration <= 30 ? 1 : 2;
+        for (let s = 0; s <= DIR.duration + 0.01; s += step) {
+          const tick = document.createElement("span");
+          tick.className = "nle-ruler-tick";
+          tick.style.left = (s / DIR.duration) * 100 + "%";
+          tick.textContent = s + "s";
+          ruler.appendChild(tick);
+        }
+      }
+
+      // readonly clips (mirror DIR.clips)
+      const lane = document.getElementById("execVideoLane");
+      if (lane) {
+        lane.querySelectorAll(".nle-clip").forEach((el) => el.remove());
+        let ph = document.getElementById("execPlayheadVideo");
+        for (const clip of DIR.clips) {
+          const el = document.createElement("div");
+          el.className = "nle-clip";
+          el.style.left = (clip.start / DIR.duration) * 100 + "%";
+          el.style.width = (clip.duration / DIR.duration) * 100 + "%";
+          el.innerHTML = `
+            <div class="thumb" style="background:${clip.thumb}"></div>
+            <div class="shade"></div>
+            <div class="name">${clip.name}</div>
+            <div class="meta">${fmt(clip.start)}–${fmt(clip.start + clip.duration)}s</div>
+            <div class="ref-tag">${clip.ref}</div>`;
+          lane.appendChild(el);
+        }
+        if (!ph) {
+          ph = document.createElement("div");
+          ph.className = "nle-playhead-full";
+          ph.id = "execPlayheadVideo";
+        }
+        ph.style.left = (DIR.t / DIR.duration) * 100 + "%";
+        lane.appendChild(ph);
+      }
+
+      // audio lane bands + cuts (readonly)
+      const tl = document.getElementById("execTimeline");
+      const eph = document.getElementById("execPlayhead");
+      if (tl && eph) {
+        eph.style.left = (DIR.t / DIR.duration) * 100 + "%";
+        tl.querySelectorAll(".seg-band, .cut").forEach((b) => b.remove());
+        for (let i = 0; i < bounds.length - 1; i++) {
+          const a = bounds[i], b = bounds[i + 1];
+          const band = document.createElement("div");
+          band.className = "seg-band";
+          band.style.left = (a / DIR.duration) * 100 + "%";
+          band.style.width = ((b - a) / DIR.duration) * 100 + "%";
+          band.style.background = colors[i % colors.length];
+          tl.insertBefore(band, eph);
+          const cutT = DIR.cuts[i];
+          if (cutT != null) {
+            const c = document.createElement("div");
+            c.className = "cut";
+            c.style.left = (cutT / DIR.duration) * 100 + "%";
+            c.innerHTML = `<span class="handle"></span><span class="label">${fmt(cutT)}s</span>`;
+            tl.insertBefore(c, eph);
+          }
+        }
+      }
+
+      if (tabs) {
+        tabs.innerHTML = "";
+        for (let i = 0; i < bounds.length - 1; i++) {
+          const a = bounds[i], b = bounds[i + 1];
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = `段${i} ${fmt(a)}–${fmt(b)}s`;
+          if (i === RUN.activeSeg) btn.classList.add("on");
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            saveExecFormToSeg();
+            RUN.activeSeg = i;
+            loadExecFormFromSeg();
+            syncExecutorVisual();
+          });
+          tabs.appendChild(btn);
+        }
+      }
+
+      const lab = document.getElementById("execSegLabel");
+      if (lab) lab.textContent = `段${RUN.activeSeg}`;
+    }
+
+    function saveExecFormToSeg() {
+      const s = RUN.segs[RUN.activeSeg];
+      if (!s) return;
+      s.backbone = document.getElementById("execBackbone")?.value || s.backbone;
+      s.sampler = document.getElementById("execSampler")?.value || s.sampler;
+      s.sigma = document.getElementById("execSigma")?.value || s.sigma;
+      s.steps = Number(document.getElementById("execSteps")?.value) || s.steps;
+      s.seed = Number(document.getElementById("execSeed")?.value) || s.seed;
+      s.cfg = Number(document.getElementById("execCfg")?.value) || s.cfg;
+      s.refine = !!document.getElementById("execRefine")?.checked;
+      s.upscale = Number(document.getElementById("execUpscale")?.value) || s.upscale;
+      s.motionCtx = !!document.getElementById("execMotionCtx")?.checked;
+      s.motionOverlap = Number(document.getElementById("execMotionOverlap")?.value) || s.motionOverlap || 22;
+      syncExecRefineUI();
+      syncExecMotionUI();
+    }
+
+    function loadExecFormFromSeg() {
+      const s = RUN.segs[RUN.activeSeg];
+      if (!s) return;
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+      set("execBackbone", s.backbone);
+      set("execSampler", s.sampler);
+      set("execSigma", s.sigma);
+      set("execSteps", s.steps);
+      set("execSeed", s.seed);
+      set("execCfg", s.cfg);
+      const ref = document.getElementById("execRefine");
+      if (ref) ref.checked = !!s.refine;
+      set("execUpscale", s.upscale);
+      const mc = document.getElementById("execMotionCtx");
+      if (mc) mc.checked = !!s.motionCtx;
+      set("execMotionOverlap", s.motionOverlap ?? 22);
+      syncExecRefineUI();
+      syncExecMotionUI();
+    }
+
+    function syncExecRefineUI() {
+      const on = !!document.getElementById("execRefine")?.checked;
+      const up = document.getElementById("execUpscale");
+      if (up) up.disabled = !on;
+    }
+
+    function syncExecMotionUI() {
+      const on = !!document.getElementById("execMotionCtx")?.checked;
+      const ov = document.getElementById("execMotionOverlap");
+      if (ov) ov.disabled = !on;
+    }
+
+    function bindExecutorUI() {
+      const panel = document.getElementById("executorUI");
+      if (!panel) return;
+      const nSeg = DIR.cuts.length + 1;
+      while (RUN.segs.length < nSeg) {
+        RUN.segs.push({ backbone: "ref2va", sampler: "uni_pc", sigma: "normal", steps: 8, seed: 0, cfg: 1, refine: false, upscale: 2, motionCtx: false, motionOverlap: 22 });
+      }
+      loadExecFormFromSeg();
+      syncExecutorVisual();
+
+      ["execBackbone", "execSampler", "execSigma", "execSteps", "execSeed", "execCfg", "execUpscale", "execMotionOverlap"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.onchange = (e) => { e.stopPropagation(); saveExecFormToSeg(); };
+        el.onmousedown = (e) => e.stopPropagation();
+      });
+      const refEl = document.getElementById("execRefine");
+      if (refEl) {
+        refEl.onchange = (e) => { e.stopPropagation(); saveExecFormToSeg(); };
+        refEl.onmousedown = (e) => e.stopPropagation();
+      }
+      const mcEl = document.getElementById("execMotionCtx");
+      if (mcEl) {
+        mcEl.onchange = (e) => { e.stopPropagation(); saveExecFormToSeg(); };
+        mcEl.onmousedown = (e) => e.stopPropagation();
+      }
+      document.getElementById("btnExecAll").onclick = (e) => {
+        e.stopPropagation();
+        saveExecFormToSeg();
+        const lines = RUN.segs.slice(0, nSeg).map((s, i) =>
+          `段${i}: ${s.backbone} / ${s.sampler} / seed=${s.seed}` +
+          (s.refine ? ` / 二采×${s.upscale}` : "") +
+          (s.motionCtx ? ` / MC×${s.motionOverlap}` : ""));
+        alert(`（模拟）生成全部：按段循环采样：\n${lines.join("\n")}\n写盘：${document.getElementById("execWriteMode")?.value}`);
+      };
+      document.getElementById("btnExecOne").onclick = (e) => {
+        e.stopPropagation();
+        saveExecFormToSeg();
+        const s = RUN.segs[RUN.activeSeg];
+        alert(`（模拟）只生成段${RUN.activeSeg}：${s.backbone} · ${s.sampler} · seed ${s.seed}` +
+          (s.refine ? ` · 二采×${s.upscale}` : "") +
+          (s.motionCtx ? ` · MC×${s.motionOverlap}` : ""));
+      };
+      document.getElementById("execWriteMode").onmousedown = (e) => e.stopPropagation();
+    }
+
+    function findPickVersion(vid) {
+      for (let si = 0; si < PICK.segs.length; si++) {
+        const v = PICK.segs[si].versions.find((x) => x.id === vid);
+        if (v) return { seg: si, v };
+      }
+      return null;
+    }
+
+    function syncPickerVisual() {
+      const list = document.getElementById("pickSegList");
+      const finalLine = document.getElementById("pickFinalLine");
+      if (!list) return;
+      list.innerHTML = "";
+      PICK.segs.forEach((seg, si) => {
+        const block = document.createElement("div");
+        block.className = "pick-seg";
+        const chosen = seg.versions.find((v) => v.id === seg.selected);
+        block.innerHTML = `<div class="pick-seg-h"><span>段${si}</span><small>成片用 ${chosen ? chosen.label : "—"}</small></div>`;
+        const cards = document.createElement("div");
+        cards.className = "pick-cards";
+        seg.versions.forEach((v) => {
+          const card = document.createElement("div");
+          card.className = "pick-card" + (v.id === seg.selected ? " on" : "");
+          card.dataset.vid = v.id;
+          card.dataset.seg = String(si);
+          const inCmp = PICK.compare.some((c) => c.vid === v.id);
+          card.innerHTML = `
+            <div class="thumb" style="background:${v.thumb}"></div>
+            <span class="tag">${v.label}</span>
+            <span class="sel">成片</span>
+            <div class="meta">${v.backbone}<br>seed ${v.seed}${inCmp ? "<br>·对比中" : ""}</div>`;
+          card.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (e.shiftKey || e.ctrlKey || e.metaKey) {
+              // toggle compare (max 2, prefer same seg)
+              const idx = PICK.compare.findIndex((c) => c.vid === v.id);
+              if (idx >= 0) PICK.compare.splice(idx, 1);
+              else {
+                if (PICK.compare.length >= 2) PICK.compare.shift();
+                PICK.compare.push({ seg: si, vid: v.id });
+              }
+            } else {
+              seg.selected = v.id;
+            }
+            syncPickerVisual();
+          });
+          cards.appendChild(card);
+        });
+        block.appendChild(cards);
+        list.appendChild(block);
+      });
+
+      const a = document.getElementById("cmpA");
+      const b = document.getElementById("cmpB");
+      const paint = (el, slot) => {
+        if (!el) return;
+        const item = PICK.compare[slot];
+        if (!item) {
+          el.style.backgroundImage = "";
+          el.textContent = slot === 0 ? "A · Shift+点卡片加入" : "B";
+          return;
+        }
+        const hit = findPickVersion(item.vid);
+        if (!hit) return;
+        el.style.backgroundImage = hit.v.thumb;
+        el.textContent = `段${hit.seg} ${hit.v.label}`;
+      };
+      paint(a, 0);
+      paint(b, 1);
+
+      if (finalLine) {
+        finalLine.textContent = PICK.segs.map((seg, si) => {
+          const v = seg.versions.find((x) => x.id === seg.selected);
+          return `段${si}→${v ? v.label : "?"}`;
+        }).join("  ·  ") + "  →  成片";
+      }
+    }
+
+    function bindPickerUI() {
+      if (!document.getElementById("pickerUI")) return;
+      syncPickerVisual();
+      document.getElementById("btnPickCombine").onclick = (e) => {
+        e.stopPropagation();
+        const line = PICK.segs.map((seg, si) => {
+          const v = seg.versions.find((x) => x.id === seg.selected);
+          return `段${si}:${v.label}(${v.backbone}/seed${v.seed})`;
+        }).join(", ");
+        alert(`（模拟）按 plan 顺序拼接：\n${line}\n→ 输出成片 VIDEO + project_manifest`);
+      };
+      document.getElementById("btnPickClearCmp").onclick = (e) => {
+        e.stopPropagation();
+        PICK.compare = [];
+        syncPickerVisual();
+      };
+    }
+
+    function bindDirectorUI() {
+      const btnPlay = document.getElementById("btnPlay");
+      const btnStop = document.getElementById("btnStop");
+      const btnAuto = document.getElementById("btnAutoSplit");
+      const tl = document.getElementById("dirTimeline");
+      const videoLane = document.getElementById("dirVideoLane");
+      if (!btnPlay || !tl) return;
+
+      btnPlay.onclick = (e) => {
+        e.stopPropagation();
+        if (DIR.playing) {
+          DIR.playing = false;
+          btnPlay.textContent = "▶ 试听";
+          cancelAnimationFrame(DIR.raf);
+          return;
+        }
+        DIR.playing = true;
+        btnPlay.textContent = "❚❚ 暂停";
+        DIR.lastTs = performance.now();
+        const tick = (ts) => {
+          if (!DIR.playing) return;
+          const dt = (ts - DIR.lastTs) / 1000;
+          DIR.lastTs = ts;
+          DIR.t += dt;
+          if (DIR.t >= DIR.duration) {
+            DIR.t = DIR.duration;
+            DIR.playing = false;
+            btnPlay.textContent = "▶ 试听";
+            syncDirectorVisual();
+            return;
+          }
+          syncDirectorVisual();
+          DIR.raf = requestAnimationFrame(tick);
+        };
+        DIR.raf = requestAnimationFrame(tick);
+      };
+      btnStop.onclick = (e) => {
+        e.stopPropagation();
+        DIR.playing = false;
+        DIR.t = 0;
+        btnPlay.textContent = "▶ 试听";
+        cancelAnimationFrame(DIR.raf);
+        syncDirectorVisual();
+      };
+      document.getElementById("btnNudgeL").onclick = (e) => {
+        e.stopPropagation();
+        if (DIR.activeCut < 0 || DIR.activeCut >= DIR.cuts.length) return;
+        DIR.cuts[DIR.activeCut] = Math.max(0.2, DIR.cuts[DIR.activeCut] - 0.1);
+        DIR.cuts.sort((a, b) => a - b);
+        syncDirectorVisual();
+      };
+      document.getElementById("btnNudgeR").onclick = (e) => {
+        e.stopPropagation();
+        if (DIR.activeCut < 0 || DIR.activeCut >= DIR.cuts.length) return;
+        DIR.cuts[DIR.activeCut] = Math.min(DIR.duration - 0.2, DIR.cuts[DIR.activeCut] + 0.1);
+        DIR.cuts.sort((a, b) => a - b);
+        syncDirectorVisual();
+      };
+      btnAuto.onclick = (e) => {
+        e.stopPropagation();
+        const pick = document.getElementById("dirAudioPick");
+        const name = pick ? pick.options[pick.selectedIndex].text : "Audio";
+        DIR.cuts = [7, 14];
+        DIR.t = 0;
+        DIR.clips = [
+          { id: "c0", name: "take_A.mp4", kind: "video", ref: "V1", start: 0, duration: 7,
+            thumb: "linear-gradient(110deg,#1a3a6a,#4a7ab0 40%,#1a3a6a)" },
+          { id: "c1", name: "face_ref.png", kind: "image", ref: "P1", start: 7, duration: 7,
+            thumb: "linear-gradient(135deg,#5a3a2a,#c09060 50%,#3a2a1a)" },
+          { id: "c2", name: "chorus_B.mp4", kind: "video", ref: "V2", start: 14, duration: 7,
+            thumb: "linear-gradient(110deg,#2a1a4a,#7a5ab0 45%,#1a2a4a)" },
+        ];
+        alert(`（模拟）已对「${name}」自动切分，切点写回时间轴；视频轨按段对齐示意。\n真节点会跑能量检测；此处仅 UI。`);
+        syncDirectorVisual();
+      };
+      document.getElementById("btnAddCut").onclick = (e) => {
+        e.stopPropagation();
+        const t = Math.round(DIR.t * 10) / 10;
+        if (t > 0.2 && t < DIR.duration - 0.2 && !DIR.cuts.some((c) => Math.abs(c - t) < 0.15)) {
+          DIR.cuts.push(t);
+          DIR.cuts.sort((a, b) => a - b);
+          DIR.activeCut = DIR.cuts.indexOf(t);
+          syncDirectorVisual();
+        }
+      };
+      document.getElementById("btnDelCut").onclick = (e) => {
+        e.stopPropagation();
+        if (DIR.cuts.length && DIR.activeCut >= 0) {
+          DIR.cuts.splice(DIR.activeCut, 1);
+          DIR.activeCut = Math.max(0, DIR.activeCut - 1);
+          syncDirectorVisual();
+        }
+      };
+
+      const timeFromClientX = (clientX, el) => {
+        const rect = el.getBoundingClientRect();
+        return ((clientX - rect.left) / rect.width) * DIR.duration;
+      };
+
+      tl.onmousedown = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const cutEl = e.target.closest(".cut");
+        if (cutEl) {
+          DIR.activeCut = [...tl.querySelectorAll(".cut")].indexOf(cutEl);
+          DIR.drag = { type: "cut", index: DIR.activeCut };
+          syncDirectorVisual();
+          return;
+        }
+        DIR.t = Math.max(0, Math.min(DIR.duration, timeFromClientX(e.clientX, tl)));
+        DIR.t = snapTime(DIR.t);
+        syncDirectorVisual();
+      };
+
+      if (videoLane) {
+        videoLane.onmousedown = (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          const clipEl = e.target.closest(".nle-clip");
+          if (!clipEl) {
+            DIR.t = Math.max(0, Math.min(DIR.duration, timeFromClientX(e.clientX, videoLane)));
+            DIR.t = snapTime(DIR.t);
+            syncDirectorVisual();
+            return;
+          }
+          const clip = DIR.clips.find((c) => c.id === clipEl.dataset.id);
+          if (!clip) return;
+          DIR.selectedClipId = clip.id;
+          const edge = e.target.closest("[data-edge]")?.dataset.edge || "move";
+          DIR.drag = {
+            type: "clip",
+            edge,
+            id: clip.id,
+            ox: e.clientX,
+            ot: clip.start,
+            odur: clip.duration,
+            laneW: videoLane.getBoundingClientRect().width,
+          };
+          syncDirectorVisual();
+        };
+      }
+
+      if (!DIR.winBound) {
+        DIR.winBound = true;
+        window.addEventListener("mousemove", (e) => {
+          if (!DIR.drag) return;
+          if (DIR.drag.type === "cut") {
+            const audioTl = document.getElementById("dirTimeline");
+            const rect = audioTl?.getBoundingClientRect();
+            if (!rect) return;
+            let t = ((e.clientX - rect.left) / rect.width) * DIR.duration;
+            t = Math.max(0.2, Math.min(DIR.duration - 0.2, t));
+            t = Math.round(snapTime(t, { excludeCuts: true }) * 10) / 10;
+            DIR.cuts[DIR.drag.index] = t;
+            DIR.cuts.sort((a, b) => a - b);
+            DIR.activeCut = DIR.cuts.indexOf(t);
+            syncDirectorVisual();
+            return;
+          }
+          if (DIR.drag.type === "clip") {
+            const clip = DIR.clips.find((c) => c.id === DIR.drag.id);
+            if (!clip) return;
+            const dxSec = ((e.clientX - DIR.drag.ox) / Math.max(1, DIR.drag.laneW)) * DIR.duration;
+            const minDur = 0.5;
+            const snapOpts = { excludeClipId: clip.id };
+            if (DIR.drag.edge === "move") {
+              let start = DIR.drag.ot + dxSec;
+              start = Math.max(0, Math.min(DIR.duration - clip.duration, start));
+              const snappedStart = snapTime(start, snapOpts);
+              const snappedByEnd = snapTime(start + clip.duration, snapOpts) - clip.duration;
+              start = Math.abs(snappedStart - start) <= Math.abs(snappedByEnd - start)
+                ? snappedStart : snappedByEnd;
+              clip.start = Math.round(Math.max(0, Math.min(DIR.duration - clip.duration, start)) * 10) / 10;
+            } else if (DIR.drag.edge === "left") {
+              const end = DIR.drag.ot + DIR.drag.odur;
+              let start = snapTime(DIR.drag.ot + dxSec, snapOpts);
+              start = Math.max(0, Math.min(end - minDur, start));
+              clip.start = Math.round(start * 10) / 10;
+              clip.duration = Math.round((end - clip.start) * 10) / 10;
+            } else if (DIR.drag.edge === "right") {
+              let end = snapTime(DIR.drag.ot + DIR.drag.odur + dxSec, snapOpts);
+              end = Math.max(clip.start + minDur, Math.min(DIR.duration, end));
+              clip.duration = Math.round((end - clip.start) * 10) / 10;
+            }
+            syncDirectorVisual();
+          }
+        });
+        window.addEventListener("mouseup", () => { DIR.drag = null; });
+      }
+
+      // 底模族 / 玩法卡片切换（示意）
+      const family = document.getElementById("familyChips");
+      const baseBox = document.getElementById("baseModes");
+      const refBox = document.getElementById("refIntents");
+      const summary = document.getElementById("intentSummary");
+      const labels = {
+        ref: "普通参考生", lip: "对口型", swap: "换人", vedit: "视频编辑",
+        cont: "视频续拍", kf: "关键帧", aud: "音频参考",
+      };
+      const syncFamily = () => {
+        const on = family.querySelector(".chip.on")?.dataset.f || "auto";
+        if (baseBox) baseBox.style.display = on === "ref" ? "none" : "block";
+        if (refBox) refBox.style.display = on === "base" ? "none" : "block";
+        if (on === "auto" && summary) summary.textContent = "自动（按本段轨道素材推断）";
+        if (on === "base" && summary) summary.textContent = "Base 族";
+        if (on === "ref") updateIntentSummary();
+      };
+      const updateIntentSummary = () => {
+        if (!refBox || !summary) return;
+        const picked = [...refBox.querySelectorAll(".chip.on")].map((c) => labels[c.dataset.i] || c.textContent);
+        summary.textContent = picked.length ? "Ref · " + picked.join(" + ") : "Ref · （未选玩法）";
+      };
+      family?.querySelectorAll(".chip").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          family.querySelectorAll(".chip").forEach((c) => c.classList.remove("on"));
+          btn.classList.add("on");
+          syncFamily();
+        });
+      });
+      baseBox?.querySelectorAll(".chip").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          baseBox.querySelectorAll(".chip").forEach((c) => c.classList.remove("on"));
+          btn.classList.add("on");
+        });
+      });
+      refBox?.querySelectorAll(".chip").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          btn.classList.toggle("on");
+          updateIntentSummary();
+        });
+      });
+      syncFamily();
+
+      syncDirectorVisual();
+    }
+
+    window.addEventListener("mousemove", (e) => {
+      if (!drag) return;
+      const n = NODES.find((x) => x.id === drag.id);
+      n.x = drag.sx + (e.clientX - drag.ox) / scale;
+      n.y = drag.sy + (e.clientY - drag.oy) / scale;
+      const el = document.querySelector(`.node[data-id="${drag.id}"]`);
+      el.style.left = n.x + "px";
+      el.style.top = n.y + "px";
+      drawWires();
+    });
+    window.addEventListener("mouseup", () => { drag = null; });
+    window.addEventListener("resize", () => drawWires());
+
+    function setScale(s) {
+      scale = Math.min(1.2, Math.max(0.5, s));
+      document.getElementById("canvas").style.transform = `scale(${scale})`;
+      requestAnimationFrame(drawWires);
+    }
+    document.getElementById("btnZoomIn").onclick = () => setScale(scale + 0.1);
+    document.getElementById("btnZoomOut").onclick = () => setScale(scale - 0.1);
+    document.getElementById("btnResetView").onclick = () => {
+      setScale(0.85);
+      document.getElementById("canvasWrap").scrollLeft = 0;
+      document.getElementById("canvasWrap").scrollTop = 0;
+    };
+
+    mount();
+  </script>
+</body>
+</html>
