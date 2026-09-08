@@ -1,8 +1,8 @@
 # H3：白膜弧线扫镜四人 → 先 T2V 再换脸
 
-> 目的：记录本需求、已踩坑、工具对比结论，以及当前认定的主方案（先 15s 一镜 T2V 锁结构，再 rv2v 换脸）。  
+> 目的：记录本需求、已踩坑、工具对比结论，以及当前认定的主方案（先 15s 一镜 T2V 锁结构，再换脸）。  
 > 环境：家用 **4090 24GB / 64GB 内存**；编排曾试 Easy-Media / TimelineDirector / MiniMaxH3 Director。  
-> 记录日期：2026-09-07  
+> 记录日期：2026-09-07；换脸实操定稿补记 **2026-09-08**（见 §4.5）。  
 
 ---
 
@@ -156,19 +156,158 @@ A continuous dark cinematic underscore with low pulses and soft synth pads, stea
 
 #### 推荐：按时间窗分段换脸
 
-按约 3s 一窗切（与扫镜时段对齐），每窗 **少挂脸**：
+按约 3s 一窗切（与扫镜时段对齐），每窗 **少挂脸**。切点、挂图、参数与提示词定稿见 **§4.5**。
 
 | 时间窗（约） | 画面 | 挂脸 |
 |--------------|------|------|
-| 0–3s | 最右特写 D | 只挂 D |
-| 3–6s | C 特写（可含半脸过渡） | 主挂 C；过渡窗必要时只挂当前主脸 |
-| 6–9s | B 特写 | 只挂 B |
-| 9–12s | A 特写 | 只挂 A |
-| 12–15s | 四人广角同框 | **再挂四张**（A/B/C/D） |
+| 段1 | 最右特写 D | 只挂 D |
+| 段2 | C 特写 | 只挂 C |
+| 段3 | B 特写 | 只挂 B |
+| 段4 | A 特写 | 只挂 A |
+| 段5 | 四人广角同框 | 挂四张 A/B/C/D |
 
-- 挂图顺序与扫镜一致：先最右脸（D），再 C、B、A；广角段四张。  
-- 半脸过渡不要硬切到「刚好对半」；切在某一侧已占主导的帧附近更稳。  
-- 各窗成片再按时间拼回；结构遍已锁机位/衣服/场景/乐，拼回主要对齐时间轴即可。
+- 段与段 **首尾相接，中间不留空**；半脸过渡落在某一段内部，不要切在对半正中。  
+- 切点要 **偏晚**：下一主角已明显占主导（约 70%+），上一人只剩画幅边缘一条。  
+- Easy-Media 上用 **v2v** + **`context_swap`** + **锁定结构成片视频轨**，不要用结构遍那套弱参考 r2v。
+
+### 4.5 Easy-Media 换脸遍实操定稿（2026-09-08）
+
+> 前提：结构遍 15s T2VA 已跑通，运镜符合要求。本遍只换脸。  
+> 站位左→右 A B C D；摄像机右→左扫：D → C → B → A → 拉远。
+
+#### 4.5.1 半脸怎么切（原则）
+
+```text
+开场 ── 正特写 ── 邻人刚露边 ── 对半 ── 下一主已主导、上一人只剩边 ── 正特写 …
+                                      ↑ 建议切点（偏晚）
+                              ↑ 不要切这里
+```
+
+- **不要**切在两人各一半。  
+- **不要**切在「下一人刚露出一点点」（上一人还很大时挂下一张脸，容易把上一人也换掉）。  
+- **要**切在类似：C 已完整占主导，D 只在右侧剩一条边（用户已确认的示意）。  
+- D→C、C→B、B→A 三段过渡用同一规则。  
+- 时间轴连续铺满，**中间不空一段**；空了反而要补洞。
+
+#### 4.5.2 五段：切到哪儿、挂什么图
+
+时长以结构成片为准（约 3s×4 + 3s 远景）；下表「约」秒数为参照，**以画面主导关系为准微调**。
+
+| 段 | 源片裁切（怎么认切点） | 挂参考图 | 任务目标 |
+|----|------------------------|----------|----------|
+| **1** | 从开场 → 到 **C 已占主导、D 只剩右边缘**（含该帧或紧前一帧） | **只挂 D** | 换最右人特写脸 |
+| **2** | 从段1切点 **下一帧接着** → 到 **B 已占主导、C 只剩右边缘** | **只挂 C** | 换第三人特写脸 |
+| **3** | 从段2切点接着 → 到 **A 已占主导、B 只剩右边缘** | **只挂 B** | 换第二人特写脸 |
+| **4** | 从段3切点接着 → 到 **明显开始拉远 / 四人将同框之前**（A 仍为主或刚开始变宽） | **只挂 A** | 换最左人特写脸 |
+| **5** | 从拉远开始 → 片尾（四人同框） | **挂四张：A、B、C、D**（顺序与站位一致更清晰） | 广角四人脸对齐 |
+
+说明：
+
+- 「4+5」：特写扫完四人用段1–4；远景单独段5，**只有段5 才挂四张脸**（段4 不要提前挂四张）。  
+- 视频轨：优先 **整条结构成片铺满并锁定**；任务窗吃重叠部分。若坚持外切短片，短片起止必须与上表切点一致，且仍锁定/按源片编辑，勿当弱参考。  
+- 智能切成「一大段特写 + 一段全景」**不要用**：大特写段仍要四张脸，显存与串脸问题会回来。
+
+#### 4.5.3 Easy-Media / Project 参数
+
+| 项 | 设置 |
+|----|------|
+| 任务类型 | 每段 **v2v**（视频编辑；有脸图时实际为 vi2v）。**不要**用 r2v（弱参考会丢运镜） |
+| 衔接 | 五段均为 **`context_swap`**（角色替换上下文）。不要用 `context`（偏保原身份） |
+| 视频轨 | 结构遍成片；轨道 **`audio_locked: true`（锁定）**，让源片驱动时间线/运镜/尽量保留配乐 |
+| 分辨率 | 4090：优先 **0.4MP 单采**；二采按本机能力 |
+| 只跑一段试 | Project：`segment_start_number = 1`，`segment_count = 1`；确认后再 `2,1` … |
+| `project_save` | 试跑可用 `new` 对比；定稿可 `override` |
+| 工作流串法 | `多轨编辑器 → 多轨提示词增强到项目（可选）→ 多轨项目` |
+
+结构遍 vs 身份遍（勿混用）：
+
+| | 结构遍 | 换脸遍 |
+|--|--------|--------|
+| 视频 | 弱参考 / 可不挂 | **源片，强保运镜** |
+| 典型任务 | t2v / r2v（白膜） | **v2v** |
+| 衔接 | 扫镜多用 context | **context_swap** |
+
+#### 4.5.4 各段用户提示词（可直接粘贴）
+
+每段任务里，该段挂的脸图即为本段的 `<Picture 1>`（段5 为 `<Picture 1>`…`<Picture 4>` 对应 A/B/C/D）。  
+短中文可交给 LLM 扩写，但 **「强保 Video、只换主脸、边缘邻脸不动」不可删**。
+
+**段1（挂 D）**
+
+```text
+Edit the source video. Fully preserve camera truck/pan from right toward left, framing, body pose, clothing, scene, lighting, and music from the source.
+Replace only the face of the primary subject who is mainly framed (the woman currently dominating the close-up) with the face from <Picture 1>.
+Do not keep the source video face identity for that primary subject.
+If a second person begins to appear at the left edge near the end, leave that edge face unchanged; do not replace it with <Picture 1>.
+```
+
+**段2（挂 C）**
+
+```text
+Continue editing the same unbroken source take. Fully preserve the ongoing leftward camera move, framing, body, clothing, scene, lighting, and music from the source.
+Replace only the face of the primary subject now dominating the frame with the face from <Picture 1>.
+Do not keep the source face identity for that primary subject.
+If a remnant of the previous person remains on the right edge at the start, keep that edge face as in the source; do not turn it into <Picture 1>.
+Near the end, if the next person appears only at the left edge, leave that edge face unchanged.
+```
+
+**段3（挂 B）**
+
+```text
+Continue editing the same unbroken source take. Fully preserve the ongoing leftward camera move, framing, body, clothing, scene, lighting, and music from the source.
+Replace only the face of the primary subject now dominating the frame with the face from <Picture 1>.
+Do not keep the source face identity for that primary subject.
+If a remnant of the previous person remains on the right edge at the start, keep that edge face as in the source; do not turn it into <Picture 1>.
+Near the end, if the next person appears only at the left edge, leave that edge face unchanged.
+```
+
+**段4（挂 A）**
+
+```text
+Continue editing the same unbroken source take. Fully preserve the ongoing leftward camera move, framing, body, clothing, scene, lighting, and music from the source.
+Replace only the face of the primary subject now dominating the frame (leftmost woman in the arc) with the face from <Picture 1>.
+Do not keep the source face identity for that primary subject.
+If a remnant of the previous person remains on the right edge at the start, keep that edge face as in the source; do not turn it into <Picture 1>.
+Do not pull back to a wide four-shot in this segment; keep the close-up / near-close framing of the source for this window.
+```
+
+**段5（挂 A、B、C、D 四张）**
+
+```text
+Edit the source video wide ending. Fully preserve the pull-back camera move, the four-woman arc staging, bodies, outfits, warehouse scene, lighting, and music from the source.
+Replace the four faces to match the reference pictures: leftmost <Picture 1> (A), then <Picture 2> (B), <Picture 3> (C), rightmost <Picture 4> (D).
+Do not keep the source face identities. Do not change clothing, poses, or camera path.
+```
+
+中文意图备忘（扩写用，勿只留一句「换成图1」）：
+
+- 保源片运镜/身体/衣服/场景/乐；只换当前主脸。  
+- 画幅边缘邻脸保持源片，不要改成当前 Picture。  
+- 禁止强保源片面部身份。
+
+#### 4.5.5 用 LLM 自动写提示词（可选）
+
+不必手动拷回：可一次排队串进工作流。
+
+```text
+多轨编辑器.TRACKS_INFO
+  → 多轨提示词增强到项目（easy multitrackPromptEnhanceToProject）
+  → TRACKS_INFO（已写回）
+  → 多轨项目
+```
+
+| 项 | 说明 |
+|----|------|
+| 节点 | `easy multitrackPromptEnhanceToProject`（多轨提示词增强到项目） |
+| 本地模型口 | 需另装 **ComfyUI-llama-cpp_vlm**，接其 `llama_cpp_instruct_adv` / Llama-cpp Model Loader |
+| 插件地址 | https://github.com/lihaoyun6/ComfyUI-llama-cpp_vlm |
+| 增强范围 | 「增强到项目」为 **纯文本** 逐段增强；不自动拿视频帧做视觉反推 |
+| 单段增强器 | `easy multiTrackPromptEnhancer` 可接 Task Output 的图/视频，但 **不自动写回**；要全自动写回用「增强到项目」 |
+| Easy-Use | **无**内置 llama.cpp 调用；仅可能注册模型目录 |
+| CZ-Toolkit LLM | 可接 Task Output 的系统/用户 **STRING** 做纯文本扩写；多模态要 `H3_MEDIA_BUNDLE`，与 Task Output 图列表不直接兼容 |
+| 内置系统提示词 | MiniMax 格式下是给 LLM 的写法指南；**MultiTrack Project 直接生成时真正进模型的是用户提示词** |
+
+编辑器里用户提示词可先写短意图，但须含「保运镜、只换主脸、边缘不换」；再交给增强器扩写。
 
 ---
 
@@ -182,15 +321,17 @@ A continuous dark cinematic underscore with low pulses and soft synth pads, stea
 - [ ] 配乐写在 `non_diegetic_music`，贯穿全片  
 - [ ] 0.4MP 单采先跑通；确认本机 15s T2V 稳定  
 
-换脸遍（rv2v）
+换脸遍（Easy-Media v2v，见 §4.5）
 
-- [ ] 源片为结构遍成片  
-- [ ] **按时间窗分段换脸**；不采用整段一次挂 4 脸  
-- [ ] 特写窗只挂当前主脸；广角窗再挂四张  
-- [ ] 人脸图与 A/B/C/D（及扫镜时段）对应正确  
-- [ ] 提示词禁止强保源片面部  
-- [ ] 检查衣服/场景是否被第二遍带跑  
-- [ ] 各窗拼回后检查过渡帧身份是否串脸 
+- [ ] 源片为结构遍成片；视频轨 **锁定**  
+- [ ] 任务类型 **v2v**；衔接全程 **`context_swap`**  
+- [ ] 五段首尾相接无空隙；切点 **偏晚**（下一主已主导，上一人只剩边）  
+- [ ] 段1–4 各只挂一张脸（D→C→B→A）；段5 挂四张  
+- [ ] 不用智能切「一大段特写+全景」；不用整段一次四脸；不用 r2v 弱参考换脸  
+- [ ] 提示词：强保运镜/身体/衣服/场景；只换主脸；边缘邻脸不换；禁止强保源片脸  
+- [ ] 先 `segment_count=1` 跑通段1再往后  
+- [ ] 可选：增强到项目 + [llama-cpp_vlm](https://github.com/lihaoyun6/ComfyUI-llama-cpp_vlm)  
+- [ ] 拼回/成片后检查过渡帧是否串脸、衣服场景是否被带跑  
 
 ---
 
@@ -224,3 +365,5 @@ A continuous dark cinematic underscore with low pulses and soft synth pads, stea
 | 2026-09-07 | 整理本文；主方案定为 15s T2V → rv2v 换脸；用户确认 15s T2V 可跑。 |
 | 2026-09-07 | 纳入结构遍完整英文 T2V 提示词（女性 + 偏性感服装 + 一镜到底）。 |
 | 2026-09-07 | 换脸：整段一次挂 4 脸不可靠；改为按时间窗分段挂脸（特写单脸、广角四脸）。 |
+| 2026-09-08 | 结构遍 T2VA 运镜已通。Easy-Media 换脸踩坑：整段四脸跑不动；短片+r2v/弱参考丢运镜；未锁视频轨/用 context 导致参考乱、段1出全景。 |
+| 2026-09-08 | 定稿 §4.5：v2v + context_swap + 锁视频轨；切点偏晚；段1–4 单脸、段5 四脸；英文提示词；LLM 用增强到项目，依赖 https://github.com/lihaoyun6/ComfyUI-llama-cpp_vlm 。 |
