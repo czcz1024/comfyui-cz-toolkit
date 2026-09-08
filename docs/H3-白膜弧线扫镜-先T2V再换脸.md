@@ -2,7 +2,7 @@
 
 > 目的：记录本需求、已踩坑、工具对比结论，以及当前认定的主方案（先 15s 一镜 T2V 锁结构，再换脸）。  
 > 环境：家用 **4090 24GB / 64GB 内存**；编排曾试 Easy-Media / TimelineDirector / MiniMaxH3 Director。  
-> 记录日期：2026-09-07；换脸实操 §4.5、**mask 路径 SAM2/SAM3 §4.6**、**按人裁段 Video Frame Extractor §4.6.6** 补记 **2026-09-08**。  
+> 记录日期：2026-09-07；换脸实操 §4.5、**mask 路径 §4.6**（SAM2 点选 / SAM3 编号、存 mask、贴回 15s）补记 **2026-09-08**。  
 
 ---
 
@@ -404,7 +404,7 @@ Detect 支持文字 / 框 / **正负点**（坐标格式兼容 KJ Points Editor�
 | 传播方向 | `initial_mask` 对 **输入第 0 帧** 向后跟 | `frame_index` 可在中间帧加点 |
 | 覆盖锚点之前 | 节点无「向前跟」；需 **倒放片段 Track → 再倒回时间轴 → 与正放段拼接** | 可在较早 `frame_index` 补点，或同样倒放 |
 | 手改 | 换锚点重跑 / 问题小段 Detect 合并 / 手改 mask | 链多个 AddPoints 最顺手 |
-| 纯文字 `"face"` | 四人同框易多人；身份仍靠点选更稳 | 同理靠点选 |
+| 纯文字多人 | Track Preview 看 **0/1/2/3** → `object_indices` 选人（§4.6.7） | 无编号选人；靠绿/红点 |
 
 D 开场即正脸：正放一条 Track 通常够。  
 C/B/A：在最清楚帧锚点；要入画段则正放+倒放拼接。
@@ -426,14 +426,24 @@ C/B/A：在最清楚帧锚点；要入画段则正放+倒放拼接。
 | Mask 绘制后写回 batch | 仅少数烂帧 |
 | MaskVid Mask Cleanup | 去噪点，不改正身份 |
 
-#### 4.6.5 两条路径怎么选
+#### 4.6.5 两条出 mask 思路怎么选
+
+当前定稿的两种主用法（可同一短段对比实测）：
+
+| 思路 | 做法 | 你主要操作 |
+|------|------|------------|
+| **1. SAM3 自找 + 填编号** | 文字（如 `head`）→ Video Track → **Track Preview** 看脸上数字 → **Track to Mask** 填 `object_indices`（如 `2`） | 看 Preview、填号 |
+| **2. SAM2 绿点/红点** | Points Editor 绿=要、红=不要 → AddPoints → Segmentation | 点选；中间帧可再补点 |
 
 | 目标 | 建议 |
 |------|------|
-| 只要能跑、少装插件 | **官方 SAM3** |
-| 强调中间帧反复补点纠偏 | **SAM2 + Points Editor** |
+| 少点选、愿意看编号预览 | **SAM3 思路 1** |
+| 中间帧反复纠偏最顺手 | **SAM2 思路 2** |
+| 只要能跑、少装插件 | 官方 SAM3（亦可 Detect/点选，不强制文字） |
 | mask 之后裁切贴回 | 两者都接 **MaskVidExperiments** |
 | 半脸空间绑定 | mask 路径优于纯 Easy-Media 五段 v2v；可与 §4.5 并行试验 |
+
+**实测顺序：** 先只验证 **SAM 半脸跟踪质量**（Draw Mask 扫一遍），再接 MaskVid/生成/贴回。mask 不稳时先别堆后面节点。
 
 #### 4.6.6 按人裁段：Video Frame Extractor（时间轴拖选）
 
@@ -486,6 +496,105 @@ Video Frame Extractor
 ffmpeg -i 原视频.mp4 -c:v libx264 -pix_fmt yuv420p -c:a aac -movflags +faststart 预览用.mp4
 ```
 
+#### 4.6.7 实操定稿：半脸、文字词、15s、存 mask、贴回 master（2026-09-08）
+
+##### 半脸能不能跟到出画
+
+SAM2/SAM3 跟的是「点出来/检出来的物体」，不是人脸检测器。半脸只要还有连续可见区域，**通常能跟到出画**；出画后 mask 变空即可。
+
+易翻车：半脸太碎、贴邻人 → 串号；锚在刚露边 → 一开始就不稳。  
+对策：锚在最清楚大半脸；邻人红点（SAM2）或 Preview 确认编号不跳（SAM3）；半脸帧用 Draw Mask 确认只罩目标半边。
+
+##### 文字写 `face` 还是 `head`
+
+| 提示词 | 通常罩住 | 何时用 |
+|--------|----------|--------|
+| **face** | 五官/脸皮，头发常不全 | 只换脸皮、留源片发型 |
+| **head** / `woman's head` | 脸 + 头发（有时带耳、一点脖子） | **要连发型一起换**（本需求优先） |
+| **person** | 半身/全身，过大 | 换脸一般不用 |
+
+mask 越大，重绘越容易动到领口/背景；发型要换用 `head`，边缘尽量紧。同一帧可对比 `face` vs `head` 再定。
+
+##### SAM3「认出多人 → 填编号」
+
+不是写 “C”，也没有「请点选 C」的专用 UI：
+
+```text
+文字 conditioning（如 head）
+  → Run SAM3 Video Track（max_objects ≥ 4）
+  → SAM3 Track Preview（脸上画 0/1/2/3…）
+  → 看清谁是 C → SAM3 Track to Mask：object_indices 填对应数字（如 2；多对象用 0,2）
+```
+
+编号是跟踪实例号，**不是**从左到右固定 A/B/C/D；扫镜/半脸时可能跳号，以 Preview 为准。  
+Detect 也能出多 mask，但「看号填 `object_indices`」主要挂在 **Track → Preview → Track to Mask**。
+
+##### 一次过 15s？
+
+| 阶段 | 可否一次 15s |
+|------|----------------|
+| **出 mask（Track）** | 若 Preview 四人编号全程稳、半脸不串 → **可以**整段 Track，再按号拆 4 条 mask |
+| **局部重绘 / H3** | **仍分段**；15s×多脸生成显存此前已扛不住，mask 齐了也不等于能一次重绘 |
+
+建议：短段先验证编号稳 → 再拉长到全片 Track → 生成仍按人/时间窗。
+
+##### mask 存盘与再次加载
+
+存（必须是纯黑白 mask，不要存彩色叠加预览）：
+
+```text
+MASK → Mask to Image → Save Image（PNG 序列）
+或 → VHS Video Combine（一条 mask 视频）
+```
+
+用：
+
+```text
+Load Image / Load Image Batch（或 VHS 读序列）
+  → Image to Mask（通道一般用 red 或 luminance）
+  → MaskVid / Noise Mask …
+```
+
+每人一条（D/C/B/A）；文件名带人名与帧范围。重载时 **帧数、顺序、分辨率** 须与源片 IMAGE batch 对齐。
+
+##### 生成短片怎么贴回 15s（重叠半脸）
+
+两套「贴回」勿混用：
+
+| 方式 | 作用 | 重叠半脸 |
+|------|------|----------|
+| **MaskVid Subject Uncrop** | 只把 crop 按 mask 贴回**当前短段帧** | 对：只改半边 |
+| **整段时间轴替换** | 短视频**整帧**盖进 master | 后写的人会盖掉先写的人 |
+
+推荐（已有 KJNodes）：
+
+```text
+master = 完整 15s IMAGE batch
+
+—— D ——
+Get Image or Mask Range From Batch（D 起止）
+  → SAM 跟 D → MaskVid 局部重绘 → Subject Uncrop
+  → Replace Images In Batch（start_index = D 起点）写回 master
+
+—— C（必须从「已含 D」的最新 master 切片）——
+Get Image Range（C 起止）
+  → SAM 跟 C → MaskVid → Uncrop（C mask 只罩 C）
+  → Replace Images In Batch（start_index = C 起点）
+```
+
+重叠区（如 D 0–3s、C 1.5–4s）：先 D 再 C；C 的 Uncrop 不动已换好的 D 半边，再整段写回即可。  
+**错误：** 无 mask 的整帧短片先后 Replace → 第二次盖掉重叠区第一次成果。
+
+秒→帧：`帧号 ≈ 秒 × Original FPS`（与裁段节点 fps 对齐）。  
+顺序固定：**D → C → B → A**（后处理叠在最新 master 上）。
+
+可选：半脸过渡窗单独切一小段，窗内先 D mask 再 C mask，再 **只 Replace 这一窗一次**。
+
+##### 图内 vs 脚本
+
+Comfy 强在模型/采样；按帧切片、写回、对齐等 list 操作官方节点弱，常靠 KJ/VHS。  
+可接受时：**SAM/MaskVid/生成留在图里**；`frames[a:b]` 写回可用几行 Python，减少找扩展成本。
+
 ---
 
 ## 5. 实施检查清单
@@ -512,14 +621,19 @@ ffmpeg -i 原视频.mp4 -c:v libx264 -pix_fmt yuv420p -c:a aac -movflags +fastst
 
 换脸遍 B（SAM mask + MaskVid，见 §4.6）
 
+- [ ] **先只测 SAM mask**（半脸/出画/是否串人），再接生成与贴回  
 - [ ] 结构成片作源；按人裁「出现→消失」再跟踪（勿一次过长）  
 - [ ] 裁段优先用 **Video Frame Extractor** 拖 loop（§4.6.6）；勿依赖 VHS skip/cap 心算  
 - [ ] 预览 code 4 时：先 Queue 看能否出帧，或转 H.264 再预览  
 - [ ] Torch 为 **CUDA** 版（非 `+cpu`）  
-- [ ] 选 SAM2（`segmentor=video`）或官方 SAM3  
-- [ ] Points Editor：锚在该人最清楚帧；没红点不接 negative  
+- [ ] 选思路：SAM3 文字+Preview 编号+`object_indices`，或 SAM2 绿/红点（§4.6.5）  
+- [ ] 要发型用文字 **`head`**；只要脸皮用 `face`（§4.6.7）  
+- [ ] 可选：整段 15s 只出 mask（编号须稳）；**重绘仍按人分段**  
+- [ ] mask 可 `Mask to Image` 存 PNG；用时 `Image to Mask`（帧对齐）  
+- [ ] Points Editor：锚在该人最清楚帧；没红点不接 negative（SAM2）  
 - [ ] Draw Mask On Image 预览；坏帧补点或手改  
 - [ ] MaskVid Cleanup → Crop(zoomed/tracked) → 局部重绘 → Uncrop  
+- [ ] 贴回：KJ Get Range → 处理后 → **Replace Images In Batch**；重叠段 **D→C→B→A** 且从最新 master 切片  
 - [ ] 半脸帧确认 mask 只罩目标半边  
 
 ---
@@ -544,7 +658,7 @@ ffmpeg -i 原视频.mp4 -c:v libx264 -pix_fmt yuv420p -c:a aac -movflags +fastst
 - 结构遍也挂 **弱白膜** 只控机位（若纯 T2V 弧线不够稳）。  
 - 结构遍仍多段 + context（仅当单条 15s 偶发不稳时回退）。  
 - 外部 BGM 锁轨（用户当前明确要 H3 出乐，故不作主方案）。  
-- **身份遍 mask 路径**（§4.6）：SAM2 或官方 SAM3 出脸 mask + MaskVid crop/uncrop + 局部重绘；半脸绑定更强，与 §4.5 Easy-Media v2v 可并行试。  
+- **身份遍 mask 路径**（§4.6）：SAM2 点选或 SAM3 编号选人 + MaskVid crop/uncrop + 局部重绘；半脸绑定更强；可与 §4.5 Easy-Media v2v 并行试。  
 
 ---
 
@@ -560,3 +674,4 @@ ffmpeg -i 原视频.mp4 -c:v libx264 -pix_fmt yuv420p -c:a aac -movflags +fastst
 | 2026-09-08 | §4.5.6：切点身份归属更正——C 入场须归挂 C 的段，不能切晚塞进只挂 D 的段1。 |
 | 2026-09-08 | §4.6：备选 mask 身份遍。SAM2（kijai，models/sam2，中间 AddPoints）与官方 SAM3（Detect+VideoTrack，向前靠倒放拼接）；MaskVid 负责 crop/uncrop；Points Editor / Draw Mask 预览与手改；踩坑：CPU torch、空 negative 接线、Editor 须 Queue 才显示底图。 |
 | 2026-09-08 | §4.6.6：装 [ComfyUI-Video-Frame-Extractor](https://github.com/comfyuiattic-989/ComfyUI-Video-Frame-Extractor) 作按人裁段（胶片条拖 loop）；主输出 Clipped Frames。踩坑：clone 不全缺 `__init__.py`；预览 Error code 4（常见 HEVC，抽帧仍可能可用，要预览转 H.264）。 |
+| 2026-09-08 | §4.6.5/4.6.7：两条出 mask 思路（SAM3 文字+编号 / SAM2 绿红点）；`head` vs `face`；半脸可跟到出画；mask 可 15s 一次、重绘仍分段；Mask↔PNG 存取；KJ GetRange+Replace + Uncrop 顺序贴回（重叠勿整帧互盖）。优先实测 SAM mask 质量。 |
