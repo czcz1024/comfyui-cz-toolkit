@@ -2,7 +2,7 @@
 
 > 目的：记录本需求、已踩坑、工具对比结论，以及当前认定的主方案（先 15s 一镜 T2V 锁结构，再换脸）。  
 > 环境：家用 **4090 24GB / 64GB 内存**；编排曾试 Easy-Media / TimelineDirector / MiniMaxH3 Director。  
-> 记录日期：2026-09-07；换脸实操定稿补记 **2026-09-08**（见 §4.5）。  
+> 记录日期：2026-09-07；换脸实操 §4.5、**mask 路径 SAM2/SAM3 §4.6** 补记 **2026-09-08**。  
 
 ---
 
@@ -179,15 +179,14 @@ A continuous dark cinematic underscore with low pulses and soft synth pads, stea
 
 ```text
 开场 ── 正特写 ── 邻人刚露边 ── 对半 ── 下一主已主导、上一人只剩边 ── 正特写 …
-                                      ↑ 建议切点（偏晚）
-                              ↑ 不要切这里
+                 ↑ 段切点（当前主仍主导）        ↑ 已进入「下一主」时段，归下一段
+                                      ↑ 不要把接缝卡在对半正中
 ```
 
 - **不要**切在两人各一半。  
-- **不要**切在「下一人刚露出一点点」（上一人还很大时挂下一张脸，容易把上一人也换掉）。  
-- **要**切在类似：C 已完整占主导，D 只在右侧剩一条边（用户已确认的示意）。  
-- D→C、C→B、B→A 三段过渡用同一规则。  
-- 时间轴连续铺满，**中间不空一段**；空了反而要补洞。
+- **不要**把「下一主从露边→全脸」放进只挂上一张脸的段（见 §4.5.6）。  
+- 段与段 **首尾相接，中间不留空**。  
+- 示意「C 已完整、D 只剩右边一条」：表示 **已进入挂 C 的时段**，不是段1（D）该收到的地方。
 
 #### 4.5.2 五段：切到哪儿、挂什么图
 
@@ -195,11 +194,11 @@ A continuous dark cinematic underscore with low pulses and soft synth pads, stea
 
 | 段 | 源片裁切（怎么认切点） | 挂参考图 | 任务目标 |
 |----|------------------------|----------|----------|
-| **1** | 从开场 → 到 **C 已占主导、D 只剩右边缘**（含该帧或紧前一帧） | **只挂 D** | 换最右人特写脸 |
-| **2** | 从段1切点 **下一帧接着** → 到 **B 已占主导、C 只剩右边缘** | **只挂 C** | 换第三人特写脸 |
-| **3** | 从段2切点接着 → 到 **A 已占主导、B 只剩右边缘** | **只挂 B** | 换第二人特写脸 |
-| **4** | 从段3切点接着 → 到 **明显开始拉远 / 四人将同框之前**（A 仍为主或刚开始变宽） | **只挂 A** | 换最左人特写脸 |
-| **5** | 从拉远开始 → 片尾（四人同框） | **挂四张：A、B、C、D**（顺序与站位一致更清晰） | 广角四人脸对齐 |
+| **1** | 从开场 → 到 **D 仍明显为主**（C 最多刚露左边一点） | **只挂 D** | 换最右人特写脸 |
+| **2** | 从段1切点接着 → 含 **C 变大至正特写** → 到 **B 刚露边前、C 仍为主** | **只挂 C** | 换第三人特写脸（含入场） |
+| **3** | 从段2切点接着 → 含 B 入场变大 → 到 A 刚露边前 | **只挂 B** | 换第二人特写脸 |
+| **4** | 从段3切点接着 → 含 A 入场 → 到 **明显拉远前** | **只挂 A** | 换最左人特写脸 |
+| **5** | 从拉远开始 → 片尾（四人同框） | **挂四张：A、B、C、D** | 广角四人脸对齐 |
 
 说明：
 
@@ -309,6 +308,131 @@ Do not keep the source face identities. Do not change clothing, poses, or camera
 
 编辑器里用户提示词可先写短意图，但须含「保运镜、只换主脸、边缘不换」；再交给增强器扩写。
 
+### 4.5.6 切点身份归属（2026-09-08 更正）
+
+「切晚到下一主已主导」**不能**当作段1 尾：否则「C 从露边→全脸」会落在只挂 D 的段里，C 会被换成 D 或保持源脸。
+
+更正：
+
+- **段1（D）** 在 **D 仍为主** 时结束（C 最多刚露边）。  
+- **「C 露边→成为主脸」归段2（挂 C）**，或单独 **D+C 双脸过渡段**。  
+- 半脸同框：靠提示「只换主脸 / 边缘不动」，或双脸过渡段写清左 C 右 D。
+
+---
+
+### 4.6 备选身份遍：SAM 出 mask → MaskVid → 局部重绘（2026-09-08）
+
+> 动机：Easy-Media v2v **没有像素级「谁换谁」绑定**，半脸易串。  
+> 思路：对每人跟踪一张脸的 mask → 只在 mask（+稳定 crop）内重绘换脸 → 贴回；mask 外原片不动。  
+> 结构遍 T2VA 仍可保留；本路径替换/加强的是 **身份遍**。
+
+#### 4.6.1 角色分工
+
+| 组件 | 干什么 | 不干什么 |
+|------|--------|----------|
+| **SAM2 或 SAM3** | 点选/跟踪 → 每帧 MASK | 不负责换脸生成 |
+| **KJ Points Editor** | 绿点=要、红点=不要（坐标） | 不是视频跟踪器本身 |
+| **MaskVidExperiments** | Cleanup、Subject Crop/Uncrop、Mask→Latent | **不含** SAM；吃现成 mask |
+| **生成模型**（H3 noise mask 等） | 在 mask 内按人脸参考重绘 | — |
+
+MaskVid 仓库：https://github.com/drozbay/MaskVidExperiments  
+
+运镜里人脸「左小→中大→右小」：用 MaskVid **Subject Crop（优先 zoomed / tracked）**，不是死 bbox。
+
+每人一条 track（出现→消失）；半脸帧各罩各的半边，**先后贴回**，一般不必靠时间线挖空重叠段。
+
+#### 4.6.2 方案 A：Kijai SAM2 视频（中间帧补点方便）
+
+| 项 | 内容 |
+|----|------|
+| 插件 | [ComfyUI-segment-anything-2](https://github.com/kijai/ComfyUI-segment-anything-2) |
+| 模型目录 | `ComfyUI/models/sam2/`（HF：https://huggingface.co/Kijai/sam2-safetensors ） |
+| 4090 建议权重 | **`sam2.1_hiera_base_plus.safetensors`**；跟不稳再升 `large` |
+| Loader | `segmentor` **必须 `video`**（`single_image` 不能接视频节点） |
+| 点选 | KJ **Points Editor**：Shift+左=绿，Shift+右=红 |
+
+推荐接法：
+
+```text
+Load Video.IMAGE ──┬──→ Points Editor.bg_image
+                   └──→ Sam2VideoSegmentationAddPoints.image
+
+(Down)Load SAM2Model (segmentor=video)
+  → AddPoints（positive_coords；有红点再接 negative）
+  → Sam2VideoSegmentation → MASK
+  →（预览）Draw Mask On Image ← 同路 IMAGE
+  → MaskVid Cleanup / Crop → 局部重绘 → Uncrop
+```
+
+要点：
+
+- Points Editor **接线后要 Queue 一次**（或拖图进编辑器）底图才显示；`bg_image` 默认用 batch **第一帧**。  
+- 中间帧点选：抽出该帧给 Editor；AddPoints 仍接整段 IMAGE，`frame_index` = 该帧序号。  
+- **没红点时不要接 `coordinates_negative`**（空列表会触发 concatenate 报错）。  
+- 中间跟错：再挂 AddPoints，接上一次 `prev_inference_state`，改 `frame_index` 补绿/红点，最后再 Segmentation。  
+- 帧数别一次塞几百帧；按人裁「出现→消失」再跟。  
+- 环境须为 **CUDA 版 torch**（本机曾踩坑：`python` 为 `2.7.1+cpu` → `Torch not compiled with CUDA enabled`）。  
+- `IS_CHANGED ... frame_index` 警告可忽略。
+
+#### 4.6.3 方案 B：Comfy 官方 SAM3（自带节点）
+
+| 项 | 内容 |
+|----|------|
+| 位置 | 核心 `comfy_extras/nodes_sam3.py`（无需 Kijai SAM2） |
+| 蓝图 | `blueprints/Video Segmentation (SAM3).json`、`Image Segmentation (SAM3).json` |
+| 权重 | SAM3 / SAM3.1，用 Comfy 模型加载（需本机已放对应 ckpt） |
+| 关键 | **SAM3 Detect**、**Run SAM3 Video Track**、**SAM3 Track Preview**、**SAM3 Track To Mask** |
+
+Detect 支持文字 / 框 / **正负点**（坐标格式兼容 KJ Points Editor）。
+
+推荐接法（以跟准某一人为例）：
+
+```text
+1. 选该人最清楚的一帧（不要半脸刚露边）
+2. Points Editor：绿点其人，红点邻人/背景
+3. SAM3 Detect → 该帧 mask
+4. 以该帧为序列起点的片段 → SAM3 Video Track（initial_mask = 上一步）
+5. Track Preview 检查 → Track To Mask → MaskVid…
+```
+
+与 SAM2 的差异：
+
+| | 官方 SAM3 Video Track | Kijai SAM2 |
+|--|----------------------|------------|
+| 传播方向 | `initial_mask` 对 **输入第 0 帧** 向后跟 | `frame_index` 可在中间帧加点 |
+| 覆盖锚点之前 | 节点无「向前跟」；需 **倒放片段 Track → 再倒回时间轴 → 与正放段拼接** | 可在较早 `frame_index` 补点，或同样倒放 |
+| 手改 | 换锚点重跑 / 问题小段 Detect 合并 / 手改 mask | 链多个 AddPoints 最顺手 |
+| 纯文字 `"face"` | 四人同框易多人；身份仍靠点选更稳 | 同理靠点选 |
+
+D 开场即正脸：正放一条 Track 通常够。  
+C/B/A：在最清楚帧锚点；要入画段则正放+倒放拼接。
+
+#### 4.6.4 预览与人工改 mask
+
+**预览叠原片：**
+
+```text
+原视频 IMAGE + SAM mask → KJ「Draw Mask On Image」（如 color `255, 0, 0, 128`）→ Preview / 导出
+```
+
+**人工介入：**
+
+| 方式 | 适用 |
+|------|------|
+| SAM2：中间帧再 AddPoints（接 prev state） | 跟漂、串邻人 |
+| SAM3：换清楚锚点重跑；或倒放补前半；坏帧手绘/替换 mask batch | 官方链中间加点不如 SAM2 顺 |
+| Mask 绘制后写回 batch | 仅少数烂帧 |
+| MaskVid Mask Cleanup | 去噪点，不改正身份 |
+
+#### 4.6.5 两条路径怎么选
+
+| 目标 | 建议 |
+|------|------|
+| 只要能跑、少装插件 | **官方 SAM3** |
+| 强调中间帧反复补点纠偏 | **SAM2 + Points Editor** |
+| mask 之后裁切贴回 | 两者都接 **MaskVidExperiments** |
+| 半脸空间绑定 | mask 路径优于纯 Easy-Media 五段 v2v；可与 §4.5 并行试验 |
+
 ---
 
 ## 5. 实施检查清单
@@ -321,17 +445,27 @@ Do not keep the source face identities. Do not change clothing, poses, or camera
 - [ ] 配乐写在 `non_diegetic_music`，贯穿全片  
 - [ ] 0.4MP 单采先跑通；确认本机 15s T2V 稳定  
 
-换脸遍（Easy-Media v2v，见 §4.5）
+换脸遍 A（Easy-Media v2v，见 §4.5）
 
 - [ ] 源片为结构遍成片；视频轨 **锁定**  
 - [ ] 任务类型 **v2v**；衔接全程 **`context_swap`**  
-- [ ] 五段首尾相接无空隙；切点 **偏晚**（下一主已主导，上一人只剩边）  
+- [ ] 五段首尾相接无空隙；**C/B/A 入场归挂对应脸的段**（见 §4.5.6）  
 - [ ] 段1–4 各只挂一张脸（D→C→B→A）；段5 挂四张  
 - [ ] 不用智能切「一大段特写+全景」；不用整段一次四脸；不用 r2v 弱参考换脸  
 - [ ] 提示词：强保运镜/身体/衣服/场景；只换主脸；边缘邻脸不换；禁止强保源片脸  
 - [ ] 先 `segment_count=1` 跑通段1再往后  
 - [ ] 可选：增强到项目 + [llama-cpp_vlm](https://github.com/lihaoyun6/ComfyUI-llama-cpp_vlm)  
 - [ ] 拼回/成片后检查过渡帧是否串脸、衣服场景是否被带跑  
+
+换脸遍 B（SAM mask + MaskVid，见 §4.6）
+
+- [ ] 结构成片作源；按人裁「出现→消失」再跟踪（勿一次过长）  
+- [ ] Torch 为 **CUDA** 版（非 `+cpu`）  
+- [ ] 选 SAM2（`segmentor=video`）或官方 SAM3  
+- [ ] Points Editor：锚在该人最清楚帧；没红点不接 negative  
+- [ ] Draw Mask On Image 预览；坏帧补点或手改  
+- [ ] MaskVid Cleanup → Crop(zoomed/tracked) → 局部重绘 → Uncrop  
+- [ ] 半脸帧确认 mask 只罩目标半边  
 
 ---
 
@@ -350,11 +484,12 @@ Do not keep the source face identities. Do not change clothing, poses, or camera
 
 ---
 
-## 7. 后续可选项（未采纳为主路径）
+## 7. 后续可选项（未采纳为主路径 / 并行试验）
 
 - 结构遍也挂 **弱白膜** 只控机位（若纯 T2V 弧线不够稳）。  
 - 结构遍仍多段 + context（仅当单条 15s 偶发不稳时回退）。  
 - 外部 BGM 锁轨（用户当前明确要 H3 出乐，故不作主方案）。  
+- **身份遍 mask 路径**（§4.6）：SAM2 或官方 SAM3 出脸 mask + MaskVid crop/uncrop + 局部重绘；半脸绑定更强，与 §4.5 Easy-Media v2v 可并行试。  
 
 ---
 
@@ -366,4 +501,6 @@ Do not keep the source face identities. Do not change clothing, poses, or camera
 | 2026-09-07 | 纳入结构遍完整英文 T2V 提示词（女性 + 偏性感服装 + 一镜到底）。 |
 | 2026-09-07 | 换脸：整段一次挂 4 脸不可靠；改为按时间窗分段挂脸（特写单脸、广角四脸）。 |
 | 2026-09-08 | 结构遍 T2VA 运镜已通。Easy-Media 换脸踩坑：整段四脸跑不动；短片+r2v/弱参考丢运镜；未锁视频轨/用 context 导致参考乱、段1出全景。 |
-| 2026-09-08 | 定稿 §4.5：v2v + context_swap + 锁视频轨；切点偏晚；段1–4 单脸、段5 四脸；英文提示词；LLM 用增强到项目，依赖 https://github.com/lihaoyun6/ComfyUI-llama-cpp_vlm 。 |
+| 2026-09-08 | 定稿 §4.5：v2v + context_swap + 锁视频轨；段提示词；LLM 增强到项目 + llama-cpp_vlm。 |
+| 2026-09-08 | §4.5.6：切点身份归属更正——C 入场须归挂 C 的段，不能切晚塞进只挂 D 的段1。 |
+| 2026-09-08 | §4.6：备选 mask 身份遍。SAM2（kijai，models/sam2，中间 AddPoints）与官方 SAM3（Detect+VideoTrack，向前靠倒放拼接）；MaskVid 负责 crop/uncrop；Points Editor / Draw Mask 预览与手改；踩坑：CPU torch、空 negative 接线、Editor 须 Queue 才显示底图。 |
