@@ -2,7 +2,7 @@
 
 > 目的：记录本需求、已踩坑、工具对比结论，以及当前认定的主方案（先 15s 一镜 T2V 锁结构，再换脸）。  
 > 环境：家用 **4090 24GB / 64GB 内存**；编排曾试 Easy-Media / TimelineDirector / MiniMaxH3 Director。  
-> 记录日期：2026-09-07；换脸实操 §4.5、**mask 路径 SAM2/SAM3 §4.6** 补记 **2026-09-08**。  
+> 记录日期：2026-09-07；换脸实操 §4.5、**mask 路径 SAM2/SAM3 §4.6**、**按人裁段 Video Frame Extractor §4.6.6** 补记 **2026-09-08**。  
 
 ---
 
@@ -333,9 +333,11 @@ Do not keep the source face identities. Do not change clothing, poses, or camera
 | **SAM2 或 SAM3** | 点选/跟踪 → 每帧 MASK | 不负责换脸生成 |
 | **KJ Points Editor** | 绿点=要、红点=不要（坐标） | 不是视频跟踪器本身 |
 | **MaskVidExperiments** | Cleanup、Subject Crop/Uncrop、Mask→Latent | **不含** SAM；吃现成 mask |
+| **Video Frame Extractor** | 节点内时间轴拖选起止 → 输出帧 batch | 替代 VHS 拧 `skip`/`frame_load_cap`；见 §4.6.6 |
 | **生成模型**（H3 noise mask 等） | 在 mask 内按人脸参考重绘 | — |
 
 MaskVid 仓库：https://github.com/drozbay/MaskVidExperiments  
+按人裁段（推荐）：[ComfyUI-Video-Frame-Extractor](https://github.com/comfyuiattic-989/ComfyUI-Video-Frame-Extractor)（§4.6.6）
 
 运镜里人脸「左小→中大→右小」：用 MaskVid **Subject Crop（优先 zoomed / tracked）**，不是死 bbox。
 
@@ -370,7 +372,7 @@ Load Video.IMAGE ──┬──→ Points Editor.bg_image
 - 中间帧点选：抽出该帧给 Editor；AddPoints 仍接整段 IMAGE，`frame_index` = 该帧序号。  
 - **没红点时不要接 `coordinates_negative`**（空列表会触发 concatenate 报错）。  
 - 中间跟错：再挂 AddPoints，接上一次 `prev_inference_state`，改 `frame_index` 补绿/红点，最后再 Segmentation。  
-- 帧数别一次塞几百帧；按人裁「出现→消失」再跟。  
+- 帧数别一次塞几百帧；按人裁「出现→消失」再跟（推荐 §4.6.6 Video Frame Extractor）。  
 - 环境须为 **CUDA 版 torch**（本机曾踩坑：`python` 为 `2.7.1+cpu` → `Torch not compiled with CUDA enabled`）。  
 - `IS_CHANGED ... frame_index` 警告可忽略。
 
@@ -433,6 +435,57 @@ C/B/A：在最清楚帧锚点；要入画段则正放+倒放拼接。
 | mask 之后裁切贴回 | 两者都接 **MaskVidExperiments** |
 | 半脸空间绑定 | mask 路径优于纯 Easy-Media 五段 v2v；可与 §4.5 并行试验 |
 
+#### 4.6.6 按人裁段：Video Frame Extractor（时间轴拖选）
+
+> 动机：mask/SAM 不要一次塞满 15s；每人只裁「出现→消失」。VHS 的 `skip_first_frames` + `frame_load_cap` 能裁但不直观。  
+> 用途：在节点图里用胶片条 + loop 手柄看画面、拖起止，再把帧 batch 送给 SAM / MaskVid。
+
+| 项 | 内容 |
+|----|------|
+| 插件 | [ComfyUI-Video-Frame-Extractor](https://github.com/comfyuiattic-989/ComfyUI-Video-Frame-Extractor) |
+| 本机路径 | `custom_nodes/ComfyUI-Video-Frame-Extractor/` |
+| 安装 | `git clone` 到 `custom_nodes` → 用 **Aki 自带 python** `pip install -r requirements.txt` → 重启 |
+| 视频放置 | `ComfyUI/input/`，或节点上 **Choose Video to Upload** |
+| 菜单 | Add Node → **video** → Video Frame Extractor |
+
+**Clone 注意：** 目录里必须有 `__init__.py`、`video_frame_extractor.py`、`web/`。若只有 `.git`、Comfy 报 `No such file or directory: ...\__init__.py`，说明 clone 不完整，删目录后重新 clone。
+
+推荐接法（mask 前）：
+
+```text
+Video Frame Extractor
+  → Clipped Frames ──→ Points Editor / SAM2|SAM3 / MaskVid…
+  （可选）Original FPS / Target FPS ──→ 下游需对齐帧率时再用
+```
+
+**输出含义（日常主用第一个）：**
+
+| 输出 | 含义 |
+|------|------|
+| **Clipped Frames** | loop 起止间的帧 batch（原片顺序）→ **接 SAM/MaskVid 的主输出** |
+| Reversed Clipped Frames | 同上倒序（乒乓/倒放；正放跟踪一般不用） |
+| First / Last Frame | loop 首尾单帧（预览或单帧 Detect 锚点） |
+| Filename Prefix | 无扩展名文件名（给 Save 前缀） |
+| Width / Height / Original FPS | 源片元数据 |
+| Clipped Frames at Target FPS | 按节点 `target_fps` 重采样后的帧批 |
+| Target FPS | 把目标帧率传给下游 |
+
+**操作：** 拖 indigo loop 左右手柄定起止；可拖 loop 整体平移；胶片条滚轮缩放、Shift+滚轮平移。每人一段（D/C/B/A），Queue 出 `Clipped Frames` 再进跟踪。
+
+**踩坑（2026-09-08）：**
+
+| 现象 | 说明 / 处理 |
+|------|-------------|
+| 预览 **Video error / Format not supported / Error code 4** | 浏览器 `<video>` 播不了（常见 **H.265/HEVC**）。胶片条若已有缩略图，多半仍可 Queue 抽帧；要预览则 ffmpeg 转 **H.264 + yuv420p** |
+| 与 VHS 对比 | 本节点直观拖选；Easy-Media 多轨拖边亦可裁，适合已在多轨里混的流程 |
+| 底部 `high memory use` | loop 越长峰值估算越高；按人短裁即可压内存 |
+
+转 H.264 示例（预览用）：
+
+```bat
+ffmpeg -i 原视频.mp4 -c:v libx264 -pix_fmt yuv420p -c:a aac -movflags +faststart 预览用.mp4
+```
+
 ---
 
 ## 5. 实施检查清单
@@ -460,6 +513,8 @@ C/B/A：在最清楚帧锚点；要入画段则正放+倒放拼接。
 换脸遍 B（SAM mask + MaskVid，见 §4.6）
 
 - [ ] 结构成片作源；按人裁「出现→消失」再跟踪（勿一次过长）  
+- [ ] 裁段优先用 **Video Frame Extractor** 拖 loop（§4.6.6）；勿依赖 VHS skip/cap 心算  
+- [ ] 预览 code 4 时：先 Queue 看能否出帧，或转 H.264 再预览  
 - [ ] Torch 为 **CUDA** 版（非 `+cpu`）  
 - [ ] 选 SAM2（`segmentor=video`）或官方 SAM3  
 - [ ] Points Editor：锚在该人最清楚帧；没红点不接 negative  
@@ -504,3 +559,4 @@ C/B/A：在最清楚帧锚点；要入画段则正放+倒放拼接。
 | 2026-09-08 | 定稿 §4.5：v2v + context_swap + 锁视频轨；段提示词；LLM 增强到项目 + llama-cpp_vlm。 |
 | 2026-09-08 | §4.5.6：切点身份归属更正——C 入场须归挂 C 的段，不能切晚塞进只挂 D 的段1。 |
 | 2026-09-08 | §4.6：备选 mask 身份遍。SAM2（kijai，models/sam2，中间 AddPoints）与官方 SAM3（Detect+VideoTrack，向前靠倒放拼接）；MaskVid 负责 crop/uncrop；Points Editor / Draw Mask 预览与手改；踩坑：CPU torch、空 negative 接线、Editor 须 Queue 才显示底图。 |
+| 2026-09-08 | §4.6.6：装 [ComfyUI-Video-Frame-Extractor](https://github.com/comfyuiattic-989/ComfyUI-Video-Frame-Extractor) 作按人裁段（胶片条拖 loop）；主输出 Clipped Frames。踩坑：clone 不全缺 `__init__.py`；预览 Error code 4（常见 HEVC，抽帧仍可能可用，要预览转 H.264）。 |
