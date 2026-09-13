@@ -26,6 +26,22 @@ except Exception:
     llama_cpp = None
     Llama = None
 
+# LoRA 适配器释放安全补丁：修复 fork 版 llama_cpp 在 unload/__del__ 时的
+# double-free / 悬垂指针访问违例（qwen3.6 + GGUF LoRA 生成场景）。
+# 详见 cz_llama_shim.py；仅打内存补丁，不改动 llama_cpp 包文件。
+try:
+    from cz_llama_shim import _install_llama_cleanup_shim
+except Exception:
+    try:
+        from .cz_llama_shim import _install_llama_cleanup_shim
+    except Exception:
+        _install_llama_cleanup_shim = None
+if _install_llama_cleanup_shim is not None:
+    try:
+        _install_llama_cleanup_shim()
+    except Exception:
+        pass
+
 try:
     from llama_cpp.llama_chat_format import (
         Llava15ChatHandler, Llava16ChatHandler, MoondreamChatHandler,
