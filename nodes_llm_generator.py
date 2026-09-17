@@ -71,7 +71,7 @@ def _resolve_answer_tokens(kwargs):
 
 def _estimate_output_tokens(handle, answer_tokens, thinking_budget_tokens):
     answer_tokens = int(answer_tokens)
-    if not mu.qwen38_thinking_active(handle):
+    if not mu.thinking_active(handle):
         return answer_tokens
     thinking_budget_tokens = int(thinking_budget_tokens)
     if thinking_budget_tokens < 0:
@@ -186,7 +186,11 @@ class LLMGenerator:
                         "min": -1,
                         "max": 8192,
                         "step": 64,
-                        "tooltip": "仅 Qwen3.8 且加载器开启思考模式时生效。≥0 为思考单独预算（推荐 512~2048）；-1=与最终答案共用上限，容易把 token 全耗在思考上，看起来像卡住。",
+                        "tooltip": (
+                            "加载器开启思考模式时生效（Qwen3.8/3.5/3.6/3-VL 等）。"
+                            "≥0 为思考单独预算（推荐 512~2048）；"
+                            "-1=与最终答案共用上限，容易把 token 全耗在思考上，看起来像卡住。"
+                        ),
                     },
                 ),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647, "tooltip": "随机种子，配合右键菜单控制每次是否随机"}),
@@ -242,7 +246,7 @@ class LLMGenerator:
 
         system_content = 系统提示词.strip() if 系统提示词 else ""
         bundle = 多模态素材 if isinstance(多模态素材, dict) else None
-        thinking_active = mu.qwen38_thinking_active(模型句柄)
+        thinking_active = mu.thinking_active(模型句柄)
         separate_thinking_budget = thinking_active and int(思考预算token) >= 0
 
         if bundle and _is_h3_lora_user_message(用户消息):
@@ -327,10 +331,11 @@ class LLMGenerator:
                 thinking_budget + answer_budget + _REASONING_BUDGET_OVERHEAD
             )
             gen_kwargs["reasoning_budget"] = thinking_budget
+            # Qwen3.x / 3-VL 模板在 prompt 里预填 <think>，需告知 sampler
             gen_kwargs["reasoning_start_in_prompt"] = True
             gen_kwargs["reasoning_budget_message"] = _REASONING_BUDGET_MESSAGE
             print(
-                f"[CZ-Toolkit] LLMGenerator：Qwen3.8 思考预算={thinking_budget}，"
+                f"[CZ-Toolkit] LLMGenerator：思考预算={thinking_budget}，"
                 f"最终答案上限={answer_budget}，API max_tokens={gen_kwargs['max_tokens']}"
             )
         else:
@@ -369,11 +374,19 @@ class LLMGenerator:
 
         text = _strip_thinking(raw, require_complete=thinking_active and not separate_thinking_budget)
 
-        if thinking_active and separate_thinking_budget and not text:
-            raise RuntimeError(
-                "思考已结束，但未解析到最终提示词文本。"
-                "请增大「最终答案token」，或检查系统提示词是否要求只输出最终内容。"
-            )
+        if thinking_active:
+            # 模板常在 prompt 预填 <think>，流式结果里可能看不到开标签；
+            # 若既无开也无闭，说明 token 全耗在思考上，不能把半截思考当最终答案。
+            if raw and (_THINK_CLOSE not in raw) and (_THINK_OPEN not in raw):
+                raise RuntimeError(
+                    "模型思考未正常结束（未见闭合思考标签），最终提示词未生成。"
+                    "请增大「思考预算token」或「最终答案token」，或暂时关闭思考模式。"
+                )
+            if separate_thinking_budget and not text:
+                raise RuntimeError(
+                    "思考已结束，但未解析到最终提示词文本。"
+                    "请增大「最终答案token」，或检查系统提示词是否要求只输出最终内容。"
+                )
 
         if auto_unload:
             mu.unload()

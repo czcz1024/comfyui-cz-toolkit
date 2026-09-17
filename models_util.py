@@ -171,7 +171,9 @@ VRAM_TOOLTIP = (
     "请为 ComfyUI、mmproj 和上下文缓存预留约 2GB。"
 )
 THINK_MODE_TOOLTIP = (
-    "开启后模型会先输出思考过程（仅 Thinking 系列 / Qwen3.8 有效）。"
+    "开启后模型会先输出思考过程，再写最终答案。"
+    "对 Qwen3.8 / 3.5 / 3.6 / 3-VL，以及 MiniCPM-v4.5、Gemma4、GLM-4.xV 等支持思考的处理器生效；"
+    "生成节点会按「思考预算token」截断思考，并只把最终答案写入「生成文本」。"
     "Qwen3.8 还须把「Qwen3.8推理强度」设为低/中等/高/自动，两者同时开才会思考。"
     "官方 H3 LoRA 改写请关闭。"
 )
@@ -179,11 +181,24 @@ QWEN38_REASONING_TOOLTIP = (
     "仅 Qwen3.8 生效。关闭=不思考；自动/高=模型最高档（xhigh）；低/中等=降低思考强度。"
     "要真正思考，还须打开「思考模式」。改此参数会重新加载模型。"
 )
-_QWEN_KV_CLEAR_HANDLERS = {
-    "Qwen3.8", "Qwen3.5", "Qwen3.5-Thinking",
+# 支持「思考模式」开关 + 生成侧预算/剥离的对话处理器
+_THINKING_HANDLERS = frozenset({
+    "Qwen3.8",
+    "Qwen3.5", "Qwen3.5-Thinking",
     "Qwen3.6", "Qwen3.6-Thinking",
     "Qwen3-VL", "Qwen3-VL-Thinking",
-}
+    "MiniCPM-v4.5", "MiniCPM-v4.5-Thinking",
+    "Gemma4",
+    "GLM-4.6V", "GLM-4.6V-Thinking", "GLM-4.1V-Thinking",
+})
+# 纯文本（无 mmproj）时需用 GGUF Jinja 模板注入 enable_thinking / force_reasoning
+_TEXT_THINKING_JINJA_HANDLERS = frozenset({
+    "Qwen3.8",
+    "Qwen3.5", "Qwen3.5-Thinking",
+    "Qwen3.6", "Qwen3.6-Thinking",
+    "Qwen3-VL", "Qwen3-VL-Thinking",
+})
+_QWEN_KV_CLEAR_HANDLERS = set(_TEXT_THINKING_JINJA_HANDLERS)
 
 
 def _ensure_cz_llm_folder():
@@ -263,13 +278,25 @@ def _normalize_handler_name(handler_name):
     return "Qwen3.8" if handler_name == "Qwen3-8B" else handler_name
 
 
-def qwen38_thinking_active(handle):
-    """Qwen3.8 且思考模式与推理强度均已开启。"""
-    if _normalize_handler_name(handle.get("handler_name", "None")) != "Qwen3.8":
+def handler_supports_thinking(handler_name):
+    return _normalize_handler_name(handler_name) in _THINKING_HANDLERS
+
+
+def thinking_active(handle):
+    """当前句柄是否应开启思考（模板注入 + 生成预算/剥离）。"""
+    handler = _normalize_handler_name(handle.get("handler_name", "None"))
+    if handler not in _THINKING_HANDLERS:
         return False
     if not handle.get("think_mode", False):
         return False
-    return normalize_qwen38_reasoning_effort(handle.get("reasoning_effort", "off")) != "off"
+    # Qwen3.8 额外要求「推理强度」非关闭
+    if handler == "Qwen3.8":
+        return normalize_qwen38_reasoning_effort(handle.get("reasoning_effort", "off")) != "off"
+    return True
+
+
+# 兼容旧调用名
+qwen38_thinking_active = thinking_active
 
 
 # ── 模块级缓存 ────────────────────────────────────────────────────────────────
@@ -548,13 +575,24 @@ def _create_qwen38_mm_handler(
     raise last_error or RuntimeError("创建 Qwen3.8 多模态处理器失败。")
 
 
-def _create_qwen38_text_handler(llm, *, enable_thinking, preserve_thinking, reasoning_effort):
+def _create_thinking_text_handler(
+    llm,
+    *,
+    enable_thinking,
+    preserve_thinking=False,
+    reasoning_effort=None,
+    force_reasoning=None,
+    handler_label="Qwen",
+):
+    """纯文本路径：用 GGUF 自带 Jinja 模板注入思考开关（无 mmproj 时 chat_handler 本为 None）。"""
     if Jinja2ChatFormatter is None or chat_formatter_to_chat_completion_handler is None:
-        raise RuntimeError("当前 llama-cpp-python 不支持 Qwen3.8 聊天模板，请升级 llama-cpp-python。")
+        raise RuntimeError(
+            f"当前 llama-cpp-python 不支持 {handler_label} 聊天模板，请升级 llama-cpp-python。"
+        )
     metadata = getattr(llm, "metadata", {}) or {}
     chat_template = metadata.get("tokenizer.chat_template")
     if not chat_template:
-        raise RuntimeError("Qwen3.8 GGUF 缺少 tokenizer.chat_template。")
+        raise RuntimeError(f"{handler_label} GGUF 缺少 tokenizer.chat_template。")
     model = getattr(llm, "_model", None)
 
     def token_text(token_id):
@@ -574,15 +612,20 @@ def _create_qwen38_text_handler(llm, *, enable_thinking, preserve_thinking, reas
         stop_token_ids=stop_token_ids,
     )
 
-    def qwen38_formatter(*, messages, **kwargs):
-        kwargs.update(
-            enable_thinking=enable_thinking,
-            preserve_thinking=preserve_thinking,
-            reasoning_effort=reasoning_effort,
-        )
+    template_kwargs = {
+        "enable_thinking": bool(enable_thinking),
+        "preserve_thinking": bool(preserve_thinking),
+    }
+    if reasoning_effort is not None:
+        template_kwargs["reasoning_effort"] = reasoning_effort
+    if force_reasoning is not None:
+        template_kwargs["force_reasoning"] = bool(force_reasoning)
+
+    def thinking_formatter(*, messages, **kwargs):
+        kwargs.update(template_kwargs)
         return formatter(messages=messages, **kwargs)
 
-    return chat_formatter_to_chat_completion_handler(qwen38_formatter)
+    return chat_formatter_to_chat_completion_handler(thinking_formatter)
 
 
 def build_chat_handler(handler_name, mmproj_path, think_mode, img_min, img_max):
@@ -606,6 +649,7 @@ def build_chat_handler(handler_name, mmproj_path, think_mode, img_min, img_max):
         ch = Qwen25VLChatHandler(**kwargs)
     elif handler_name in ("Qwen3.6", "Qwen3.6-Thinking", "Qwen3.5", "Qwen3.5-Thinking"):
         # Qwen3.6 在 llama-cpp-python 中未单独立 handler，官方映射 qwen3.6 -> Qwen35ChatHandler
+        # 注意：Qwen35ChatHandler 默认 enable_thinking=True，必须显式传入
         handler_cls = Qwen36ChatHandler or Qwen35ChatHandler
         if handler_cls is None:
             raise RuntimeError("Qwen36/Qwen35ChatHandler 未找到，请升级 llama-cpp-python")
@@ -947,14 +991,15 @@ def load_model(handle, *, use_mmproj=True):
                   "「权重scale」将被忽略。升级到支持 load_lora 的版本可启用 per-call scale。")
 
     llm = None
+    enable_thinking = False
     try:
         llm = Llama(**kwargs)
+        enable_thinking = thinking_active(handle)
 
         if handler_name == "Qwen3.8":
             chat_template = (getattr(llm, "metadata", {}) or {}).get("tokenizer.chat_template")
             if not chat_template:
                 raise RuntimeError("Qwen3.8 GGUF 缺少 tokenizer.chat_template。")
-            enable_thinking = think_mode and reasoning_effort != "off"
             if mmproj_path:
                 chat_handler = _create_qwen38_mm_handler(
                     mmproj_path,
@@ -966,12 +1011,24 @@ def load_model(handle, *, use_mmproj=True):
                     image_max_tokens=img_max,
                 )
             else:
-                chat_handler = _create_qwen38_text_handler(
+                chat_handler = _create_thinking_text_handler(
                     llm,
                     enable_thinking=enable_thinking,
                     preserve_thinking=False,
                     reasoning_effort=reasoning_effort,
+                    force_reasoning=enable_thinking,
+                    handler_label="Qwen3.8",
                 )
+            llm.chat_handler = chat_handler
+        elif chat_handler is None and handler_name in _TEXT_THINKING_JINJA_HANDLERS:
+            # 纯文本 Qwen3.5/3.6/3-VL：默认 GGUF 模板常默认开思考，必须注入开关
+            chat_handler = _create_thinking_text_handler(
+                llm,
+                enable_thinking=enable_thinking,
+                preserve_thinking=False,
+                force_reasoning=enable_thinking,
+                handler_label=handler_name,
+            )
             llm.chat_handler = chat_handler
 
         # MTMD 提前初始化（与 Dapao 一致），避免缓存无效处理器
@@ -1018,8 +1075,10 @@ def load_model(handle, *, use_mmproj=True):
     CACHE.config = key
     CACHE.lora_active = lora_active
     extra = ""
-    if handler_name == "Qwen3.8":
-        extra = f"  handler=Qwen3.8  think={think_mode}  reasoning={reasoning_effort}"
+    if handler_name in _THINKING_HANDLERS:
+        extra = f"  handler={handler_name}  think={enable_thinking}"
+        if handler_name == "Qwen3.8":
+            extra += f"  reasoning={reasoning_effort}"
     mm_note = f"  mmproj={mmproj_file}"
     print(f"[CZ-Toolkit] 模型已加载: {model_file}  n_gpu_layers={n_gpu_layers}{mm_note}{extra}")
     return llm
