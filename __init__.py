@@ -10,6 +10,7 @@ from .nodes_prompt_selector import PromptSelector, _scan_prompts, _NONE
 from .nodes_music3_prompt_builder import Music3PromptBuilder
 from .nodes_music3_output_parser import Music3OutputParser
 from .nodes_h3_prompt_formatter import H3PromptFormatter
+from .nodes_quantfunc_lora import QuantFuncLoRAStackLoader, QuantFuncLoRAConvert
 
 from aiohttp import web
 import server
@@ -53,6 +54,8 @@ _LEGACY_NODE_CLASS_MAPPINGS = {
     node_id("Music3PromptBuilder"): Music3PromptBuilder,
     node_id("Music3OutputParser"): Music3OutputParser,
     node_id("H3PromptFormatter"): H3PromptFormatter,
+    node_id("QuantFuncLoRAStackLoader"): QuantFuncLoRAStackLoader,
+    node_id("QuantFuncLoRAConvert"): QuantFuncLoRAConvert,
 }
 
 _LEGACY_DISPLAY_NAME_MAPPINGS = {
@@ -69,6 +72,8 @@ _LEGACY_DISPLAY_NAME_MAPPINGS = {
     node_id("Music3PromptBuilder"): "Music3 提示词包装（选择题节奏向导）",
     node_id("Music3OutputParser"): "Music3 输出解析（Caption+Lyrics）",
     node_id("H3PromptFormatter"): "H3 提示词排版台",
+    node_id("QuantFuncLoRAStackLoader"): "QuantFunc LoRA 批处理(自动转换)",
+    node_id("QuantFuncLoRAConvert"): "QuantFunc LoRA 单文件(自动转换)",
 }
 
 WEB_DIRECTORY = "./web"
