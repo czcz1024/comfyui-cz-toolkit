@@ -312,7 +312,14 @@ def _base_choices():
 
 
 def _resolve_checkpoint(name):
-    """把底模名 / 相对路径 / 绝对路径解析成真实文件。兼容 diffusion_models 与 unet 两种注册目录。"""
+    """把底模名 / 相对路径 / 绝对路径解析成真实文件。兼容 diffusion_models 与 unet 两种注册目录。
+
+    容错：旧工作流的 widget 错位可能把布尔等脏值（如 True）塞进来，这里一律当作「未指定底模」
+    而不是抛异常——底模只是 kohya 转换的加分项，不该因为一个下拉值让整个节点跑不起来。
+    """
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
     if not name or name == "None":
         return None
     if os.path.isfile(name):
@@ -344,10 +351,15 @@ class QuantFuncLoRAStackLoader:
                 "lora_stack": ("LORA_STACK",),
                 "lora_syntax": ("STRING", {"multiline": True, "default": "",
                                            "placeholder": "<lora:名称:权重>  每行一个，# 开头为注释"}),
+                "幂等跳过": ("BOOLEAN", {"default": True}),
+                # ⚠ base_model 必须排在末尾，不要往中间挪。
+                # ComfyUI 工作流里 widgets_values 是「按位置」存的数组，往 widget 列表中间插入新项
+                # 会让旧工作流的值整体错位——曾把「幂等跳过」的布尔 True 顶到底模下拉上，
+                # 前端报 "Value not in list: base_model: True not in (...)" 并整条 prompt 被拒。
+                # 放末尾则旧值各就各位，缺失的 base_model 自动走默认 "None"，旧工作流自愈。
                 "base_model": (_base_choices(), {"default": "None",
                                    "tooltip": "kohya 格式 LoRA 转换所需的底模（真实 checkpoint）。"
                                               "不传会退回内置词表，H3 等新架构会猜错模块名导致 no-module 报错。"}),
-                "幂等跳过": ("BOOLEAN", {"default": True}),
             },
         }
 

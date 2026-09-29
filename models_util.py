@@ -1123,6 +1123,99 @@ def clear_kv_cache(llm, handler_name):
         pass
 
 
+def _get_quantfunc_canonical_resource_adapters_fn(engine=None):
+    """取 QuantFunc 的 canonical_resource_adapters（把原生资源 entry 转成 QFNativeResourcePatcher）。
+
+    优先按「引擎类所在模块」精确解析（engine 给出时）：type(engine).__module__ 就是定义
+    QFLazyEngine 的那个模块，也就是 canonical_resource_adapters 所在的模块。
+    找不到再按模块名特征窄范围兜底扫（只认名字含 qf_modelpatcher / quantfunc 的模块）。
+
+    注意：不要全量扫 sys.modules 找同名函数——那样会误命中任何恰好定义了这些名字的模块
+    （包括 __main__），把无关函数当 QuantFunc 内部实现调用。
+    不硬依赖 QuantFunc：没装或没加载就返回 None，调用方据此跳过。
+    """
+    if engine is not None:
+        mod = sys.modules.get(getattr(type(engine), "__module__", None))
+        cra = getattr(mod, "canonical_resource_adapters", None)
+        if callable(cra):
+            return cra
+    for name, mod in sys.modules.items():
+        if not name or mod is None:
+            continue
+        lower = name.lower()
+        if "qf_modelpatcher" not in lower and "quantfunc" not in lower:
+            continue
+        cra = getattr(mod, "canonical_resource_adapters", None)
+        if callable(cra):
+            return cra
+    return None
+
+
+def _collect_quantfunc_engines():
+    """从当前加载列表里挑出 QuantFunc 原生引擎（QFModel._qf），没有就返回空列表。
+
+    纯普通模型（SD/Flux/Krea2 等）的工作流里一个都挑不出来，返回 []——调用方据此直接收工，
+    不做任何 QuantFunc 相关解析，普通模型不该为此付出任何开销或风险。
+    """
+    try:
+        loaded = list(mm.current_loaded_models)
+    except Exception:
+        return []
+    engines = []
+    for item in loaded:
+        # LoadedModel.model → QFModelPatcher → .model → QFModel → ._qf → QFLazyEngine
+        patcher = getattr(item, "model", None)
+        if patcher is None:
+            continue
+        model = getattr(patcher, "model", None)
+        if model is None:
+            continue
+        engine = getattr(model, "_qf", None)
+        if engine is not None:
+            engines.append(engine)
+    return engines
+
+
+def _release_quantfunc_engines():
+    """强制释放 QuantFunc 原生引擎占用的显存/内存（有就放，没有就静默跳过）。
+
+    ComfyUI 的 unload_all_models() 只 detach 逻辑层 QFModelPatcher（torch 外壳，几乎为空），
+    真正的权重在 C++ native lazy engine 缓存里，不在 Comfy 的 VRAM 账本上。唯一真正释放
+    native VRAM/RAM 的路径是 QFNativeResourcePatcher.detach(unpatch_all=True) → native release_all()。
+    这里手动走 QuantFunc 自己 _native_dependencies 用的同一条链路：
+        engine.prepare_resource()[0] → canonical_resource_adapters(entry) → 各 dependency.detach(unpatch_all=True)
+
+    兼容性约定（必须守住）：这是「锦上添花」的辅助清理，任何情况下都不得抛异常、不得干扰主流程。
+      * 工作流里没有 QuantFunc 模型（纯普通模型）→ 静默返回，零副作用；
+      * 装了模型但没装 QuantFunc 插件 / 内部实现拿不到 → 静默返回；
+      * 引擎 BUSY / 不支持 release_all / 任何其它异常 → 吞掉，只打印一行提示。
+    """
+    try:
+        engines = _collect_quantfunc_engines()
+        if not engines:
+            return          # 没有 QuantFunc 模型（纯普通模型工作流），静默收工
+        cra = _get_quantfunc_canonical_resource_adapters_fn(engines[0])
+        if cra is None:
+            return          # QuantFunc 没装或内部实现不可用，静默收工
+        released = 0
+        for engine in engines:
+            try:
+                entry = engine.prepare_resource()[0]
+                for dependency in cra(entry):
+                    try:
+                        dependency.detach(unpatch_all=True)
+                        released += 1
+                    except Exception as e:
+                        print(f"[CZ-Toolkit] QuantFunc 原生资源 detach 跳过：{e}")
+            except Exception as e:
+                print(f"[CZ-Toolkit] 释放 QuantFunc 引擎跳过（可能仍占用或引擎不支持）：{e}")
+        if released:
+            print(f"[CZ-Toolkit] 已强制释放 {released} 个 QuantFunc 原生资源（显存/内存）")
+    except Exception as e:
+        # 兜底：辅助清理绝不能把主流程（LLM 加载/卸载）带崩
+        print(f"[CZ-Toolkit] 释放 QuantFunc 资源时跳过（不影响其它清理）：{e}")
+
+
 def release_comfy_models_if_needed(*, enabled, threshold_gb):
     """LLM 加载前按需卸掉 Comfy 生图/视频模型。llama.cpp 不走 Comfy 调度，显存不够时不会自动腾位。
     enabled 关闭则什么都不做。threshold_gb < 0：只要开关开就卸；≥0：空闲显存低于该 GB 才卸。
@@ -1143,6 +1236,11 @@ def release_comfy_models_if_needed(*, enabled, threshold_gb):
                 "跳过释放 Comfy 模型"
             )
             return
+    # 顺序关键：必须先释放 QuantFunc 原生引擎，再 unload_all_models()。
+    # unload_all_models → free_memory 会把 current_loaded_models 里的项 pop 掉，
+    # 之后再遍历就只剩空列表，拿不到引擎了。
+    # Comfy 的 unload 只碰 torch 外壳，QuantFunc 的权重在 native 引擎里，得单独走 release_all。
+    _release_quantfunc_engines()
     try:
         mm.unload_all_models()
         mm.soft_empty_cache()
@@ -1162,6 +1260,8 @@ def unload():
         mm.soft_empty_cache()
     except Exception:
         pass
+    # 同 release_comfy_models_if_needed：QuantFunc 的权重只在 native 引擎里，torch 侧回收不到
+    _release_quantfunc_engines()
     gc.collect()
 
 
